@@ -37,7 +37,8 @@ def get_current_roster(teams_dict):
         # print rows
     # for some reason this is not getting the actual team page
     url = urllib2.urlopen('http://www.basketball-reference.com/teams/MIL/2015.html')
-    soup = BeautifulSoup(url)
+    # we have to use the html5lib parser, as some elements were not showing up fully
+    soup = BeautifulSoup(url, 'html5lib')
 
     # table = soup.find('div', attrs={'id': 'all_roster'})
     print soup
