@@ -25,7 +25,7 @@ def get_active_teams():
         for link in links:
             print 'Getting team information'
             team_link = link.get('href')
-            team = team_link.split('/')[2]
+            team = str(team_link.split('/')[2])
 
             if team == 'NJN':
                 team = 'BRK'
@@ -37,13 +37,15 @@ def get_active_teams():
                 team = 'NOP'
                 team_url = '/teams/NOP/' + YEAR + '.html'
             else:
-                team_url = link.get('href') + YEAR + '.html'
+                team_url = str(link.get('href')) + YEAR + '.html'
 
 
             # create the object for each team
             team_obj = {
                 'name': str(link.text),
-                'url' : team_url
+                'url' : team_url,
+                'schedule': str(link.get('href')) + YEAR + '_games.html'
+
             }
             teams_dict[team] = team_obj
             print 'Finished getting team information for: '+ team
@@ -91,7 +93,7 @@ def get_current_roster(teams_dict):
 
     return players_dict
 
-
+# Get the game logs for each player
 def get_player_log(players_dict):
 
     for team in players_dict:
@@ -104,6 +106,7 @@ def get_player_log(players_dict):
 
                 table = soup.find('table', attrs={'id':'pgl_basic'})
                 if table:
+                    print 'Getting game logs for: ' + name
                     table_body = table.find('tbody')
                     rows = table_body.find_all('tr')
 
@@ -112,10 +115,35 @@ def get_player_log(players_dict):
 
                     with open('player_logs/'+name+'.csv', 'wb') as f:
                         writer = csv.writer(f)
+                        print 'Writing log csv for: ' + name
                         writer.writerows(row for row in log_rows if row)
+
+# Get the schedule for each team
+def get_team_schedule(teams_dict):
+
+    for team in teams_dict:
+        url = urllib2.urlopen(BASE_URL+teams_dict[team]['schedule'])
+        soup = BeautifulSoup(url, 'html5lib')
+        log_rows = []
+
+        table = soup.find('table', attrs={'id':'teams_games'})
+        if table:
+            print 'Getting schedule for: ' + team
+            table_body = table.find('tbody')
+            rows = table_body.find_all('tr')
+
+            for row in rows:
+                log_rows.append([val.text.encode('utf8') for val in row.find_all('td')])
+
+            with open('team_schedules/'+team+'.csv', 'wb') as f:
+                writer = csv.writer(f)
+                print 'Writing schedule csv for: ' + team
+                writer.writerows(row for row in log_rows if row)
+
 
 pp = pprint.PrettyPrinter(indent=4)
 TEAMS_DICT = get_active_teams()
+get_team_schedule(TEAMS_DICT)
 PLAYERS_DICT = get_current_roster(TEAMS_DICT)
 get_player_log(PLAYERS_DICT);
 
