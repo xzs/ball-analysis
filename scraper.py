@@ -1,7 +1,6 @@
 import urllib2
 import pprint
 import csv
-import logging
 from bs4 import BeautifulSoup
 
 BASE_URL = 'http://www.basketball-reference.com'
