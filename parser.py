@@ -1,9 +1,41 @@
 import pprint
 import csv
+from datetime import datetime
 
 YEAR = '2015'
 
-TEAMS_DICT = {}
+TEAMS_DICT = {
+    'ATL':'Atlanta Hawks',
+    'BOS':'Boston Celtics',
+    'BRK':'Brooklyn Nets',
+    'CHO':'Charlotte Hornets',
+    'CHI':'Chicago Bulls',
+    'CLE':'Cleveland Cavaliers',
+    'DAL':'Dallas Mavericks',
+    'DEN':'Denver Nuggets',
+    'DET':'Detroit Pistons',
+    'GSW':'Golden State Warriors',
+    'HOU':'Houston Rockets',
+    'IND':'Indiana Pacers',
+    'LAC':'Los Angeles Clippers',
+    'LAL':'Los Angeles Lakers',
+    'MEM':'Memphis Grizzlies',
+    'MIA':'Miami Heat',
+    'MIL':'Milwaukee Bucks',
+    'MIN':'Minnesota Timberwolves',
+    'NOP':'New Orleans Pelicans',
+    'NYK':'New York Knicks',
+    'OKC':'Oklahoma City Thunder',
+    'ORL':'Orlando Magic',
+    'PHI':'Philadelphia 76ers',
+    'PHO':'Phoenix Suns',
+    'POR':'Portland Trail Blazers',
+    'SAC':'Sacramento Kings',
+    'SAS':'San Antonio Spurs',
+    'TOR':'Toronto Raptors',
+    'UTA':'Utah Jazz',
+    'WAS':'Washington Wizards'
+}
 
 # G   Date                    opponent            Tm  Opp W   L   Streak  Note
 # 0Game Number
@@ -100,15 +132,20 @@ Game Score was created by John Hollinger to give a rough measure of a player's p
 The scale is similar to that of points scored, (40 is an outstanding performance, 10 is an average performance, etc.).
 
 '''
-def read_player_csv():
+def read_player_csv(schedule):
     with open('player_logs/Khris Middleton.csv', 'rb') as f:
         player_log = csv.reader(f)
 
+        pp.pprint(schedule)
+
         player_dict = {}
+        player_dict['teams_against'] = {}
         away_games = 0
         home_games = 0
         away_gmsc = 0
         home_gmsc = 0
+        home_playtime_seconds = 0
+        away_playtime_seconds = 0
         # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
         # The dictionary will also contain detailed information abou the teams the player has played agianst
         for record in player_log:
@@ -118,28 +155,45 @@ def read_player_csv():
                 if record[5]:
                     away_gmsc += float(record[28])
                     away_games += 1
+                    home_playtime = record[9].split(':')
+                    home_playtime_seconds += int(home_playtime[0])*60 + int(home_playtime[1])
                 else:
                     home_gmsc += float(record[28])
                     home_games += 1
+                    away_playtime = record[9].split(':')
+                    away_playtime_seconds += int(away_playtime[0])*60 + int(away_playtime[1])
 
                 if record[6] in player_dict:
-                    player_dict[record[6]]['games'] += 1
-                    player_dict[record[6]]['gmsc'] = two_decimals(float(player_dict[record[6]]['gmsc'] + float(record[28])) / player_dict[record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['games'] += 1
+                    player_dict['teams_against'][record[6]]['gmsc'] = two_decimals(float(player_dict[record[6]]['gmsc'] + float(record[28])) / player_dict[record[6]]['games'])
                 else:
-                    player_dict[record[6]] = {}
-                    player_dict[record[6]]['games'] = 1
-                    player_dict[record[6]]['gmsc'] = float(record[28])
+                    player_dict['teams_against'][record[6]] = {}
+                    player_dict['teams_against'][record[6]]['games'] = 1
+                    player_dict['teams_against'][record[6]]['gmsc'] = float(record[28])
 
+
+        player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / away_games)/60)
+        player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / home_games)/60)
 
         player_dict['average_away_gmsc'] = two_decimals(float(away_gmsc / away_games))
         player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
         player_dict['average_gmsc'] = two_decimals(float((away_gmsc+home_gmsc)/(away_games+home_games)))
 
+        calc_weighted_average(schedule, player_dict)
+
     pp.pprint(player_dict)
     return player_dict
 
+def calc_weighted_average(schedule, player_dict):
+
+    opponents = schedule['opp']
+    for team in player_dict['teams_against']:
+        if TEAMS_DICT[team] in opponents:
+            print opponents[TEAMS_DICT[team]]
+
+
 pp = pprint.PrettyPrinter(indent=4)
-SCHEDULE_DICT = read_team_schedule_csv();
-read_player_csv()
+SCHEDULE_DICT = read_team_schedule_csv()
+read_player_csv(SCHEDULE_DICT)
 
 
