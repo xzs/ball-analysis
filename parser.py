@@ -1,5 +1,6 @@
 import pprint
 import csv
+import math
 from datetime import datetime
 
 YEAR = '2015'
@@ -136,7 +137,7 @@ def read_player_csv(schedule):
     with open('player_logs/Khris Middleton.csv', 'rb') as f:
         player_log = csv.reader(f)
 
-        pp.pprint(schedule)
+        # pp.pprint(schedule)
 
         player_dict = {}
         player_dict['teams_against'] = {}
@@ -163,9 +164,9 @@ def read_player_csv(schedule):
                     away_playtime = record[9].split(':')
                     away_playtime_seconds += int(away_playtime[0])*60 + int(away_playtime[1])
 
-                if record[6] in player_dict:
+                if record[6] in player_dict['teams_against']:
                     player_dict['teams_against'][record[6]]['games'] += 1
-                    player_dict['teams_against'][record[6]]['gmsc'] = two_decimals(float(player_dict[record[6]]['gmsc'] + float(record[28])) / player_dict[record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['gmsc'] = two_decimals(float(player_dict['teams_against'][record[6]]['gmsc'] + float(record[28])) / player_dict['teams_against'][record[6]]['games'])
                 else:
                     player_dict['teams_against'][record[6]] = {}
                     player_dict['teams_against'][record[6]]['games'] = 1
@@ -179,7 +180,8 @@ def read_player_csv(schedule):
         player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
         player_dict['average_gmsc'] = two_decimals(float((away_gmsc+home_gmsc)/(away_games+home_games)))
 
-        calc_weighted_average(schedule, player_dict)
+        # calc_weighted_average(schedule, player_dict)
+        player_dict['cov'] = calc_coefficient_of_variance(player_dict)
 
     pp.pprint(player_dict)
     return player_dict
@@ -191,6 +193,27 @@ def calc_weighted_average(schedule, player_dict):
         if TEAMS_DICT[team] in opponents:
             print opponents[TEAMS_DICT[team]]
 
+
+def calc_coefficient_of_variance(player_dict):
+
+    total = 0
+    num_teams = len(player_dict['teams_against'])
+    for team in player_dict['teams_against']:
+        total += player_dict['teams_against'][team]['gmsc']
+    
+    # Calculate mean
+    mean = float(total / num_teams)
+
+    variance_sum = 0
+    for team in player_dict['teams_against']:
+        variance_sum += math.pow((player_dict['teams_against'][team]['gmsc'] - mean), 2)
+    # Calculate the variance
+    variance = variance_sum / num_teams
+    # Standard deviation
+    std_deviation = math.sqrt(variance)
+
+    # Coefficent of variation
+    return two_decimals(std_deviation / mean)
 
 pp = pprint.PrettyPrinter(indent=4)
 SCHEDULE_DICT = read_team_schedule_csv()
