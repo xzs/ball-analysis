@@ -184,7 +184,6 @@ def read_player_csv(schedule):
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
 
-    pp.pprint(player_dict)
     return player_dict
 
 def calc_coefficient_of_variance(player_dict):
@@ -208,8 +207,48 @@ def calc_coefficient_of_variance(player_dict):
     # Coefficent of variation
     return two_decimals(std_deviation / mean)
 
+
+# This method will calculate the trend for last n number of games
+def last_n_games(num_games):
+    # We read the file backwards from the csv file
+    # However, if the file does not fit in memory this method of using reverse will not work
+    count = 0
+    PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
+    threes = 0
+    gmsc = 0
+    pts = 0 
+    reb = 0 
+    ast = 0 
+    stl = 0 
+    blk = 0 
+    tov = 0 
+    with open('player_logs/Khris Middleton.csv', 'rb') as f:
+        for record in reversed(list(csv.reader(f))):
+            # If he played
+            if record[1] and count != num_games:
+                gmsc += float(record[27]) 
+                pts += float(record[27])
+                reb += float(record[21])
+                ast += float(record[22])
+                stl += float(record[23])
+                blk += float(record[24])
+                tov += float(record[25])
+                threes += float(record[13])
+                count +=1
+
+    PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = gmsc / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['pts'] = pts / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['reb'] = reb / num_games 
+    PLAYER_DICT['last_'+str(num_games)+'_games']['ast'] = ast / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['stl'] = stl / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['blk'] = blk / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['tov'] = tov / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['3pm'] = threes / num_games
+
 pp = pprint.PrettyPrinter(indent=4)
 SCHEDULE_DICT = read_team_schedule_csv()
-read_player_csv(SCHEDULE_DICT)
-
+PLAYER_DICT = read_player_csv(SCHEDULE_DICT)
+last_n_games(5)
+last_n_games(10)
+pp.pprint(PLAYER_DICT)
 
