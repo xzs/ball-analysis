@@ -114,7 +114,7 @@ def read_team_schedule_csv():
 '''
 GmSc
 Game Score; the formula is 
-PTS + 0.4 * FG - 0.7 * FGA - 0.4*(FTA - FT) + 0.7 * ORB + 0.3 * DRB + STL + 0.7 * AST + 0.7 * BLK - 0.4 * PF - TOV. 
+points + 0.4 * FG - 0.7 * FGA - 0.4*(FTA - FT) + 0.7 * ORB + 0.3 * DRB + steals + 0.7 * assists + 0.7 * blocks - 0.4 * PF - turnovers. 
 Game Score was created by John Hollinger to give a rough measure of a player's productivity for a single game. 
 The scale is similar to that of points scored, (40 is an outstanding performance, 10 is an average performance, etc.).
 
@@ -156,11 +156,26 @@ def read_player_csv(schedule):
 
                 if record[6] in player_dict['teams_against']:
                     player_dict['teams_against'][record[6]]['games'] += 1
-                    player_dict['teams_against'][record[6]]['gmsc'] = two_decimals(float(player_dict['teams_against'][record[6]]['gmsc'] + float(record[28])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['gmsc'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['gmsc'] + float(record[28])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['points'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['points'] + float(record[27])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['rebounds'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['rebounds'] + float(record[21])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['assists'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['assists'] + float(record[22])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['steals'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['steals'] + float(record[23])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['blocks'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['blocks'] + float(record[24])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['turnovers'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['turnovers'] + float(record[25])) / player_dict['teams_against'][record[6]]['games'])
+                    player_dict['teams_against'][record[6]]['stats']['3pm'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['3pm'] + float(record[13])) / player_dict['teams_against'][record[6]]['games'])
                 else:
                     player_dict['teams_against'][record[6]] = {}
+                    player_dict['teams_against'][record[6]]['stats'] = {}
                     player_dict['teams_against'][record[6]]['games'] = 1
-                    player_dict['teams_against'][record[6]]['gmsc'] = float(record[28])
+                    player_dict['teams_against'][record[6]]['stats']['gmsc'] = float(record[28])
+                    player_dict['teams_against'][record[6]]['stats']['points'] = float(record[27])
+                    player_dict['teams_against'][record[6]]['stats']['rebounds'] = float(record[21])
+                    player_dict['teams_against'][record[6]]['stats']['assists'] = float(record[22])
+                    player_dict['teams_against'][record[6]]['stats']['steals'] = float(record[23])
+                    player_dict['teams_against'][record[6]]['stats']['blocks'] = float(record[24])
+                    player_dict['teams_against'][record[6]]['stats']['turnovers'] = float(record[25])
+                    player_dict['teams_against'][record[6]]['stats']['3pm'] = float(record[13])
 
                 player_dict['teams_against'][record[6]]['games_remain'] = schedule['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['games']
 
@@ -191,14 +206,14 @@ def calc_coefficient_of_variance(player_dict):
     total = 0
     num_teams = len(player_dict['teams_against'])
     for team in player_dict['teams_against']:
-        total += player_dict['teams_against'][team]['gmsc']
+        total += player_dict['teams_against'][team]['stats']['gmsc']
     
     # Calculate mean
     mean = float(total / num_teams)
 
     variance_sum = 0
     for team in player_dict['teams_against']:
-        variance_sum += math.pow((player_dict['teams_against'][team]['gmsc'] - mean), 2)
+        variance_sum += math.pow((player_dict['teams_against'][team]['stats']['gmsc'] - mean), 2)
     # Calculate the variance
     variance = variance_sum / num_teams
     # Standard deviation
@@ -216,33 +231,33 @@ def last_n_games(num_games):
     PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
     threes = 0
     gmsc = 0
-    pts = 0 
-    reb = 0 
-    ast = 0 
-    stl = 0 
-    blk = 0 
-    tov = 0 
+    points = 0 
+    rebounds = 0 
+    assists = 0 
+    steals = 0 
+    blocks = 0 
+    turnovers = 0 
     with open('player_logs/Khris Middleton.csv', 'rb') as f:
         for record in reversed(list(csv.reader(f))):
             # If he played
             if record[1] and count != num_games:
                 gmsc += float(record[27]) 
-                pts += float(record[27])
-                reb += float(record[21])
-                ast += float(record[22])
-                stl += float(record[23])
-                blk += float(record[24])
-                tov += float(record[25])
+                points += float(record[27])
+                rebounds += float(record[21])
+                assists += float(record[22])
+                steals += float(record[23])
+                blocks += float(record[24])
+                turnovers += float(record[25])
                 threes += float(record[13])
                 count +=1
 
     PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = gmsc / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['pts'] = pts / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['reb'] = reb / num_games 
-    PLAYER_DICT['last_'+str(num_games)+'_games']['ast'] = ast / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['stl'] = stl / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['blk'] = blk / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['tov'] = tov / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['points'] = points / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = rebounds / num_games 
+    PLAYER_DICT['last_'+str(num_games)+'_games']['assists'] = assists / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['steals'] = steals / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['blocks'] = blocks / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['turnovers'] = turnovers / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['3pm'] = threes / num_games
 
 pp = pprint.PrettyPrinter(indent=4)
