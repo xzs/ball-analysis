@@ -124,13 +124,26 @@ def read_player_csv(schedule):
         player_log = csv.reader(f)
 
         player_dict = {}
+        player_dict['stats'] = {}
+
         player_dict['teams_against'] = {}
         player_dict['eastern_conf'] = {}
-        east_gmsc = 0
         player_dict['eastern_conf']['games'] = 0
         player_dict['western_conf'] = {}
-        west_gmsc = 0
         player_dict['western_conf']['games'] = 0
+
+
+        points = 0
+        rebounds = 0
+        assists = 0
+        steals = 0
+        blocks = 0
+        turnovers = 0
+        threes = 0
+
+        east_gmsc = 0
+        west_gmsc = 0
+
         away_games = 0
         home_games = 0
         away_gmsc = 0
@@ -176,8 +189,9 @@ def read_player_csv(schedule):
                     player_dict['teams_against'][record[6]]['stats']['blocks'] = float(record[24])
                     player_dict['teams_against'][record[6]]['stats']['turnovers'] = float(record[25])
                     player_dict['teams_against'][record[6]]['stats']['3pm'] = float(record[13])
-
+                    
                 player_dict['teams_against'][record[6]]['games_remain'] = schedule['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['games']
+
 
                 if record[6] in EASTERN_CONF:
                     player_dict['eastern_conf']['games'] += 1
@@ -185,6 +199,15 @@ def read_player_csv(schedule):
                 else:
                     player_dict['western_conf']['games'] += 1
                     west_gmsc += float(record[28])
+                
+                # points = two_decimals(float(points + float(record[27])))
+                points += float(record[27])
+                rebounds += float(record[21])
+                assists += float(record[22])
+                steals += float(record[23])
+                blocks += float(record[24])
+                turnovers += float(record[25])
+                threes += float(record[13])
 
 
         player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / away_games)/60)
@@ -196,6 +219,14 @@ def read_player_csv(schedule):
 
         player_dict['eastern_conf']['gmsc'] = two_decimals(float(east_gmsc / player_dict['eastern_conf']['games']))
         player_dict['western_conf']['gmsc'] = two_decimals(float(west_gmsc / player_dict['western_conf']['games']))
+
+        player_dict['stats']['points'] = two_decimals(float(points / (away_games+home_games)))
+        player_dict['stats']['rebounds'] = two_decimals(float(rebounds / (away_games+home_games)))
+        player_dict['stats']['assists'] = two_decimals(float(assists / (away_games+home_games)))
+        player_dict['stats']['steals'] = two_decimals(float(steals / (away_games+home_games)))
+        player_dict['stats']['blocks'] = two_decimals(float(blocks / (away_games+home_games)))
+        player_dict['stats']['turnovers'] = two_decimals(float(turnovers / (away_games+home_games)))
+        player_dict['stats']['3pm'] = two_decimals(float(threes / (away_games+home_games)))
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
 
