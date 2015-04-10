@@ -75,7 +75,7 @@ EASTERN_CONF = {
 }
 
 def two_decimals(num):
-    return float("{0:.2f}".format(num))
+    return float('{0:.2f}'.format(num))
 
 def read_team_schedule_csv():
 
@@ -132,6 +132,9 @@ def read_player_csv(schedule):
         player_dict['western_conf'] = {}
         player_dict['western_conf']['games'] = 0
 
+        points_list = []
+        assists_list = []
+        rebounds_list = []
 
         points = 0
         rebounds = 0
@@ -192,6 +195,9 @@ def read_player_csv(schedule):
                     
                 player_dict['teams_against'][record[6]]['games_remain'] = schedule['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['games']
 
+                points_list.append(float(record[27]))
+                assists_list.append(float(record[22]))
+                rebounds_list.append(float(record[21]))
 
                 if record[6] in EASTERN_CONF:
                     player_dict['eastern_conf']['games'] += 1
@@ -229,8 +235,36 @@ def read_player_csv(schedule):
         player_dict['stats']['3pm'] = two_decimals(float(threes / (away_games+home_games)))
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
+        pp.pprint(points_list)
+        consecutive_sum(points_list)
 
     return player_dict
+
+
+def consecutive_sum(stats_list):
+
+    count = 0
+    max_sum = 0
+    good_list = []
+    # current_sum = 0
+    #  we use enumerate to access the index
+    for index, value in enumerate(stats_list):
+        current_sum = 0
+        temp_list = []
+        for inx in stats[:5]:
+            print index+5
+            current_sum += stats_list[inx]
+            temp_list.append(stats_list[inx])
+            # print current_sum
+
+        if max_sum < current_sum:
+            max_sum = current_sum
+            good_list = temp_list
+
+    # print max_sum
+    # print good_list
+
+
 
 def calc_coefficient_of_variance(player_dict):
 
@@ -296,5 +330,5 @@ SCHEDULE_DICT = read_team_schedule_csv()
 PLAYER_DICT = read_player_csv(SCHEDULE_DICT)
 last_n_games(5)
 last_n_games(10)
-pp.pprint(PLAYER_DICT)
+# pp.pprint(PLAYER_DICT)
 

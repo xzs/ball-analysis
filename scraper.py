@@ -1,7 +1,11 @@
 import urllib2
 import pprint
 import csv
+import logging
 from bs4 import BeautifulSoup
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 BASE_URL = 'http://www.basketball-reference.com'
 YEAR = '2015'
@@ -22,7 +26,7 @@ def get_active_teams():
     for row in rows:
         links = row.find_all('a')
         for link in links:
-            print 'Getting team information'
+            logger.info('Getting team information')
             team_link = link.get('href')
             team = str(team_link.split('/')[2])
 
@@ -47,7 +51,7 @@ def get_active_teams():
 
             }
             teams_dict[team] = team_obj
-            print 'Finished getting team information for: '+ team
+            logger.info('Finished getting team information for: '+ team)
 
     return teams_dict
 
@@ -57,7 +61,7 @@ def get_current_roster(teams_dict):
     players_dict = {}
     
     for team in teams_dict:
-        print 'Getting players information for: '+ team
+        logger.info('Getting players information for: '+ team)
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['url'])
         soup = BeautifulSoup(url, 'html5lib')
 
@@ -86,9 +90,9 @@ def get_current_roster(teams_dict):
                     player_name: player_obj
                 }
             )
-            print 'Finished getting player information for: '+ player_name
+            logger.info('Finished getting player information for: '+ player_name)
         
-        print 'Finished getting players information for: '+ team
+        logger.info('Finished getting players information for: '+ team)
 
     return players_dict
 
@@ -105,7 +109,7 @@ def get_player_log(players_dict):
 
                 table = soup.find('table', attrs={'id':'pgl_basic'})
                 if table:
-                    print 'Getting game logs for: ' + name
+                    logger.info('Getting game logs for: ' + name)
                     table_body = table.find('tbody')
                     rows = table_body.find_all('tr')
 
@@ -114,7 +118,7 @@ def get_player_log(players_dict):
 
                     with open('player_logs/'+name+'.csv', 'wb') as f:
                         writer = csv.writer(f)
-                        print 'Writing log csv for: ' + name
+                        logger.info('Writing log csv for: ' + name)
                         writer.writerows(row for row in log_rows if row)
 
 # Get the schedule for each team
@@ -127,7 +131,7 @@ def get_team_schedule(teams_dict):
 
         table = soup.find('table', attrs={'id':'teams_games'})
         if table:
-            print 'Getting schedule for: ' + team
+            logger.info('Getting schedule for: ' + team)
             table_body = table.find('tbody')
             rows = table_body.find_all('tr')
 
@@ -136,7 +140,7 @@ def get_team_schedule(teams_dict):
 
             with open('team_schedules/'+team+'.csv', 'wb') as f:
                 writer = csv.writer(f)
-                print 'Writing schedule csv for: ' + team
+                logger.info('Writing schedule csv for: ' + team)
                 writer.writerows(row for row in log_rows if row)
 
 
