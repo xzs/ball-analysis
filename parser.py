@@ -240,7 +240,20 @@ def read_player_csv(schedule):
 
     return player_dict
 
-
+# One way to do this is to use Kande's algorithm which
+# compares the max's of each array this will run in O(n) tim
+'''
+The other way consists of using a nested loop
+    for (var i=0; i<list.length; i++){
+        sum = 0;
+        for (var j=i; j<consec+i; j++){
+            sum += list[j]
+        }
+        if (max < sum){
+            max = sum
+        }
+    }
+'''
 def consecutive_sum(stats_list):
 
     count = 0
