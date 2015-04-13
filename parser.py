@@ -136,6 +136,7 @@ def read_player_csv(schedule):
         assists_list = []
         rebounds_list = []
 
+
         points = 0
         rebounds = 0
         assists = 0
@@ -235,15 +236,18 @@ def read_player_csv(schedule):
         player_dict['stats']['3pm'] = two_decimals(float(threes / (away_games+home_games)))
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
-        pp.pprint(points_list)
-        consecutive_sum(points_list)
+        # pp.pprint(points_list)
+        player_dict['best_stretch'] = {}
+        player_dict['best_stretch']['points'] = consecutive_sum(points_list, 5)
+        player_dict['best_stretch']['assists'] = consecutive_sum(assists_list, 5)
+        player_dict['best_stretch']['rebounds'] = consecutive_sum(rebounds_list, 5)
 
     return player_dict
 
 # One way to do this is to use Kande's algorithm which
 # compares the max's of each array this will run in O(n) tim
 '''
-The other way consists of using a nested loop
+The other way consists of using a nested loop, although it is a o(n^2) solution
     for (var i=0; i<list.length; i++){
         sum = 0;
         for (var j=i; j<consec+i; j++){
@@ -254,29 +258,32 @@ The other way consists of using a nested loop
         }
     }
 '''
-def consecutive_sum(stats_list):
+'''
+The other thing is that I want the largest consecutive sum given a period 
+[1,4,2,4,5,7]
+if n = 3, then the largest sum in this case would be (4+5+7) = 16
+'''
+def consecutive_sum(stats_list, n):
 
-    count = 0
     max_sum = 0
-    good_list = []
-    # current_sum = 0
     #  we use enumerate to access the index
     for index, value in enumerate(stats_list):
         current_sum = 0
-        temp_list = []
-        for inx in stats[:5]:
-            print index+5
-            current_sum += stats_list[inx]
-            temp_list.append(stats_list[inx])
-            # print current_sum
-
+        temp_hash = {}
+        for inx in range(index, n+index):
+            try:
+                # calculate the sums and append them to the list
+                current_sum += stats_list[inx]
+                # temp_list.append(stats_list[inx])
+                temp_hash[inx+1] = stats_list[inx]
+            except IndexError:
+                current_sum = 0
+        # If those sums are max then put the temp_list into a good_list
         if max_sum < current_sum:
             max_sum = current_sum
-            good_list = temp_list
+            max_hash = temp_hash
 
-    # print max_sum
-    # print good_list
-
+    return max_hash
 
 
 def calc_coefficient_of_variance(player_dict):
