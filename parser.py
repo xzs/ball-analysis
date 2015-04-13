@@ -158,6 +158,7 @@ def read_player_csv(schedule):
         # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
         # The dictionary will also contain detailed information abou the teams the player has played agianst
         for record in player_log:
+            player_dict['age'] = record[3].split('-')[0]
             # If he played
             if record[1]:
                 if record[5]:
@@ -236,7 +237,7 @@ def read_player_csv(schedule):
         player_dict['stats']['3pm'] = two_decimals(float(threes / (away_games+home_games)))
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
-        # pp.pprint(points_list)
+        
         player_dict['best_stretch'] = {}
         player_dict['best_stretch']['points'] = consecutive_sum(points_list, 5)
         player_dict['best_stretch']['assists'] = consecutive_sum(assists_list, 5)
