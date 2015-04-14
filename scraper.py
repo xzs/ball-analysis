@@ -29,25 +29,28 @@ def get_active_teams():
             logger.info('Getting team information')
             team_link = link.get('href')
             team = str(team_link.split('/')[2])
+            schedule = str(link.get('href')) + YEAR + '_games.html'
 
             if team == 'NJN':
                 team = 'BRK'
                 team_url = '/teams/BRK/' + YEAR + '.html'
+                schedule = '/teams/BRK/' + YEAR + '_games.html'
             elif team == 'CHA':
                 team = 'CHO'
                 team_url = '/teams/CHO/' + YEAR + '.html'
+                schedule = '/teams/CHO/' + YEAR + '_games.html'
             elif team == 'NOH':
                 team = 'NOP'
                 team_url = '/teams/NOP/' + YEAR + '.html'
+                schedule = '/teams/NOP/' + YEAR + '_games.html'
             else:
                 team_url = str(link.get('href')) + YEAR + '.html'
-
 
             # create the object for each team
             team_obj = {
                 'name': str(link.text),
                 'url' : team_url,
-                'schedule': str(link.get('href')) + YEAR + '_games.html'
+                'schedule': schedule
 
             }
             teams_dict[team] = team_obj
@@ -125,6 +128,7 @@ def get_player_log(players_dict):
 def get_team_schedule(teams_dict):
 
     for team in teams_dict:
+        print BASE_URL+teams_dict[team]['schedule']
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['schedule'])
         soup = BeautifulSoup(url, 'html5lib')
         log_rows = []
