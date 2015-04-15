@@ -383,7 +383,10 @@ for files in glob.glob("player_logs/*.csv"):
     with open(files, 'rb') as f:
         try:
             PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
+            # Since we need to go through the files again we seek to the beginning of the file
+            f.seek(0)
             last_n_games(f, 5)
+            f.seek(0)
             last_n_games(f, 10)
             # Dump the json file
             with open('json_files/'+player_name+'.txt', 'w') as outfile:
@@ -391,7 +394,3 @@ for files in glob.glob("player_logs/*.csv"):
 
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
-
-
-
-
