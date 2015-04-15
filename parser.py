@@ -4,6 +4,10 @@ import math
 import json
 import glob
 import sys
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 YEAR = '2015'
 
@@ -81,9 +85,13 @@ def two_decimals(num):
 
 def read_team_schedule_csv(csv_f, team_name):
 
+    logger.info('Parsing schedule for: '+team_name)
+
     SCHEDULE_DICT[team_name] = {}
     SCHEDULE_DICT[team_name]['opp'] = {}
     SCHEDULE_DICT[team_name]['channel'] = {}
+
+    logger.info('Completed creation of schedule dictionary for: '+team_name)
 
     schedule = csv.reader(csv_f)
     for games in schedule:
@@ -109,6 +117,7 @@ def read_team_schedule_csv(csv_f, team_name):
                 SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'] = {}
                 SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] = 1
 
+        logger.info('Finished parsing schedule for: '+ team_name)
 '''
 GmSc
 Game Score; the formula is 
@@ -118,7 +127,8 @@ The scale is similar to that of points scored, (40 is an outstanding performance
 
 '''
 def read_player_csv(csv_f, schedule, player_name):
-    # with open('player_logs/Khris Middleton.csv', 'rb') as f:
+    logger.info('Reading player csv for: '+ player_name)
+
     player_log = csv.reader(csv_f)
 
     player_dict = {}
@@ -134,7 +144,6 @@ def read_player_csv(csv_f, schedule, player_name):
     points_list = []
     assists_list = []
     rebounds_list = []
-
 
     points = 0
     rebounds = 0
@@ -163,6 +172,7 @@ def read_player_csv(csv_f, schedule, player_name):
         # If he played
         if record[1]:
             if record[5]:
+                logger.info('Compling away games')
                 away_gmsc += float(record[28])
                 away_games += 1
                 home_playtime = record[9].split(':')
@@ -171,6 +181,7 @@ def read_player_csv(csv_f, schedule, player_name):
                 else:
                     home_playtime_seconds = 0
             else:
+                logger.info('Compling home games')
                 home_gmsc += float(record[28])
                 home_games += 1
                 away_playtime = record[9].split(':')
@@ -179,6 +190,7 @@ def read_player_csv(csv_f, schedule, player_name):
                 else:
                     away_playtime_seconds = 0
 
+            logger.info('Beging game statistics')
             if record[6] in player_dict['teams_against']:
                 player_dict['teams_against'][record[6]]['games'] += 1
                 player_dict['teams_against'][record[6]]['stats']['gmsc'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['gmsc'] + float(record[28])) / player_dict['teams_against'][record[6]]['games'])
@@ -208,6 +220,7 @@ def read_player_csv(csv_f, schedule, player_name):
             assists_list.append(float(record[22]))
             rebounds_list.append(float(record[21]))
 
+            logger.info('Compling conference play')
             if record[6] in EASTERN_CONF:
                 player_dict['eastern_conf']['games'] += 1
                 east_gmsc += float(record[28])
@@ -226,6 +239,7 @@ def read_player_csv(csv_f, schedule, player_name):
 
     #  For now we only consider players who have played both a home and away game
     if home_games > 0 and away_games > 0:
+        logger.info('First level dictionary values processing')
         player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / away_games)/60)
         player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / home_games)/60)
 
@@ -280,7 +294,7 @@ The other thing is that I want the largest consecutive sum given a period
 if n = 3, then the largest sum in this case would be (4+5+7) = 16
 '''
 def consecutive_sum(stats_list, n):
-
+    logger.info('Process consecutive sum')
     max_sum = 0
     max_hash = 0
     #  we use enumerate to access the index
@@ -304,7 +318,7 @@ def consecutive_sum(stats_list, n):
 
 
 def calc_coefficient_of_variance(player_dict):
-
+    logger.info('COV processing')
     total = 0
     num_teams = len(player_dict['teams_against'])
     for team in player_dict['teams_against']:
@@ -329,6 +343,7 @@ def calc_coefficient_of_variance(player_dict):
 def last_n_games(csv_f, num_games):
     # We read the file backwards from the csv file
     # However, if the file does not fit in memory this method of using reverse will not work
+    logger.info('Best stretch processing')
     count = 0
     PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
     threes = 0
@@ -368,6 +383,8 @@ pp = pprint.PrettyPrinter(indent=4)
 SCHEDULE_DICT = {}
 for files in glob.glob("team_schedules/*.csv"):
     team_name = files.split('/')[1].split('.c')[0]
+    logger.info('Parsing schedule for: '+team_name)
+
     # this will need to be looped
     with open(files, 'rb') as f:
         try:
@@ -380,6 +397,8 @@ for files in glob.glob("team_schedules/*.csv"):
 for files in glob.glob("player_logs/*.csv"):
     player_name = files.split('/')[1].split('.c')[0]
     # this will need to be looped
+    logger.info('Parsing stats for: '+player_name)
+
     with open(files, 'rb') as f:
         try:
             PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
@@ -389,6 +408,7 @@ for files in glob.glob("player_logs/*.csv"):
             f.seek(0)
             last_n_games(f, 10)
             # Dump the json file
+            logger.info('Dumping json for: '+player_name)
             with open('json_files/'+player_name+'.txt', 'w') as outfile:
                 json.dump(PLAYER_DICT, outfile)
 
