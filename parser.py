@@ -5,11 +5,14 @@ import json
 import glob
 import sys
 import logging
+from datetime import datetime as dt
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 YEAR = '2015'
+
+ALL_STAR_DATE = '2015-02-22'
 
 TEAMS_DICT = {
     'ATL':'Atlanta Hawks',
@@ -134,6 +137,9 @@ def read_player_csv(csv_f, schedule, player_name):
     player_dict = {}
     player_dict['stats'] = {}
     player_dict['name'] = player_name
+    
+    player_dict['pre_all_star'] = {}
+    player_dict['post_all_star'] = {}
 
     player_dict['teams_against'] = {}
     player_dict['eastern_conf'] = {}
@@ -162,6 +168,9 @@ def read_player_csv(csv_f, schedule, player_name):
     home_gmsc = 0
     home_playtime_seconds = 0
     away_playtime_seconds = 0
+
+    pre_all_star_games = 0
+    post_all_star_games = 0
 
     # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
     # The dictionary will also contain detailed information abou the teams the player has played agianst
@@ -237,6 +246,45 @@ def read_player_csv(csv_f, schedule, player_name):
             turnovers += float(record[25])
             threes += float(record[13])
 
+            # If any games the player played before the ALL_STAR_BREAK
+            all_star = dt.strptime(ALL_STAR_DATE, "%Y-%m-%d")
+            game_date = dt.strptime(record[2], "%Y-%m-%d")
+
+            # If the game is played pre all star break
+            if all_star < game_date:
+                pre_all_star_games += 1
+                if 'stats' in player_dict['pre_all_star']:
+                    player_dict['pre_all_star']['stats']['games'] += 1
+                    player_dict['pre_all_star']['stats']['gmsc'] = two_decimals(float(player_dict['pre_all_star']['stats']['gmsc'] + float(record[28])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['points'] = two_decimals(float(player_dict['pre_all_star']['stats']['points'] + float(record[27])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['rebounds'] = two_decimals(float(player_dict['pre_all_star']['stats']['rebounds'] + float(record[21])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['assists'] = two_decimals(float(player_dict['pre_all_star']['stats']['assists'] + float(record[22])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['steals'] = two_decimals(float(player_dict['pre_all_star']['stats']['steals'] + float(record[23])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['blocks'] = two_decimals(float(player_dict['pre_all_star']['stats']['blocks'] + float(record[24])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['turnovers'] = two_decimals(float(player_dict['pre_all_star']['stats']['turnovers'] + float(record[25])) / player_dict['pre_all_star']['stats']['games'])
+                    player_dict['pre_all_star']['stats']['3pm'] = two_decimals(float(player_dict['pre_all_star']['stats']['3pm'] + float(record[13])) / player_dict['pre_all_star']['stats']['games'])
+                else:
+                    player_dict['pre_all_star']['stats'] = {}
+                    player_dict = new_stats_dict(player_dict, 'pre_all_star', record)
+
+            else:
+                post_all_star_games += 1
+                if 'stats' in player_dict['post_all_star']:
+                    player_dict['post_all_star']['stats']['games'] += 1
+                    player_dict['post_all_star']['stats']['gmsc'] = two_decimals(float(player_dict['post_all_star']['stats']['gmsc'] + float(record[28])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['points'] = two_decimals(float(player_dict['post_all_star']['stats']['points'] + float(record[27])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['rebounds'] = two_decimals(float(player_dict['post_all_star']['stats']['rebounds'] + float(record[21])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['assists'] = two_decimals(float(player_dict['post_all_star']['stats']['assists'] + float(record[22])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['steals'] = two_decimals(float(player_dict['post_all_star']['stats']['steals'] + float(record[23])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['blocks'] = two_decimals(float(player_dict['post_all_star']['stats']['blocks'] + float(record[24])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['turnovers'] = two_decimals(float(player_dict['post_all_star']['stats']['turnovers'] + float(record[25])) / player_dict['post_all_star']['stats']['games'])
+                    player_dict['post_all_star']['stats']['3pm'] = two_decimals(float(player_dict['post_all_star']['stats']['3pm'] + float(record[13])) / player_dict['post_all_star']['stats']['games'])
+                else:
+                    player_dict['post_all_star']['stats'] = {}
+                    temp_dict = new_stats_dict(player_dict, 'post_all_star', record)
+
+
+
     #  For now we only consider players who have played both a home and away game
     if home_games > 0 and away_games > 0:
         logger.info('First level dictionary values processing')
@@ -274,6 +322,22 @@ def read_player_csv(csv_f, schedule, player_name):
 
     return player_dict
 
+
+def new_stats_dict(player_dict, layer, record):
+    print record
+    # The issue here is that only one record is being passed through
+    player_dict[layer]['stats']['games'] = 1
+    player_dict[layer]['stats']['gmsc'] = float(record[28])
+    player_dict[layer]['stats']['points'] = float(record[27])
+    player_dict[layer]['stats']['rebounds'] = float(record[21])
+    player_dict[layer]['stats']['assists'] = float(record[22])
+    player_dict[layer]['stats']['steals'] = float(record[23])
+    player_dict[layer]['stats']['blocks'] = float(record[24])
+    player_dict[layer]['stats']['turnovers'] = float(record[25])
+    player_dict[layer]['stats']['3pm'] = float(record[13])
+    pp.pprint(player_dict)
+    return player_dict
+
 # One way to do this is to use Kande's algorithm which
 # compares the max's of each array this will run in O(n) tim
 '''
@@ -305,7 +369,6 @@ def consecutive_sum(stats_list, n):
             try:
                 # calculate the sums and append them to the list
                 current_sum += stats_list[inx]
-                # temp_list.append(stats_list[inx])
                 temp_hash[inx+1] = stats_list[inx]
             except IndexError:
                 current_sum = 0
@@ -379,38 +442,47 @@ def last_n_games(csv_f, num_games):
 
 pp = pprint.PrettyPrinter(indent=4)
 
+# I need to calculate pre and post all star
+
 # Open all team schedules for processing
-SCHEDULE_DICT = {}
-for files in glob.glob("team_schedules/*.csv"):
-    team_name = files.split('/')[1].split('.c')[0]
-    logger.info('Parsing schedule for: '+team_name)
+# SCHEDULE_DICT = {}
+# for files in glob.glob("team_schedules/*.csv"):
+#     team_name = files.split('/')[1].split('.c')[0]
+#     logger.info('Parsing schedule for: '+team_name)
 
-    # this will need to be looped
-    with open(files, 'rb') as f:
-        try:
-            read_team_schedule_csv(f, team_name)
+#     # this will need to be looped
+#     with open(files, 'rb') as f:
+#         try:
+#             read_team_schedule_csv(f, team_name)
 
-        except csv.Error as e:
-            sys.exit('file %s: %s' % (files, e))
+#         except csv.Error as e:
+#             sys.exit('file %s: %s' % (files, e))
 
-# Open all player files for data parsing
-for files in glob.glob("player_logs/*.csv"):
-    player_name = files.split('/')[1].split('.c')[0]
-    # this will need to be looped
-    logger.info('Parsing stats for: '+player_name)
+# # Open all player files for data parsing
+# for files in glob.glob("player_logs/*.csv"):
+#     player_name = files.split('/')[1].split('.c')[0]
+#     # this will need to be looped
+#     logger.info('Parsing stats for: '+player_name)
 
-    with open(files, 'rb') as f:
-        try:
-            PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
-            # Since we need to go through the files again we seek to the beginning of the file
-            f.seek(0)
-            last_n_games(f, 5)
-            f.seek(0)
-            last_n_games(f, 10)
-            # Dump the json file
-            logger.info('Dumping json for: '+player_name)
-            with open('json_files/'+player_name+'.txt', 'w') as outfile:
-                json.dump(PLAYER_DICT, outfile)
+#     with open(files, 'rb') as f:
+#         try:
+#             PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
+#             # Since we need to go through the files again we seek to the beginning of the file
+#             f.seek(0)
+#             last_n_games(f, 5)
+#             f.seek(0)
+#             last_n_games(f, 10)
+#             # Dump the json file
+#             logger.info('Dumping json for: '+player_name)
+#             with open('json_files/'+player_name+'.txt', 'w') as outfile:
+#                 json.dump(PLAYER_DICT, outfile)
 
-        except csv.Error as e:
-            sys.exit('file %s: %s' % (files, e))
+#         except csv.Error as e:
+#             sys.exit('file %s: %s' % (files, e))
+
+with open('team_schedules/MIL.csv', 'rb') as f:
+    SCHEDULE_DICT = {}
+    read_team_schedule_csv(f, 'MIL')
+
+with open('player_logs/Khris Middleton.csv', 'rb') as f:
+    PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, 'Khris Middleton')
