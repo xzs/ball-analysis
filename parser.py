@@ -200,30 +200,9 @@ def read_player_csv(csv_f, schedule, player_name):
                     away_playtime_seconds = 0
 
             logger.info('Beging game statistics')
-            if record[6] in player_dict['teams_against']:
-                player_dict['teams_against'][record[6]]['games'] += 1
-                player_dict['teams_against'][record[6]]['stats']['gmsc'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['gmsc'] + float(record[28])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['points'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['points'] + float(record[27])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['rebounds'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['rebounds'] + float(record[21])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['assists'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['assists'] + float(record[22])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['steals'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['steals'] + float(record[23])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['blocks'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['blocks'] + float(record[24])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['turnovers'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['turnovers'] + float(record[25])) / player_dict['teams_against'][record[6]]['games'])
-                player_dict['teams_against'][record[6]]['stats']['3pm'] = two_decimals(float(player_dict['teams_against'][record[6]]['stats']['3pm'] + float(record[13])) / player_dict['teams_against'][record[6]]['games'])
-            else:
-                player_dict['teams_against'][record[6]] = {}
-                player_dict['teams_against'][record[6]]['stats'] = {}
-                player_dict['teams_against'][record[6]]['games'] = 1
-                player_dict['teams_against'][record[6]]['stats']['gmsc'] = float(record[28])
-                player_dict['teams_against'][record[6]]['stats']['points'] = float(record[27])
-                player_dict['teams_against'][record[6]]['stats']['rebounds'] = float(record[21])
-                player_dict['teams_against'][record[6]]['stats']['assists'] = float(record[22])
-                player_dict['teams_against'][record[6]]['stats']['steals'] = float(record[23])
-                player_dict['teams_against'][record[6]]['stats']['blocks'] = float(record[24])
-                player_dict['teams_against'][record[6]]['stats']['turnovers'] = float(record[25])
-                player_dict['teams_against'][record[6]]['stats']['3pm'] = float(record[13])
+            new_stats_dict(player_dict['teams_against'], record[6], record)
                 
-            player_dict['teams_against'][record[6]]['games_remain'] = schedule[team]['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['games']
+            # player_dict['teams_against'][record[6]]['games_remain'] = schedule[team]['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['games']
 
             points_list.append(float(record[27]))
             assists_list.append(float(record[22]))
@@ -253,37 +232,10 @@ def read_player_csv(csv_f, schedule, player_name):
             # If the game is played pre all star break
             if all_star < game_date:
                 pre_all_star_games += 1
-                if 'stats' in player_dict['pre_all_star']:
-                    player_dict['pre_all_star']['stats']['games'] += 1
-                    player_dict['pre_all_star']['stats']['gmsc'] = two_decimals(float(player_dict['pre_all_star']['stats']['gmsc'] + float(record[28])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['points'] = two_decimals(float(player_dict['pre_all_star']['stats']['points'] + float(record[27])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['rebounds'] = two_decimals(float(player_dict['pre_all_star']['stats']['rebounds'] + float(record[21])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['assists'] = two_decimals(float(player_dict['pre_all_star']['stats']['assists'] + float(record[22])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['steals'] = two_decimals(float(player_dict['pre_all_star']['stats']['steals'] + float(record[23])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['blocks'] = two_decimals(float(player_dict['pre_all_star']['stats']['blocks'] + float(record[24])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['turnovers'] = two_decimals(float(player_dict['pre_all_star']['stats']['turnovers'] + float(record[25])) / player_dict['pre_all_star']['stats']['games'])
-                    player_dict['pre_all_star']['stats']['3pm'] = two_decimals(float(player_dict['pre_all_star']['stats']['3pm'] + float(record[13])) / player_dict['pre_all_star']['stats']['games'])
-                else:
-                    player_dict['pre_all_star']['stats'] = {}
-                    player_dict = new_stats_dict(player_dict, 'pre_all_star', record)
-
+                new_stats_dict(player_dict, 'pre_all_star', record)
             else:
                 post_all_star_games += 1
-                if 'stats' in player_dict['post_all_star']:
-                    player_dict['post_all_star']['stats']['games'] += 1
-                    player_dict['post_all_star']['stats']['gmsc'] = two_decimals(float(player_dict['post_all_star']['stats']['gmsc'] + float(record[28])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['points'] = two_decimals(float(player_dict['post_all_star']['stats']['points'] + float(record[27])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['rebounds'] = two_decimals(float(player_dict['post_all_star']['stats']['rebounds'] + float(record[21])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['assists'] = two_decimals(float(player_dict['post_all_star']['stats']['assists'] + float(record[22])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['steals'] = two_decimals(float(player_dict['post_all_star']['stats']['steals'] + float(record[23])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['blocks'] = two_decimals(float(player_dict['post_all_star']['stats']['blocks'] + float(record[24])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['turnovers'] = two_decimals(float(player_dict['post_all_star']['stats']['turnovers'] + float(record[25])) / player_dict['post_all_star']['stats']['games'])
-                    player_dict['post_all_star']['stats']['3pm'] = two_decimals(float(player_dict['post_all_star']['stats']['3pm'] + float(record[13])) / player_dict['post_all_star']['stats']['games'])
-                else:
-                    player_dict['post_all_star']['stats'] = {}
-                    temp_dict = new_stats_dict(player_dict, 'post_all_star', record)
-
-
+                new_stats_dict(player_dict, 'post_all_star', record)
 
     #  For now we only consider players who have played both a home and away game
     if home_games > 0 and away_games > 0:
@@ -312,6 +264,7 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['stats']['blocks'] = two_decimals(float(blocks / (away_games + home_games)))
         player_dict['stats']['turnovers'] = two_decimals(float(turnovers / (away_games + home_games)))
         player_dict['stats']['3pm'] = two_decimals(float(threes / (away_games + home_games)))
+        pp.pprint(player_dict)
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
         
@@ -319,23 +272,47 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['best_stretch']['points'] = consecutive_sum(points_list, 5)
         player_dict['best_stretch']['assists'] = consecutive_sum(assists_list, 5)
         player_dict['best_stretch']['rebounds'] = consecutive_sum(rebounds_list, 5)
-
     return player_dict
 
 
 def new_stats_dict(player_dict, layer, record):
-    print record
-    # The issue here is that only one record is being passed through
-    player_dict[layer]['stats']['games'] = 1
-    player_dict[layer]['stats']['gmsc'] = float(record[28])
-    player_dict[layer]['stats']['points'] = float(record[27])
-    player_dict[layer]['stats']['rebounds'] = float(record[21])
-    player_dict[layer]['stats']['assists'] = float(record[22])
-    player_dict[layer]['stats']['steals'] = float(record[23])
-    player_dict[layer]['stats']['blocks'] = float(record[24])
-    player_dict[layer]['stats']['turnovers'] = float(record[25])
-    player_dict[layer]['stats']['3pm'] = float(record[13])
-    pp.pprint(player_dict)
+
+    if layer in player_dict:
+        if 'stats' in player_dict[layer]:
+            player_dict[layer]['stats']['games'] += 1
+
+            player_dict[layer]['stats']['gmsc'] = float(player_dict[layer]['stats']['gmsc'] + float(record[28]))
+            player_dict[layer]['stats']['points'] = float(player_dict[layer]['stats']['points'] + float(record[27]))
+            player_dict[layer]['stats']['rebounds'] = float(player_dict[layer]['stats']['rebounds'] + float(record[21]))
+            player_dict[layer]['stats']['assists'] = float(player_dict[layer]['stats']['assists'] + float(record[22]))
+            player_dict[layer]['stats']['steals'] = float(player_dict[layer]['stats']['steals'] + float(record[23]))
+            player_dict[layer]['stats']['blocks'] = float(player_dict[layer]['stats']['blocks'] + float(record[24]))
+            player_dict[layer]['stats']['turnovers'] = float(player_dict[layer]['stats']['turnovers'] + float(record[25]))
+            player_dict[layer]['stats']['3pm'] = float(player_dict[layer]['stats']['3pm'] + float(record[13]))
+        else:
+            player_dict[layer]['stats'] = {}
+            player_dict[layer]['stats']['games'] = 1
+            player_dict[layer]['stats']['gmsc'] = float(record[28])
+            player_dict[layer]['stats']['points'] = float(record[27])
+            player_dict[layer]['stats']['rebounds'] = float(record[21])
+            player_dict[layer]['stats']['assists'] = float(record[22])
+            player_dict[layer]['stats']['steals'] = float(record[23])
+            player_dict[layer]['stats']['blocks'] = float(record[24])
+            player_dict[layer]['stats']['turnovers'] = float(record[25])
+            player_dict[layer]['stats']['3pm'] = float(record[13])
+    else:
+        player_dict[layer] = {}
+        player_dict[layer]['stats'] = {}
+        player_dict[layer]['stats']['games'] = 1
+        player_dict[layer]['stats']['gmsc'] = float(record[28])
+        player_dict[layer]['stats']['points'] = float(record[27])
+        player_dict[layer]['stats']['rebounds'] = float(record[21])
+        player_dict[layer]['stats']['assists'] = float(record[22])
+        player_dict[layer]['stats']['steals'] = float(record[23])
+        player_dict[layer]['stats']['blocks'] = float(record[24])
+        player_dict[layer]['stats']['turnovers'] = float(record[25])
+        player_dict[layer]['stats']['3pm'] = float(record[13])
+
     return player_dict
 
 # One way to do this is to use Kande's algorithm which
