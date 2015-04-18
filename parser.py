@@ -102,7 +102,7 @@ def read_team_schedule_csv(csv_f, team_name):
         if games[6] in SCHEDULE_DICT[team_name]['opp']:
             SCHEDULE_DICT[team_name]['opp'][games[6]] += 1
         else:
-            SCHEDULE_DICT[team_name]['opp'][games[6]] = 1                    
+            SCHEDULE_DICT[team_name]['opp'][games[6]] = 1
 
         # Count the number of times the team played on national TV, and against who
         # If it's not played on a local TV channel
@@ -113,7 +113,7 @@ def read_team_schedule_csv(csv_f, team_name):
                 if games[6] in SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent']:
                     SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] += 1
                 else:
-                    SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] = 1       
+                    SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] = 1
             else:
                 SCHEDULE_DICT[team_name]['channel'][games[3]] = {}
                 SCHEDULE_DICT[team_name]['channel'][games[3]]['times_played'] = 1
@@ -123,9 +123,9 @@ def read_team_schedule_csv(csv_f, team_name):
         logger.info('Finished parsing schedule for: '+ team_name)
 '''
 GmSc
-Game Score; the formula is 
-points + 0.4 * FG - 0.7 * FGA - 0.4*(FTA - FT) + 0.7 * ORB + 0.3 * DRB + steals + 0.7 * assists + 0.7 * blocks - 0.4 * PF - turnovers. 
-Game Score was created by John Hollinger to give a rough measure of a player's productivity for a single game. 
+Game Score; the formula is
+points + 0.4 * FG - 0.7 * FGA - 0.4*(FTA - FT) + 0.7 * ORB + 0.3 * DRB + steals + 0.7 * assists + 0.7 * blocks - 0.4 * PF - turnovers.
+Game Score was created by John Hollinger to give a rough measure of a player's productivity for a single game.
 The scale is similar to that of points scored, (40 is an outstanding performance, 10 is an average performance, etc.).
 
 '''
@@ -137,7 +137,7 @@ def read_player_csv(csv_f, schedule, player_name):
     player_dict = {}
     player_dict['stats'] = {}
     player_dict['name'] = player_name
-    
+
     player_dict['pre_all_star'] = {}
     player_dict['post_all_star'] = {}
 
@@ -199,10 +199,12 @@ def read_player_csv(csv_f, schedule, player_name):
                 else:
                     away_playtime_seconds = 0
 
-            logger.info('Beging game statistics')
+            logger.info('Begining game statistics')
+            # Create new layers for statistics against every team
             new_stats_dict(player_dict['teams_against'], record[6], record)
-                
-            # player_dict['teams_against'][record[6]]['games_remain'] = schedule[team]['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['games']
+
+            # Calculate the remaining games for each opponent
+            player_dict['teams_against'][record[6]]['stats']['games_remain'] = schedule[team]['opp'][TEAMS_DICT[record[6]]] - player_dict['teams_against'][record[6]]['stats']['games']
 
             points_list.append(float(record[27]))
             assists_list.append(float(record[22]))
@@ -215,7 +217,7 @@ def read_player_csv(csv_f, schedule, player_name):
             else:
                 player_dict['western_conf']['games'] += 1
                 west_gmsc += float(record[28])
-            
+
             # points = two_decimals(float(points + float(record[27])))
             points += float(record[27])
             rebounds += float(record[21])
@@ -232,9 +234,11 @@ def read_player_csv(csv_f, schedule, player_name):
             # If the game is played pre all star break
             if all_star < game_date:
                 pre_all_star_games += 1
+                # Create statistic layers for pre all star games
                 new_stats_dict(player_dict, 'pre_all_star', record)
             else:
                 post_all_star_games += 1
+                # Create statistic layers for post all star games
                 new_stats_dict(player_dict, 'post_all_star', record)
 
     #  For now we only consider players who have played both a home and away game
@@ -264,23 +268,28 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['stats']['blocks'] = two_decimals(float(blocks / (away_games + home_games)))
         player_dict['stats']['turnovers'] = two_decimals(float(turnovers / (away_games + home_games)))
         player_dict['stats']['3pm'] = two_decimals(float(threes / (away_games + home_games)))
-        pp.pprint(player_dict)
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
-        
+
         player_dict['best_stretch'] = {}
         player_dict['best_stretch']['points'] = consecutive_sum(points_list, 5)
         player_dict['best_stretch']['assists'] = consecutive_sum(assists_list, 5)
         player_dict['best_stretch']['rebounds'] = consecutive_sum(rebounds_list, 5)
+
+        # Process the stats for pre and post all star
+        average_stats(player_dict['pre_all_star'])
+        average_stats(player_dict['post_all_star'])
+        # Process the stats for each team
+        average_stats(player_dict['teams_against'])
+
     return player_dict
 
-
+# Process the stats dictionary
 def new_stats_dict(player_dict, layer, record):
 
     if layer in player_dict:
         if 'stats' in player_dict[layer]:
             player_dict[layer]['stats']['games'] += 1
-
             player_dict[layer]['stats']['gmsc'] = float(player_dict[layer]['stats']['gmsc'] + float(record[28]))
             player_dict[layer]['stats']['points'] = float(player_dict[layer]['stats']['points'] + float(record[27]))
             player_dict[layer]['stats']['rebounds'] = float(player_dict[layer]['stats']['rebounds'] + float(record[21]))
@@ -315,6 +324,23 @@ def new_stats_dict(player_dict, layer, record):
 
     return player_dict
 
+# Calculate the average stats for the stats dictionary
+def average_stats(player_dict):
+
+    # If 'stats' key is already in the first level hash - pre_all_star & post_all_star
+    if 'stats' in player_dict:
+        for stat in player_dict['stats']:
+            if stat not in ('games'):
+                player_dict['stats'][stat] = two_decimals(float(player_dict['stats'][stat]) / float(player_dict['stats']['games']))
+    else:
+        for team in player_dict:
+            for stat in player_dict[team]['stats']:
+                # Python's 'or' expressions works like a single line if, so it's better to do an in
+                if stat not in ('games', 'games_remain'):
+                    player_dict[team]['stats'][stat] = two_decimals(float(player_dict[team]['stats'][stat]) / float(player_dict[team]['stats']['games']))
+    return player_dict
+
+
 # One way to do this is to use Kande's algorithm which
 # compares the max's of each array this will run in O(n) tim
 '''
@@ -330,7 +356,7 @@ The other way consists of using a nested loop, although it is a o(n^2) solution
     }
 '''
 '''
-The other thing is that I want the largest consecutive sum given a period 
+The other thing is that I want the largest consecutive sum given a period
 [1,4,2,4,5,7]
 if n = 3, then the largest sum in this case would be (4+5+7) = 16
 '''
@@ -363,7 +389,7 @@ def calc_coefficient_of_variance(player_dict):
     num_teams = len(player_dict['teams_against'])
     for team in player_dict['teams_against']:
         total += player_dict['teams_against'][team]['stats']['gmsc']
-    
+
     # Calculate mean
     mean = float(total / num_teams)
 
@@ -388,17 +414,17 @@ def last_n_games(csv_f, num_games):
     PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
     threes = 0
     gmsc = 0
-    points = 0 
-    rebounds = 0 
-    assists = 0 
-    steals = 0 
-    blocks = 0 
+    points = 0
+    rebounds = 0
+    assists = 0
+    steals = 0
+    blocks = 0
     turnovers = 0
 
     for record in reversed(list(csv.reader(csv_f))):
         # If he played
         if record[1] and count != num_games:
-            gmsc += float(record[27]) 
+            gmsc += float(record[27])
             points += float(record[27])
             rebounds += float(record[21])
             assists += float(record[22])
@@ -410,7 +436,7 @@ def last_n_games(csv_f, num_games):
 
     PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = gmsc / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['points'] = points / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = rebounds / num_games 
+    PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = rebounds / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['assists'] = assists / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['steals'] = steals / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['blocks'] = blocks / num_games
