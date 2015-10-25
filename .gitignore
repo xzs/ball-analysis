@@ -3,6 +3,6 @@
 /.tmp
 /.sass-cache
 /bower_components
-/json_files
-/player_logs
-/team_schedules
+/scrape/json_files
+/scrape/player_logs
+/scrape/team_schedules
