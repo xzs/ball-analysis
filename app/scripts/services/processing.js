@@ -1,5 +1,6 @@
 app.factory('processing', function() {
     var finalData = {};
+    var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -95,6 +96,42 @@ app.factory('processing', function() {
             }
         }
         return resultsList;
+    }
+
+    finalData.getExpensivePlayersByPosition = function(position, num) {
+        return _.take(finalData[position], num);
+    }
+
+    finalData.getLineUp = function(salary) {
+        // divide by the 8 positions
+        var posSalary = salary / 8;
+        var lineup = {};
+        var blacklist = [];
+        var positionLength = positions.length;
+        for (var i=0; i<positionLength; i++) {
+            var playerList = finalData[positions[i]];
+            var playersLength = playerList.length;
+            // set min to first player salary
+            var min = Math.abs(posSalary - playerList[0].salary);
+            lineup[positions[i]] = {};
+            // find minimum difference in the dataset
+            for (var j=0; j<playersLength; j++) {
+                var player = playerList[j];
+                // Because of equal distribution we only account for those players less or equal
+                if (posSalary >= player.salary) {
+                    var diff = posSalary - player.salary
+                    // if the player isn't on the blacklist
+                    if (min >= diff && !(_.includes(blacklist, player))) {
+                        min = diff;
+                        // add the player
+                        lineup[positions[i]] = player;
+                        // add player to blacklist
+                        blacklist.push(player);
+                    }
+                }
+            }
+        }
+        return lineup;
     }
 
     return finalData
