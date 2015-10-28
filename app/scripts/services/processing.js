@@ -102,7 +102,7 @@ app.factory('processing', function() {
         return _.take(finalData[position], num);
     }
 
-    finalData.getLineUp = function(salary) {
+    finalData.getEqualDistributionLineUp = function(salary) {
         // divide by the 8 positions
         var posSalary = salary / 8;
         var lineup = {};

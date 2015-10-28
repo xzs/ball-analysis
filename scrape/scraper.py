@@ -1,3 +1,4 @@
+
 import urllib2
 import pprint
 import csv
@@ -8,11 +9,44 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 BASE_URL = 'http://www.basketball-reference.com'
+DEPTH_URL = 'http://www.rotoworld.com/teams/depth-charts/nba.aspx'
 YEAR = '2015'
+
+
+def get_depth_chart():
+    current_starters = {}
+    url = urllib2.urlopen(DEPTH_URL)
+    soup = BeautifulSoup(url, 'html5lib')
+    table = soup.find('table', attrs={'id':'cp1_tblDepthCharts'})
+    table_body = table.find('tbody')
+
+    rows = table_body.find_all('tr')
+
+    for row in rows:
+
+        players = row.find_all('td')
+        # loop through the players
+        if len(players) > 0:
+            for player in players:
+                starter_table = player.find('table')
+                if starter_table:
+                    starter_body = starter_table.find('tbody')
+                    starter = starter_body.find_all('tr', attrs={'class': 'highlight-row'})
+                    for info in starter:
+                        pos_player = info.find_all('td')
+                        for td in pos_player[1::2]:
+                            position = td.find('a').text
+                            current_starters[position] = {'status': 'available'}
+                            news = td.find('span')
+                            if news:
+                                current_starters[position]['status'] = news.text
+                    # get all the team names by text
+
+    return current_starters
 
 # Get all teams
 def get_active_teams():
-    
+
     teams_dict = {}
 
     url = urllib2.urlopen(BASE_URL+'/teams/')
@@ -62,14 +96,14 @@ def get_active_teams():
 def get_current_roster(teams_dict):
 
     players_dict = {}
-    
+
     for team in teams_dict:
         logger.info('Getting players information for: '+ team)
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['url'])
         soup = BeautifulSoup(url, 'html5lib')
 
         players_dict[str(team)] = []
-        
+
         table = soup.find('table', attrs={'id':'roster'})
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
@@ -94,7 +128,7 @@ def get_current_roster(teams_dict):
                 }
             )
             logger.info('Finished getting player information for: '+ player_name)
-        
+
         logger.info('Finished getting players information for: '+ team)
 
     return players_dict
@@ -149,8 +183,8 @@ def get_team_schedule(teams_dict):
 
 
 pp = pprint.PrettyPrinter(indent=4)
-TEAMS_DICT = get_active_teams()
-get_team_schedule(TEAMS_DICT)
-PLAYERS_DICT = get_current_roster(TEAMS_DICT)
-get_player_log(PLAYERS_DICT);
-
+# TEAMS_DICT = get_active_teams()
+# get_team_schedule(TEAMS_DICT)
+# PLAYERS_DICT = get_current_roster(TEAMS_DICT)
+# get_player_log(PLAYERS_DICT);
+get_depth_chart()

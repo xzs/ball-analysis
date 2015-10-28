@@ -30,13 +30,7 @@ app.controller('MainCtrl',
     function processCSV(data) {
         // process the data into readable JSON format
         processing.setAllPlayersByPosition(data);
-        // console.log(processing.getCostEffectivePlayersByPosition('C', 5));
-        // console.log(processing.getPlayersByPosition('SF'));
-        // console.log(processing.getExpensivePlayersByPosition('SF', 2));
-        console.log(processing.getLineUp(salary));
-        // Go though each and minus the salary
-        // Sample only from the top 20% of the dataset
-        // Find who is the most cost effective from each of the ranks
+        console.log(processing.getEqualDistributionLineUp(salary));
 
     };
 
