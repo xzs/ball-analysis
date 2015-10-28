@@ -3,6 +3,8 @@ import urllib2
 import pprint
 import csv
 import logging
+import json
+
 from bs4 import BeautifulSoup
 
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +25,7 @@ def get_depth_chart():
     rows = table_body.find_all('tr')
 
     for row in rows:
+        logger.info('Getting starters for all teams');
 
         players = row.find_all('td')
         # loop through the players
@@ -40,7 +43,10 @@ def get_depth_chart():
                             news = td.find('span')
                             if news:
                                 current_starters[position]['status'] = news.text
-                    # get all the team names by text
+
+    with open('misc/starters.json', 'w') as outfile:
+        logger.info('Writing to json file')
+        json.dump({'data': current_starters}, outfile)
 
     return current_starters
 
