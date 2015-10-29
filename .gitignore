@@ -3,7 +3,8 @@
 /.tmp
 /.sass-cache
 /bower_components
-/scrape/json_files
-/scrape/player_logs
-/scrape/team_schedules
-/scrape/misc
+/app/scrape/json_files
+/app/scrape/player_logs
+/app/scrape/team_schedules
+/app/scrape/misc
+/app/scrape/csv

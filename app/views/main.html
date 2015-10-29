@@ -1,23 +1,28 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
-
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
-
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
-</div>
+  {{playerName}}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>GMS</th>
+        <th>PTS</th>
+        <th>3PM</th>
+        <th>REB</th>
+        <th>STL</th>
+        <th>TOV</th>
+        <th>GMSCR</th>
+        <th>GMRM</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="team in teamData">
+        <td>{{team.stats.games}}</td>
+        <td>{{team.stats.points}}</td>
+        <td>{{team.stats.threes}}</td>
+        <td>{{team.stats.rebounds}}</td>
+        <td>{{team.stats.steals}}</td>
+        <td>{{team.stats.turnovers}}</td>
+        <td>{{team.stats.gmsc}}</td>
+        <td>{{team.stats.games_remain}}</td>
+      </tr>
+    </tbody>
+  </table>

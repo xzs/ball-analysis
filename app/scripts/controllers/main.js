@@ -16,8 +16,8 @@ app.controller('MainCtrl',
     var salary = 50000;
 
     function fetchCSV() {
-        // get the csv
         fetch.getCSV().then(function (response) {
+            // use papa to parse the csv to json
             Papa.parse(response, {
                 complete: function(results) {
                     // remove the first element from the list
@@ -27,6 +27,17 @@ app.controller('MainCtrl',
         })
     };
 
+    function fetchPlayer(name) {
+        $scope.playerName = name;
+        fetch.getPlayer(name).then(function (response) {
+            // console.log();
+            var playerTeamData = response.teams_against;
+            $scope.teamDataHeader = Object.keys(playerTeamData);
+            $scope.teamData = playerTeamData;
+            // against teams
+        })
+    }
+
     function processCSV(data) {
         // process the data into readable JSON format
         processing.setAllPlayersByPosition(data);
@@ -35,5 +46,6 @@ app.controller('MainCtrl',
     };
 
     fetchCSV();
+    fetchPlayer('Aaron Gordon');
 
 }]);
