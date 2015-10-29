@@ -189,8 +189,8 @@ def get_team_schedule(teams_dict):
 
 
 pp = pprint.PrettyPrinter(indent=4)
-# TEAMS_DICT = get_active_teams()
-# get_team_schedule(TEAMS_DICT)
-# PLAYERS_DICT = get_current_roster(TEAMS_DICT)
-# get_player_log(PLAYERS_DICT);
+TEAMS_DICT = get_active_teams()
+get_team_schedule(TEAMS_DICT)
+PLAYERS_DICT = get_current_roster(TEAMS_DICT)
+get_player_log(PLAYERS_DICT);
 get_depth_chart()
