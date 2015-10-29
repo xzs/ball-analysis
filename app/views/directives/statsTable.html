@@ -1,0 +1,26 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>GMS</th>
+      <th>PTS</th>
+      <th>3PM</th>
+      <th>REB</th>
+      <th>STL</th>
+      <th>TOV</th>
+      <th>GMSCR</th>
+      <th>GMRM</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="team in data">
+      <td>{{team.stats.games}}</td>
+      <td>{{team.stats.points}}</td>
+      <td>{{team.stats.threes}}</td>
+      <td>{{team.stats.rebounds}}</td>
+      <td>{{team.stats.steals}}</td>
+      <td>{{team.stats.turnovers}}</td>
+      <td>{{team.stats.gmsc}}</td>
+      <td>{{team.stats.games_remain}}</td>
+    </tr>
+  </tbody>
+</table>
