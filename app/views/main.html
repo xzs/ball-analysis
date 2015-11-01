@@ -1,3 +1,12 @@
 
-  {{playerName}}
-  <stats-table data='teamData'></stats-table>
+<select ng-model="team"
+        ng-change="getPlayers(team)">
+  <option ng-repeat="team in teams">{{team}}</option>
+</select>
+<select ng-if="teamPlayers"
+        ng-model="player"
+        ng-change="getPlayerData(player)">
+  <option ng-repeat="player in teamPlayers">{{player.name}}</option>
+</select>
+{{playerName}}
+<stats-table data='teamData'></stats-table>

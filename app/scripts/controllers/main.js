@@ -13,7 +13,23 @@ app.controller('MainCtrl',
     {
 
     // Set salary
-    var salary = 50000;
+    var local = this;
+    local.salary = 50000;
+    local.allPlayers = {};
+
+    $scope.getPlayers = function(team) {
+        $scope.teamPlayers = local.allPlayers[team]
+        return $scope.teamPlayers
+    }
+
+    $scope.getPlayerData = function(name) {
+        $scope.playerName = name;
+        fetch.getPlayer(name).then(function (response) {
+            var playerTeamData = response.teams_against;
+            $scope.teamDataHeader = Object.keys(playerTeamData);
+            $scope.teamData = playerTeamData;
+        });
+    }
 
     function fetchCSV() {
         fetch.getCSV().then(function (response) {
@@ -27,25 +43,19 @@ app.controller('MainCtrl',
         })
     };
 
-    function fetchPlayer(name) {
-        $scope.playerName = name;
-        fetch.getPlayer(name).then(function (response) {
-            // console.log();
-            var playerTeamData = response.teams_against;
-            // I need to get a list of players
-            $scope.teamDataHeader = Object.keys(playerTeamData);
-            $scope.teamData = playerTeamData;
-        })
+    function init() {
+        fetch.getAllPlayers().then(function (response) {
+            local.allPlayers = response;
+            $scope.teams = Object.keys(response);
+        });
     }
-
     function processCSV(data) {
         // process the data into readable JSON format
         processing.setAllPlayersByPosition(data);
-        console.log(processing.getEqualDistributionLineUp(salary));
+        // console.log(processing.getEqualDistributionLineUp(salary));
 
     };
 
-    fetchCSV();
-    fetchPlayer('Aaron Gordon');
+    init();
 
 }]);
