@@ -121,6 +121,8 @@ def read_team_schedule_csv(csv_f, team_name):
                 SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] = 1
 
         logger.info('Finished parsing schedule for: '+ team_name)
+
+
 '''
 GmSc
 Game Score; the formula is
@@ -284,6 +286,22 @@ def read_player_csv(csv_f, schedule, player_name):
 
     return player_dict
 
+# Create a temp obj with the player's basic information
+def categorize_players_by_teams(player, players_obj):
+    # I need to store the names in a json file as a list of objects
+    team = player['team']
+    temp_player_obj = {}
+    temp_player_obj['name'] = player['name']
+    temp_player_obj['team'] = team
+    temp_player_obj['age'] = player['age']
+    if team in players_obj:
+        # add player to
+        players_obj[team].append(temp_player_obj)
+    else:
+        players_obj[team] = []
+        players_obj[team].append(temp_player_obj)
+
+
 # Process the stats dictionary
 def new_stats_dict(player_dict, layer, record):
 
@@ -445,8 +463,6 @@ def last_n_games(csv_f, num_games):
 
 pp = pprint.PrettyPrinter(indent=4)
 
-# I need to calculate pre and post all star
-
 # Open all team schedules for processing
 SCHEDULE_DICT = {}
 for files in glob.glob("team_schedules/*.csv"):
@@ -461,15 +477,19 @@ for files in glob.glob("team_schedules/*.csv"):
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
 
+ALL_PLAYERS = {}
 # Open all player files for data parsing
 for files in glob.glob("player_logs/*.csv"):
     player_name = files.split('/')[1].split('.c')[0]
+
     # this will need to be looped
     logger.info('Parsing stats for: '+player_name)
 
     with open(files, 'rb') as f:
         try:
             PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
+            categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
+
             # Since we need to go through the files again we seek to the beginning of the file
             f.seek(0)
             last_n_games(f, 5)
@@ -482,10 +502,7 @@ for files in glob.glob("player_logs/*.csv"):
 
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
+# Dump a json for all players
+with open('json_files/all_players.json', 'w') as outfile:
+    json.dump(ALL_PLAYERS, outfile)
 
-# with open('team_schedules/MIL.csv', 'rb') as f:
-#     SCHEDULE_DICT = {}
-#     read_team_schedule_csv(f, 'MIL')
-
-# with open('player_logs/Khris Middleton.csv', 'rb') as f:
-#     PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, 'Khris Middleton')

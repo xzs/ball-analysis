@@ -32,9 +32,9 @@ app.controller('MainCtrl',
         fetch.getPlayer(name).then(function (response) {
             // console.log();
             var playerTeamData = response.teams_against;
+            // I need to get a list of players
             $scope.teamDataHeader = Object.keys(playerTeamData);
             $scope.teamData = playerTeamData;
-            // against teams
         })
     }
 

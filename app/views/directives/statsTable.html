@@ -1,6 +1,7 @@
 <table class="table table-striped">
   <thead>
     <tr>
+      <th>Team</th>
       <th>GMS</th>
       <th>PTS</th>
       <th>3PM</th>
@@ -12,7 +13,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="team in data">
+    <tr ng-repeat="(teamName, team) in data">
+      <td>{{teamName}}</td>
       <td>{{team.stats.games}}</td>
       <td>{{team.stats.points}}</td>
       <td>{{team.stats.threes}}</td>
