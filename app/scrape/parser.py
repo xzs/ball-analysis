@@ -318,6 +318,7 @@ def new_stats_dict(player_dict, layer, record):
             player_dict[layer]['stats']['threes'] = float(player_dict[layer]['stats']['threes'] + float(record[13]))
         else:
             player_dict[layer]['stats'] = {}
+            player_dict[layer]['team_against'] = record[6]
             player_dict[layer]['stats']['games'] = 1
             player_dict[layer]['stats']['gmsc'] = float(record[28])
             player_dict[layer]['stats']['points'] = float(record[27])
@@ -330,6 +331,7 @@ def new_stats_dict(player_dict, layer, record):
     else:
         player_dict[layer] = {}
         player_dict[layer]['stats'] = {}
+        player_dict[layer]['team_against'] = record[6]
         player_dict[layer]['stats']['games'] = 1
         player_dict[layer]['stats']['gmsc'] = float(record[28])
         player_dict[layer]['stats']['points'] = float(record[27])

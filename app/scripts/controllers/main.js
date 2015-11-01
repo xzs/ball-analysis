@@ -27,7 +27,14 @@ app.controller('MainCtrl',
         fetch.getPlayer(name).then(function (response) {
             var playerTeamData = response.teams_against;
             $scope.teamDataHeader = Object.keys(playerTeamData);
-            $scope.teamData = playerTeamData;
+            // $scope.teamData = playerTeamData;
+            //  add an array of your data objects to enable sorting
+            // http://stackoverflow.com/a/27779633
+            $scope.teamData = Object.keys(playerTeamData)
+             .map(function (key) {
+               return playerTeamData[key];
+             });
+             console.log($scope.teamData);
         });
     }
 

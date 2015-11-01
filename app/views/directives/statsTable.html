@@ -8,13 +8,16 @@
       <th>REB</th>
       <th>STL</th>
       <th>TOV</th>
-      <th>GMSCR</th>
+      <th>
+        <a href="" ng-click="order('stats.gmsc')">GMSCR</a>
+        <span class="sortorder" ng-show="predicate === 'stats.gmsc'" ng-class="{reverse:reverse}"></span>
+      </th>
       <th>GMRM</th>
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="(teamName, team) in data">
-      <td>{{teamName}}</td>
+    <tr ng-repeat="(teamName, team) in data | orderBy:predicate:reverse">
+      <td>{{team.team_against}}</td>
       <td>{{team.stats.games}}</td>
       <td>{{team.stats.points}}</td>
       <td>{{team.stats.threes}}</td>
