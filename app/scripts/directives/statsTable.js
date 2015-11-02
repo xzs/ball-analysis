@@ -1,19 +1,22 @@
 app.directive('statsTable', function() {
     return {
-        restrict: 'E',
+        restrict: 'A',
         scope: {
           // the key needs to match that within the template
-          data: '=data'
+          data: '=data',
+          heading: '=heading',
         },
         controller: ['$scope', function($scope) {
+            // set default predicate to the gmsc
             $scope.predicate = 'stats.gmsc';
             $scope.reverse = true;
             $scope.order = function(predicate) {
-                console.log("here");
                 $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
                 $scope.predicate = predicate;
             }
         }],
-        templateUrl: 'views/directives/statsTable.html'
+        templateUrl: function(elem, attr) {
+            return 'views/directives/table-stats-'+attr.type+'.html'
+        }
     }
 });

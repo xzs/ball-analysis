@@ -138,7 +138,8 @@ def read_player_csv(csv_f, schedule, player_name):
 
     player_dict = {}
     player_dict['stats'] = {}
-    player_dict['name'] = player_name
+    player_dict['basic_info'] = {}
+    player_dict['basic_info']['name'] = player_name
 
     player_dict['pre_all_star'] = {}
     player_dict['post_all_star'] = {}
@@ -177,9 +178,9 @@ def read_player_csv(csv_f, schedule, player_name):
     # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
     # The dictionary will also contain detailed information abou the teams the player has played agianst
     for record in player_log:
-        player_dict['age'] = record[3].split('-')[0]
+        player_dict['basic_info']['age'] = record[3].split('-')[0]
         team = record[4]
-        player_dict['team'] = team
+        player_dict['basic_info']['team'] = team
         # If he played
         if record[1]:
             if record[5]:
@@ -251,7 +252,6 @@ def read_player_csv(csv_f, schedule, player_name):
 
         player_dict['average_away_gmsc'] = two_decimals(float(away_gmsc / away_games))
         player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
-        player_dict['average_gmsc'] = two_decimals(float((away_gmsc + home_gmsc)/(away_games + home_games)))
 
         if player_dict['eastern_conf']['games'] != 0:
             player_dict['eastern_conf']['gmsc'] = two_decimals(float(east_gmsc / player_dict['eastern_conf']['games']))
@@ -270,6 +270,8 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['stats']['blocks'] = two_decimals(float(blocks / (away_games + home_games)))
         player_dict['stats']['turnovers'] = two_decimals(float(turnovers / (away_games + home_games)))
         player_dict['stats']['threes'] = two_decimals(float(threes / (away_games + home_games)))
+        # avg gmscr
+        player_dict['stats']['gmsc'] = two_decimals(float((away_gmsc + home_gmsc)/(away_games + home_games)))
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
 
@@ -289,11 +291,11 @@ def read_player_csv(csv_f, schedule, player_name):
 # Create a temp obj with the player's basic information
 def categorize_players_by_teams(player, players_obj):
     # I need to store the names in a json file as a list of objects
-    team = player['team']
+    team = player['basic_info']['team']
     temp_player_obj = {}
-    temp_player_obj['name'] = player['name']
+    temp_player_obj['name'] = player['basic_info']['name']
     temp_player_obj['team'] = team
-    temp_player_obj['age'] = player['age']
+    temp_player_obj['age'] = player['basic_info']['age']
     if team in players_obj:
         # add player to
         players_obj[team].append(temp_player_obj)
@@ -318,7 +320,8 @@ def new_stats_dict(player_dict, layer, record):
             player_dict[layer]['stats']['threes'] = float(player_dict[layer]['stats']['threes'] + float(record[13]))
         else:
             player_dict[layer]['stats'] = {}
-            player_dict[layer]['team_against'] = record[6]
+            if layer != 'pre_all_star' and layer != 'post_all_star':
+                player_dict[layer]['team_against'] = layer
             player_dict[layer]['stats']['games'] = 1
             player_dict[layer]['stats']['gmsc'] = float(record[28])
             player_dict[layer]['stats']['points'] = float(record[27])
@@ -331,7 +334,8 @@ def new_stats_dict(player_dict, layer, record):
     else:
         player_dict[layer] = {}
         player_dict[layer]['stats'] = {}
-        player_dict[layer]['team_against'] = record[6]
+        if layer != 'pre_all_star' and layer != 'post_all_star':
+            player_dict[layer]['team_against'] = layer
         player_dict[layer]['stats']['games'] = 1
         player_dict[layer]['stats']['gmsc'] = float(record[28])
         player_dict[layer]['stats']['points'] = float(record[27])

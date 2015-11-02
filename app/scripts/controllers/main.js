@@ -23,18 +23,29 @@ app.controller('MainCtrl',
     }
 
     $scope.getPlayerData = function(name) {
-        $scope.playerName = name;
         fetch.getPlayer(name).then(function (response) {
+            // Player info
+            $scope.playerInfo = response.basic_info;
+            // Base stats
+            $scope.playerStats = response.stats;
+            $scope.playerCov = response.cov;
+            $scope.playerLast5 = response.last_5_games;
+
+            $scope.playerPlayerTimeAway = response.away_playtime;
+            $scope.playerPlayerTimeHome = response.home_playtime;
+
+            $scope.playerGmscAway = response.average_away_gmsc;
+            $scope.playerGmscHome = response.average_home_gmsc;
+
+            // Data for against opponents
             var playerTeamData = response.teams_against;
             $scope.teamDataHeader = Object.keys(playerTeamData);
-            // $scope.teamData = playerTeamData;
-            //  add an array of your data objects to enable sorting
+            // add an array of your data objects to enable sorting
             // http://stackoverflow.com/a/27779633
             $scope.teamData = Object.keys(playerTeamData)
              .map(function (key) {
                return playerTeamData[key];
              });
-             console.log($scope.teamData);
         });
     }
 
@@ -53,14 +64,12 @@ app.controller('MainCtrl',
     function init() {
         fetch.getAllPlayers().then(function (response) {
             local.allPlayers = response;
-            $scope.teams = Object.keys(response);
+            $scope.teams = Object.keys(response).sort();
         });
     }
     function processCSV(data) {
         // process the data into readable JSON format
         processing.setAllPlayersByPosition(data);
-        // console.log(processing.getEqualDistributionLineUp(salary));
-
     };
 
     init();

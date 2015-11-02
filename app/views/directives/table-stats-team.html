@@ -1,0 +1,54 @@
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading"><b>By Team</b></div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          <a href="" ng-click="order('team_against')">TEAM</a>
+          <span class="sortorder" ng-show="predicate === 'team_against'" ng-class="{reverse:reverse}"></span>
+        </th>
+        <th>GMS</th>
+
+        <th>3PM</th>
+        <th>
+          <a href="" ng-click="order('stats.rebounds')">REB</a>
+          <span class="sortorder" ng-show="predicate === 'stats.rebounds'" ng-class="{reverse:reverse}"></span>
+        </th>
+        <th>
+          <a href="" ng-click="order('stats.assists')">AST</a>
+          <span class="sortorder" ng-show="predicate === 'stats.assists'" ng-class="{reverse:reverse}"></span>
+        </th>
+        <th>
+          <a href="" ng-click="order('stats.blocks')">BLK</a>
+          <span class="sortorder" ng-show="predicate === 'stats.blocks'" ng-class="{reverse:reverse}"></span>
+        </th>
+        <th>STL</th>
+        <th>TOV</th>
+        <th>
+          <a href="" ng-click="order('stats.points')">PTS</a>
+          <span class="sortorder" ng-show="predicate === 'stats.points'" ng-class="{reverse:reverse}"></span>
+        </th>
+        <th>
+          <a href="" ng-click="order('stats.gmsc')">GMSC</a>
+          <span class="sortorder" ng-show="predicate === 'stats.gmsc'" ng-class="{reverse:reverse}"></span>
+        </th>
+        <th>GMRM</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="(teamName, team) in data | orderBy:predicate:reverse">
+        <td>{{team.team_against}}</td>
+        <td>{{team.stats.games}}</td>
+        <td>{{team.stats.threes}}</td>
+        <td>{{team.stats.rebounds}}</td>
+        <td>{{team.stats.assists}}</td>
+        <td>{{team.stats.blocks}}</td>
+        <td>{{team.stats.steals}}</td>
+        <td>{{team.stats.turnovers}}</td>
+        <td>{{team.stats.points}}</td>
+        <td>{{team.stats.gmsc}}</td>
+        <td>{{team.stats.games_remain}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

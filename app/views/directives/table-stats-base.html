@@ -1,0 +1,29 @@
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading"><b>{{heading}}</b></div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>3PM</th>
+        <th>REB</th>
+        <th>AST</th>
+        <th>BLK</th>
+        <th>STL</th>
+        <th>TOV</th>
+        <th>PTS</th>
+        <th>GMSC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{data.threes}}</td>
+        <td>{{data.rebounds}}</td>
+        <td>{{data.assists}}</td>
+        <td>{{data.blocks}}</td>
+        <td>{{data.steals}}</td>
+        <td>{{data.turnovers}}</td>
+        <td>{{data.points}}</td>
+        <td>{{data.gmsc}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

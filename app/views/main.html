@@ -8,5 +8,33 @@
         ng-change="getPlayerData(player)">
   <option ng-repeat="player in teamPlayers">{{player.name}}</option>
 </select>
-{{playerName}}
-<stats-table data='teamData'></stats-table>
+
+<div ng-if="playerInfo">
+  <h2>{{playerInfo.name}}</h2>
+  <h4>{{playerInfo.age}}, {{playerInfo.team}}</h4>
+</div>
+<!-- temp holder for base information for home and away -->
+  <table class="table table-striped" ng-if="playerInfo">
+    <thead>
+      <tr>
+        <th></th>
+        <th>MIN</th>
+        <th>GMSC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Home</td>
+        <td>{{playerPlayerTimeHome}}</td>
+        <td>{{playerGmscHome}}</td>
+      </tr>
+      <tr>
+        <td>Away</td>
+        <td>{{playerPlayerTimeAway}}</td>
+        <td>{{playerGmscAway}}</td>
+      </tr>
+    </tbody>
+  </table>
+<div stats-table data='playerStats' heading="'Stats'" type='base'></div>
+<div stats-table data='playerLast5' heading="'Last 5 Games'" type='base'></div>
+<div stats-table data='teamData' type='team'></div>
