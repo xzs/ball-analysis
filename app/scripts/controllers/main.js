@@ -70,8 +70,10 @@ app.controller('MainCtrl',
     function processCSV(data) {
         // process the data into readable JSON format
         processing.setAllPlayersByPosition(data);
+        console.log(processing.getEqualDistributionLineUp(local.salary));
     };
 
     init();
+    fetchCSV();
 
 }]);

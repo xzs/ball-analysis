@@ -169,6 +169,7 @@ def read_player_csv(csv_f, schedule, player_name):
     home_games = 0
     away_gmsc = 0
     home_gmsc = 0
+    play_time_seconds = 0
     home_playtime_seconds = 0
     away_playtime_seconds = 0
 
@@ -187,20 +188,15 @@ def read_player_csv(csv_f, schedule, player_name):
                 logger.info('Compling away games')
                 away_gmsc += float(record[28])
                 away_games += 1
-                home_playtime = record[9].split(':')
-                if len(home_playtime) > 1:
-                    home_playtime_seconds += int(home_playtime[0])*60 + int(home_playtime[1])
-                else:
-                    home_playtime_seconds = 0
+                home_playtime_seconds = process_playtime(home_playtime_seconds, record[9])
             else:
                 logger.info('Compling home games')
                 home_gmsc += float(record[28])
                 home_games += 1
-                away_playtime = record[9].split(':')
-                if len(away_playtime) > 1:
-                    away_playtime_seconds += int(away_playtime[0])*60 + int(away_playtime[1])
-                else:
-                    away_playtime_seconds = 0
+                away_playtime_seconds = process_playtime(away_playtime_seconds, record[9])
+
+            # calculate the playtime for the player
+            play_time_seconds = process_playtime(play_time_seconds, record[9])
 
             logger.info('Begining game statistics')
             # Create new layers for statistics against every team
@@ -249,6 +245,7 @@ def read_player_csv(csv_f, schedule, player_name):
         logger.info('First level dictionary values processing')
         player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / away_games)/60)
         player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / home_games)/60)
+        player_dict['stats']['playtime'] = two_decimals(float(play_time_seconds / (away_games + home_games))/60)
 
         player_dict['average_away_gmsc'] = two_decimals(float(away_gmsc / away_games))
         player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
@@ -288,6 +285,16 @@ def read_player_csv(csv_f, schedule, player_name):
 
     return player_dict
 
+
+def process_playtime(playtime_seconds, record):
+    playtime = record.split(':')
+    if len(playtime) > 1:
+        playtime_seconds += int(playtime[0])*60 + int(playtime[1])
+    else:
+        playtime_seconds = 0
+
+    return playtime_seconds
+
 # Create a temp obj with the player's basic information
 def categorize_players_by_teams(player, players_obj):
     # I need to store the names in a json file as a list of objects
@@ -310,6 +317,7 @@ def new_stats_dict(player_dict, layer, record):
     if layer in player_dict:
         if 'stats' in player_dict[layer]:
             player_dict[layer]['stats']['games'] += 1
+            player_dict[layer]['stats']['playtime'] = process_playtime(player_dict[layer]['stats']['playtime'], record[9])
             player_dict[layer]['stats']['gmsc'] = float(player_dict[layer]['stats']['gmsc'] + float(record[28]))
             player_dict[layer]['stats']['points'] = float(player_dict[layer]['stats']['points'] + float(record[27]))
             player_dict[layer]['stats']['rebounds'] = float(player_dict[layer]['stats']['rebounds'] + float(record[21]))
@@ -323,6 +331,7 @@ def new_stats_dict(player_dict, layer, record):
             if layer != 'pre_all_star' and layer != 'post_all_star':
                 player_dict[layer]['team_against'] = layer
             player_dict[layer]['stats']['games'] = 1
+            player_dict[layer]['stats']['playtime'] = process_playtime(0, record[9])
             player_dict[layer]['stats']['gmsc'] = float(record[28])
             player_dict[layer]['stats']['points'] = float(record[27])
             player_dict[layer]['stats']['rebounds'] = float(record[21])
@@ -337,6 +346,7 @@ def new_stats_dict(player_dict, layer, record):
         if layer != 'pre_all_star' and layer != 'post_all_star':
             player_dict[layer]['team_against'] = layer
         player_dict[layer]['stats']['games'] = 1
+        player_dict[layer]['stats']['playtime'] = process_playtime(0, record[9])
         player_dict[layer]['stats']['gmsc'] = float(record[28])
         player_dict[layer]['stats']['points'] = float(record[27])
         player_dict[layer]['stats']['rebounds'] = float(record[21])
@@ -348,6 +358,7 @@ def new_stats_dict(player_dict, layer, record):
 
     return player_dict
 
+
 # Calculate the average stats for the stats dictionary
 def average_stats(player_dict):
 
@@ -355,13 +366,19 @@ def average_stats(player_dict):
     if 'stats' in player_dict:
         for stat in player_dict['stats']:
             if stat not in ('games'):
-                player_dict['stats'][stat] = two_decimals(float(player_dict['stats'][stat]) / float(player_dict['stats']['games']))
+                if stat == 'playtime':
+                    player_dict['stats'][stat] = two_decimals(float(player_dict['stats'][stat]) / float(player_dict['stats']['games']) / 60)
+                else:
+                    player_dict['stats'][stat] = two_decimals(float(player_dict['stats'][stat]) / float(player_dict['stats']['games']))
     else:
         for team in player_dict:
             for stat in player_dict[team]['stats']:
                 # Python's 'or' expressions works like a single line if, so it's better to do an in
                 if stat not in ('games', 'games_remain'):
-                    player_dict[team]['stats'][stat] = two_decimals(float(player_dict[team]['stats'][stat]) / float(player_dict[team]['stats']['games']))
+                    if stat == 'playtime':
+                        player_dict[team]['stats'][stat] = two_decimals(float(player_dict[team]['stats'][stat]) / float(player_dict[team]['stats']['games']) / 60)
+                    else:
+                        player_dict[team]['stats'][stat] = two_decimals(float(player_dict[team]['stats'][stat]) / float(player_dict[team]['stats']['games']))
     return player_dict
 
 
@@ -436,6 +453,7 @@ def last_n_games(csv_f, num_games):
     logger.info('Best stretch processing')
     count = 0
     PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
+    playtime = 0
     threes = 0
     gmsc = 0
     points = 0
@@ -448,6 +466,7 @@ def last_n_games(csv_f, num_games):
     for record in reversed(list(csv.reader(csv_f))):
         # If he played
         if record[1] and count != num_games:
+            playtime = process_playtime(playtime, record[9])
             gmsc += float(record[27])
             points += float(record[27])
             rebounds += float(record[21])
@@ -458,6 +477,7 @@ def last_n_games(csv_f, num_games):
             threes += float(record[13])
             count +=1
 
+    PLAYER_DICT['last_'+str(num_games)+'_games']['playtime'] = (playtime / num_games)/60
     PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = gmsc / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['points'] = points / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = rebounds / num_games

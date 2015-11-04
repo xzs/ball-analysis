@@ -8,7 +8,10 @@
           <span class="sortorder" ng-show="predicate === 'team_against'" ng-class="{reverse:reverse}"></span>
         </th>
         <th>GMS</th>
-
+        <th>
+          <a href="" ng-click="order('stats.playtime')">MIN</a>
+          <span class="sortorder" ng-show="predicate === 'stats.playtime'" ng-class="{reverse:reverse}"></span>
+        </th>
         <th>3PM</th>
         <th>
           <a href="" ng-click="order('stats.rebounds')">REB</a>
@@ -39,6 +42,7 @@
       <tr ng-repeat="(teamName, team) in data | orderBy:predicate:reverse">
         <td>{{team.team_against}}</td>
         <td>{{team.stats.games}}</td>
+        <td>{{team.stats.playtime}}</td>
         <td>{{team.stats.threes}}</td>
         <td>{{team.stats.rebounds}}</td>
         <td>{{team.stats.assists}}</td>
