@@ -1,0 +1,26 @@
+
+<div class="panel panel-default">
+  <div class="panel-heading"><b>Line-up based on equal distribution</b></div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>POS</th>
+        <th>NAME</th>
+        <th>APPG</th>
+        <th>RATIO</th>
+        <th>SALARY</th>
+        <th>TEAM</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="player in equalDistributedLineup">
+          <td>{{player.pos}}</td>
+          <td>{{player.name}}</td>
+          <td>{{player.appg}}</td>
+          <td>{{player.appgCostRatio}}</td>
+          <td>{{player.salary}}</td>
+          <td>{{player.team}}</td>
+        </tr>
+    </tbody>
+  </table>
+</div>
