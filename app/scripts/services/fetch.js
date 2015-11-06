@@ -1,7 +1,7 @@
 app.factory('fetch', ['$http', function($http) {
     return {
-        getCSV: function() {
-            return $http.get('csv/DKSalaries.csv').then(function (response) {
+        getStarters: function() {
+            return $http.get('scrape/misc/starters.json').then(function (response) {
                 return response.data;
             });
         },

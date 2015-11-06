@@ -46,7 +46,7 @@ def get_depth_chart():
 
     with open('misc/starters.json', 'w') as outfile:
         logger.info('Writing to json file')
-        json.dump({'data': current_starters}, outfile)
+        json.dump(current_starters, outfile)
 
     return current_starters
 

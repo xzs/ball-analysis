@@ -88,3 +88,7 @@ body {
 .sortorder.reverse:after {
   content: '\25bc';
 }
+
+.starter {
+  color: red;
+}

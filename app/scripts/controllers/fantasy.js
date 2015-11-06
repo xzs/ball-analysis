@@ -17,18 +17,8 @@ app.controller('FantasyCtrl',
     local.salary = 50000;
     $scope.file = {};
     $scope.file.csv = "";
+    $scope.lineups = {};
 
-    function fetchCSV() {
-        fetch.getCSV().then(function (response) {
-            // use papa to parse the csv to json
-            Papa.parse(response, {
-                complete: function(results) {
-                    // remove the first element from the list
-                    processCSV(_.drop(results.data));
-                }
-            });
-        })
-    };
 
     function init() {
         fetch.getAllPlayers().then(function (response) {
@@ -37,14 +27,7 @@ app.controller('FantasyCtrl',
         });
     }
 
-    function processCSV(data) {
-        // process the data into readable JSON format
-        console.log("here");
-        processing.setAllPlayersByPosition(data);
-        $scope.equalDistributedLineup = processing.getEqualDistributionLineUp(local.salary);
-    };
-
-    $scope.processCSV = function(csv){
+    $scope.getCSV = function(csv){
         Papa.parse(csv, {
             complete: function(results) {
                 // remove the first element from the list
@@ -52,7 +35,29 @@ app.controller('FantasyCtrl',
             }
         });
     }
+
+    function processCSV(data) {
+        // process the data into readable JSON format
+        processing.setAllPlayersByPosition(data);
+        $scope.lineups.equalDistributedLineup = processing.getEqualDistributionLineUp(local.salary);
+        // Check for starters
+        _.forEach($scope.lineups.equalDistributedLineup, function(player, position){
+            player.isStarter = _.includes(Object.keys(local.starters), player.name);
+        });
+        // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
+        // Therefore, you have to make apply int he end of the onload function
+        // http://stackoverflow.com/a/33038028
+        $scope.$apply();
+
+    };
+
+    function processDepthChart() {
+        fetch.getStarters().then(function (data){
+            local.starters = data;
+        });
+    }
+
     init();
-    // fetchCSV();
+    processDepthChart();
 
 }]);

@@ -10,7 +10,7 @@
 </select>
 
 <div ng-if="playerInfo">
-  <h2>{{playerInfo.name}}</h2>
+  <h2 ng-class="{'starter' : playerInfo.isStarter}">{{playerInfo.name}}</h2>
   <h4>{{playerInfo.age}}, {{playerInfo.team}}</h4>
   <h4>COV: {{playerCov}}</h4>
 </div>

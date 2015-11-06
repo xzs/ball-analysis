@@ -25,12 +25,19 @@ app.factory('processing', function() {
         finalData['G'] = [];
         finalData['F'] = [];
         finalData['All'] = [];
-
+        // parse the string and match the team
         for (var i=0; i<dataLength; i++) {
+            // "Atl@NO 08:00PM ET"
+            // If the team starts with the player's team then its home else away
+            var gameInfo = _.words(data[i][3]);
+            var locGame = gameInfo[0] == data[i][5] ? 'Home' : 'Away';
+            var gametime = gameInfo[2] + ':' + gameInfo[3] + gameInfo[4] + gameInfo[5];
             var player = {
                 pos: data[i][0],
                 name: data[i][1],
                 salary: data[i][2],
+                location: locGame,
+                gametime: gametime,
                 appg: data[i][4],
                 team: data[i][5],
             };

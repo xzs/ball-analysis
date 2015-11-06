@@ -1,28 +1,31 @@
 
-<input type="file" fileread="file.csv" />
-<button ng-click="processCSV(file.csv)" class="btn btn-default">Go</button>
-
-<div class="panel panel-default">
+<input type="file" ng-model="file.csv" fileread="file.csv" />
+<button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
+<div class="panel panel-default" ng-if="lineups.equalDistributedLineup">
   <div class="panel-heading"><b>Line-up based on equal distribution</b></div>
   <table class="table table-striped">
     <thead>
       <tr>
         <th>POS</th>
         <th>NAME</th>
+        <th>SALARY</th>
         <th>APPG</th>
         <th>RATIO</th>
-        <th>SALARY</th>
         <th>TEAM</th>
+        <th>LOC</th>
+        <th>TIME</th>
       </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="player in equalDistributedLineup">
+        <tr ng-repeat="player in lineups.equalDistributedLineup">
           <td>{{player.pos}}</td>
-          <td>{{player.name}}</td>
+          <td ng-class="{'starter' : player.isStarter}">{{player.name}}</td>
+          <td>{{player.salary}}</td>
           <td>{{player.appg}}</td>
           <td>{{player.appgCostRatio}}</td>
-          <td>{{player.salary}}</td>
           <td>{{player.team}}</td>
+          <td>{{player.location}}</td>
+          <td>{{player.gametime}}</td>
         </tr>
     </tbody>
   </table>

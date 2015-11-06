@@ -16,6 +16,13 @@ app.controller('MainCtrl',
     var local = this;
     local.allPlayers = {};
 
+
+    function processDepthChart() {
+        fetch.getStarters().then(function (data){
+            local.starters = data;
+        });
+    }
+
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team]
         return $scope.teamPlayers
@@ -23,8 +30,12 @@ app.controller('MainCtrl',
 
     $scope.getPlayerData = function(name) {
         fetch.getPlayer(name).then(function (response) {
+
+            // temp use of object.keys until I determine the final structure of the json
+            var isStarter = _.includes(Object.keys(local.starters), name);
             // Player info
             $scope.playerInfo = response.basic_info;
+            $scope.playerInfo.isStarter = isStarter;
             // Base stats
             $scope.playerStats = response.stats;
             $scope.playerCov = response.cov;
@@ -56,5 +67,6 @@ app.controller('MainCtrl',
     }
 
     init();
+    processDepthChart();
 
 }]);
