@@ -1,11 +1,15 @@
-
-<select ng-model="team"
+<select ng-model="year"
+        ng-change="init(year)">
+  <option ng-repeat="year in years">{{year}}</option>
+</select>
+<select ng-if="year"
+        ng-model="team"
         ng-change="getPlayers(team)">
   <option ng-repeat="team in teams">{{team}}</option>
 </select>
 <select ng-if="teamPlayers"
         ng-model="player"
-        ng-change="getPlayerData(player)">
+        ng-change="getPlayerData(year, player)">
   <option ng-repeat="player in teamPlayers">{{player.name}}</option>
 </select>
 

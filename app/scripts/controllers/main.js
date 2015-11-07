@@ -15,7 +15,7 @@ app.controller('MainCtrl',
     // Set salary
     var local = this;
     local.allPlayers = {};
-
+    $scope.years = ['2015', '2016'];
 
     function processDepthChart() {
         fetch.getStarters().then(function (data){
@@ -28,13 +28,12 @@ app.controller('MainCtrl',
         return $scope.teamPlayers
     }
 
-    $scope.getPlayerData = function(name) {
-        fetch.getPlayer(name).then(function (response) {
+    $scope.getPlayerData = function(year, name) {
+        fetch.getPlayer(year, name).then(function (response) {
 
             // temp use of object.keys until I determine the final structure of the json
             var isStarter = _.includes(Object.keys(local.starters), name);
 
-            console.log(local.starters[name]);
             // Player info
             $scope.playerInfo = response.basic_info;
             $scope.playerInfo.isStarter = isStarter;
@@ -62,14 +61,13 @@ app.controller('MainCtrl',
         });
     }
 
-    function init() {
-        fetch.getAllPlayers().then(function (response) {
+    $scope.init = function(year) {
+        fetch.getAllPlayers(year).then(function (response) {
             local.allPlayers = response;
             $scope.teams = Object.keys(response).sort();
         });
     }
 
-    init();
     processDepthChart();
 
 }]);
