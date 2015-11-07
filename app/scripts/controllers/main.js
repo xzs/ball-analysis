@@ -16,6 +16,13 @@ app.controller('MainCtrl',
     var local = this;
     local.allPlayers = {};
     $scope.years = ['2015', '2016'];
+    $scope.year = '2016';
+    $scope.team = 'GSW';
+    $scope.player = 'Stephen Curry';
+    $scope.alerts = {
+        message: null,
+        type: null
+    }
 
     function processDepthChart() {
         fetch.getStarters().then(function (data){
@@ -29,8 +36,9 @@ app.controller('MainCtrl',
     }
 
     $scope.getPlayerData = function(year, name) {
+        $scope.player = name;
         fetch.getPlayer(year, name).then(function (response) {
-
+            $scope.alerts = isPlayerOnTeam(name);
             // temp use of object.keys until I determine the final structure of the json
             var isStarter = _.includes(Object.keys(local.starters), name);
 
@@ -58,16 +66,40 @@ app.controller('MainCtrl',
              .map(function (key) {
                return playerTeamData[key];
              });
+        }, function(error) {
+            $scope.alerts.message = 'The player does not exist';
+            $scope.alerts.type = 'danger';
         });
+
     }
 
-    $scope.init = function(year) {
+    function isPlayerOnTeam(name) {
+        var alertObj = {};
+        // Check if player exists on team
+        if (!_.find($scope.teamPlayers, {'name': name})) {
+            alertObj.message = 'The player did not play on this team for the season/team selected';
+            alertObj.type = 'warning';
+        } else {
+            alertObj.message = null;
+            alertObj.type = null;
+        }
+        return alertObj;
+    }
+
+    function init(year) {
         fetch.getAllPlayers(year).then(function (response) {
             local.allPlayers = response;
             $scope.teams = Object.keys(response).sort();
+            $scope.getPlayers($scope.team);
+            $scope.getPlayerData(year, $scope.player);
         });
     }
 
+    $scope.changeYear = function(year) {
+        init(year);
+    }
+
+    init($scope.year);
     processDepthChart();
 
 }]);

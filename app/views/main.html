@@ -1,9 +1,12 @@
+<div ng-if="alerts.message" class="alert alert-{{alerts.type}} alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <strong>Warning!</strong> {{alerts.message}}
+</div>
 <select ng-model="year"
-        ng-change="init(year)">
+        ng-change="changeYear(year)">
   <option ng-repeat="year in years">{{year}}</option>
 </select>
-<select ng-if="year"
-        ng-model="team"
+<select ng-model="team"
         ng-change="getPlayers(team)">
   <option ng-repeat="team in teams">{{team}}</option>
 </select>
