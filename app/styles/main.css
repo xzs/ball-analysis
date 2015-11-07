@@ -89,6 +89,6 @@ body {
   content: '\25bc';
 }
 
-.starter {
-  color: red;
+.status-green {
+  color: green;
 }

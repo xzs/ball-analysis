@@ -10,8 +10,14 @@
 </select>
 
 <div ng-if="playerInfo">
-  <h2 ng-class="{'starter' : playerInfo.isStarter}">{{playerInfo.name}}</h2>
+  <h2 ng-class="{'status-green' : playerInfo.isStarter}">
+    {{playerInfo.name}}
+  </h2>
   <h4>{{playerInfo.age}}, {{playerInfo.team}}</h4>
+  <h4 ng-if="playerInfo.status"
+      ng-class="{'status-green' : (playerInfo.status == 'available')}">
+      Status: {{playerInfo.status}}
+  </h4>
   <h4>COV: {{playerCov}}</h4>
 </div>
 <!-- temp holder for base information for home and away -->

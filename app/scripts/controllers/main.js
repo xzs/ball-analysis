@@ -33,9 +33,12 @@ app.controller('MainCtrl',
 
             // temp use of object.keys until I determine the final structure of the json
             var isStarter = _.includes(Object.keys(local.starters), name);
+
+            console.log(local.starters[name]);
             // Player info
             $scope.playerInfo = response.basic_info;
             $scope.playerInfo.isStarter = isStarter;
+            $scope.playerInfo.status = local.starters[name] ? local.starters[name].status : '';
             // Base stats
             $scope.playerStats = response.stats;
             $scope.playerCov = response.cov;

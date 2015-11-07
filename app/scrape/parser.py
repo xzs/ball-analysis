@@ -10,9 +10,9 @@ from datetime import datetime as dt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-YEAR = '2015'
+YEAR = '2016'
 
-ALL_STAR_DATE = '2015-02-22'
+ALL_STAR_DATE = '2016-02-13'
 
 TEAMS_DICT = {
     'ATL':'Atlanta Hawks',
@@ -443,7 +443,10 @@ def calc_coefficient_of_variance(player_dict):
     std_deviation = math.sqrt(variance)
 
     # Coefficent of variation
-    return two_decimals(std_deviation / mean)
+    if mean == 0:
+        return 0
+    else:
+        return two_decimals(std_deviation / mean)
 
 
 # This method will calculate the trend for last n number of games
@@ -491,8 +494,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # Open all team schedules for processing
 SCHEDULE_DICT = {}
-for files in glob.glob("team_schedules/*.csv"):
-    team_name = files.split('/')[1].split('.c')[0]
+for files in glob.glob("team_schedules/"+YEAR+"/*.csv"):
+    team_name = files.split('/')[2].split('.c')[0]
     logger.info('Parsing schedule for: '+team_name)
 
     # this will need to be looped
@@ -505,8 +508,8 @@ for files in glob.glob("team_schedules/*.csv"):
 
 ALL_PLAYERS = {}
 # Open all player files for data parsing
-for files in glob.glob("player_logs/*.csv"):
-    player_name = files.split('/')[1].split('.c')[0]
+for files in glob.glob("player_logs/"+YEAR+"/*.csv"):
+    player_name = files.split('/')[2].split('.c')[0]
 
     # this will need to be looped
     logger.info('Parsing stats for: '+player_name)
@@ -523,12 +526,12 @@ for files in glob.glob("player_logs/*.csv"):
             last_n_games(f, 10)
             # Dump the json file
             logger.info('Dumping json for: '+player_name)
-            with open('json_files/'+player_name+'.json', 'w') as outfile:
+            with open('json_files/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
                 json.dump(PLAYER_DICT, outfile)
 
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
 # Dump a json for all players
-with open('json_files/all_players.json', 'w') as outfile:
+with open('json_files/'+YEAR+'/all_players.json', 'w') as outfile:
     json.dump(ALL_PLAYERS, outfile)
 

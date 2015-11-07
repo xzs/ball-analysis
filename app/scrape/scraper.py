@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = 'http://www.basketball-reference.com'
 DEPTH_URL = 'http://www.rotoworld.com/teams/depth-charts/nba.aspx'
-YEAR = '2015'
+YEAR = '2016'
 
 
 def get_depth_chart():
@@ -159,7 +159,7 @@ def get_player_log(players_dict):
                     for row in rows:
                         log_rows.append([val.text.encode('utf8') for val in row.find_all('td')])
 
-                    with open('player_logs/'+name+'.csv', 'wb') as f:
+                    with open('player_logs/'+YEAR+'/'+name+'.csv', 'wb') as f:
                         writer = csv.writer(f)
                         logger.info('Writing log csv for: ' + name)
                         writer.writerows(row for row in log_rows if row)
@@ -182,7 +182,7 @@ def get_team_schedule(teams_dict):
             for row in rows:
                 log_rows.append([val.text.encode('utf8') for val in row.find_all('td')])
 
-            with open('team_schedules/'+team+'.csv', 'wb') as f:
+            with open('team_schedules/'+YEAR+'/'+team+'.csv', 'wb') as f:
                 writer = csv.writer(f)
                 logger.info('Writing schedule csv for: ' + team)
                 writer.writerows(row for row in log_rows if row)
