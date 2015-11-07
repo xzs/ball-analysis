@@ -50,6 +50,8 @@ app.controller('MainCtrl',
             $scope.playerStats = response.stats;
             $scope.playerCov = response.cov;
             $scope.playerLast5 = response.last_5_games;
+            $scope.playerPreAllStar = response.pre_all_star.stats;
+            $scope.playerPostAllStar = response.post_all_star.stats;
 
             $scope.playerPlayerTimeAway = response.away_playtime;
             $scope.playerPlayerTimeHome = response.home_playtime;

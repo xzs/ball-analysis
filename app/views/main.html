@@ -2,6 +2,8 @@
   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   <strong>Warning!</strong> {{alerts.message}}
 </div>
+
+<!-- selects // this needs to be a directive soon as well -->
 <select ng-model="year"
         ng-change="changeYear(year)">
   <option ng-repeat="year in years">{{year}}</option>
@@ -51,4 +53,6 @@
   </table>
 <div stats-table data='playerStats' heading="'Stats'" type='base'></div>
 <div stats-table data='playerLast5' heading="'Last 5 Games'" type='base'></div>
+<div stats-table data='playerPreAllStar' heading="'Pre All-Star'" type='base'></div>
+<div stats-table data='playerPostAllStar' heading="'Post All-Star'" type='base'></div>
 <div stats-table data='teamData' type='team'></div>

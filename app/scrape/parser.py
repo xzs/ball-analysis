@@ -231,7 +231,7 @@ def read_player_csv(csv_f, schedule, player_name):
             game_date = dt.strptime(record[2], "%Y-%m-%d")
 
             # If the game is played pre all star break
-            if all_star < game_date:
+            if all_star > game_date:
                 pre_all_star_games += 1
                 # Create statistic layers for pre all star games
                 new_stats_dict(player_dict, 'pre_all_star', record)
@@ -487,7 +487,7 @@ def last_n_games(csv_f, num_games):
         # If he played
         if record[1] and count != num_games:
             playtime = process_playtime(playtime, record[9])
-            gmsc += float(record[27])
+            gmsc += float(record[28])
             points += float(record[27])
             rebounds += float(record[21])
             assists += float(record[22])
@@ -498,7 +498,7 @@ def last_n_games(csv_f, num_games):
             count +=1
 
     PLAYER_DICT['last_'+str(num_games)+'_games']['playtime'] = (playtime / num_games)/60
-    PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = gmsc / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = two_decimals(gmsc / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['points'] = points / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = rebounds / num_games
     PLAYER_DICT['last_'+str(num_games)+'_games']['assists'] = assists / num_games
