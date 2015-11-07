@@ -188,12 +188,12 @@ def read_player_csv(csv_f, schedule, player_name):
                 logger.info('Compling away games')
                 away_gmsc += float(record[28])
                 away_games += 1
-                home_playtime_seconds = process_playtime(home_playtime_seconds, record[9])
+                away_playtime_seconds = process_playtime(away_playtime_seconds, record[9])
             else:
                 logger.info('Compling home games')
                 home_gmsc += float(record[28])
                 home_games += 1
-                away_playtime_seconds = process_playtime(away_playtime_seconds, record[9])
+                home_playtime_seconds = process_playtime(home_playtime_seconds, record[9])
 
             # calculate the playtime for the player
             play_time_seconds = process_playtime(play_time_seconds, record[9])
@@ -241,14 +241,31 @@ def read_player_csv(csv_f, schedule, player_name):
                 new_stats_dict(player_dict, 'post_all_star', record)
 
     #  For now we only consider players who have played both a home and away game
-    if home_games > 0 and away_games > 0:
+    if home_games > 0 or away_games > 0:
         logger.info('First level dictionary values processing')
-        player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / away_games)/60)
-        player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / home_games)/60)
+        # value_when_true if condition else value_when_false
+        if home_games > 0:
+            player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / home_games)/60)
+        else:
+            player_dict['home_playtime'] = 0
+
+        if away_games > 0:
+            player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / away_games)/60)
+        else:
+            player_dict['away_playtime'] = 0
+
         player_dict['stats']['playtime'] = two_decimals(float(play_time_seconds / (away_games + home_games))/60)
 
-        player_dict['average_away_gmsc'] = two_decimals(float(away_gmsc / away_games))
-        player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
+        if home_games > 0:
+            player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
+        else:
+            player_dict['average_home_gmsc'] = 0
+
+        if away_games > 0:
+            player_dict['average_away_gmsc'] = two_decimals(float(away_gmsc / away_games))
+        else:
+            player_dict['average_away_gmsc'] = 0
+
 
         if player_dict['eastern_conf']['games'] != 0:
             player_dict['eastern_conf']['gmsc'] = two_decimals(float(east_gmsc / player_dict['eastern_conf']['games']))

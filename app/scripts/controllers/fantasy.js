@@ -15,13 +15,14 @@ app.controller('FantasyCtrl',
     // Set salary
     var local = this;
     local.salary = 50000;
+    local.year = '2016';
     $scope.file = {};
     $scope.file.csv = "";
     $scope.lineups = {};
 
 
-    function init() {
-        fetch.getAllPlayers().then(function (response) {
+    function init(year) {
+        fetch.getAllPlayers(year).then(function (response) {
             local.allPlayers = response;
             $scope.teams = Object.keys(response).sort();
         });
@@ -57,7 +58,7 @@ app.controller('FantasyCtrl',
         });
     }
 
-    init();
+    init(local.year);
     processDepthChart();
 
 }]);
