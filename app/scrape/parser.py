@@ -10,10 +10,42 @@ from datetime import datetime as dt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-YEAR = '2016'
+YEAR = '2015'
 
-ALL_STAR_DATE = '2016-02-13'
+ALL_STAR_DATE = '2015-02-13'
 
+REVERSE_TEAMS_DICT = {
+    'Atlanta Hawks': 'ATL',
+    'Boston Celtics': 'BOS',
+    'Brooklyn Nets': 'BRK',
+    'Charlotte Hornets': 'CHO',
+    'Chicago Bulls': 'CHI',
+    'Cleveland Cavaliers': 'CLE',
+    'Dallas Mavericks': 'DAL',
+    'Denver Nuggets': 'DEN',
+    'Detroit Pistons': 'DET',
+    'Golden State Warriors': 'GSW',
+    'Houston Rockets': 'HOU',
+    'Indiana Pacers': 'IND',
+    'Los Angeles Clippers': 'LAC',
+    'Los Angeles Lakers': 'LAL',
+    'Memphis Grizzlies': 'MEM',
+    'Miami Heat': 'MIA',
+    'Milwaukee Bucks': 'MIL',
+    'Minnesota Timberwolves': 'MIN',
+    'New Orleans Pelicans': 'NOP',
+    'New York Knicks': 'NYK',
+    'Oklahoma City Thunder': 'OKC',
+    'Orlando Magic': 'ORL',
+    'Philadelphia 76ers': 'PHI',
+    'Phoenix Suns': 'PHO',
+    'Portland Trail Blazers': 'POR',
+    'Sacramento Kings': 'SAC',
+    'San Antonio Spurs': 'SAS',
+    'Toronto Raptors': 'TOR',
+    'Utah Jazz': 'UTA',
+    'Washington Wizards': 'WAS'
+}
 TEAMS_DICT = {
     'ATL':'Atlanta Hawks',
     'BOS':'Boston Celtics',
@@ -92,35 +124,42 @@ def read_team_schedule_csv(csv_f, team_name):
 
     SCHEDULE_DICT[team_name] = {}
     SCHEDULE_DICT[team_name]['opp'] = {}
+    SCHEDULE_DICT[team_name]['by_date'] = {}
     SCHEDULE_DICT[team_name]['channel'] = {}
 
     logger.info('Completed creation of schedule dictionary for: '+team_name)
 
     schedule = csv.reader(csv_f)
-    for games in schedule:
+    for game in schedule:
         # Count up the number of times the opponent is supposed to be played this season
-        if games[6] in SCHEDULE_DICT[team_name]['opp']:
-            SCHEDULE_DICT[team_name]['opp'][games[6]] += 1
+        # print REVERSE_TEAMS_DICT[game[6]]
+        # print game[1]
+        if game[1] not in SCHEDULE_DICT[team_name]['by_date']:
+            SCHEDULE_DICT[team_name]['by_date'][game[1]] = {
+                'opp': REVERSE_TEAMS_DICT[game[6]],
+                'time': game[2]
+            }
+
+        if game[6] in SCHEDULE_DICT[team_name]['opp']:
+            SCHEDULE_DICT[team_name]['opp'][game[6]] += 1
         else:
-            SCHEDULE_DICT[team_name]['opp'][games[6]] = 1
+            SCHEDULE_DICT[team_name]['opp'][game[6]] = 1
 
         # Count the number of times the team played on national TV, and against who
         # If it's not played on a local TV channel
-        if games[3]:
-            if games[3] in SCHEDULE_DICT[team_name]['channel']:
-                SCHEDULE_DICT[team_name]['channel'][games[3]]['times_played'] += 1
+        if game[3]:
+            if game[3] in SCHEDULE_DICT[team_name]['channel']:
+                SCHEDULE_DICT[team_name]['channel'][game[3]]['times_played'] += 1
                 # If the channel already exists but the opponent does not
-                if games[6] in SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent']:
-                    SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] += 1
+                if game[6] in SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent']:
+                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][game[6]] += 1
                 else:
-                    SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] = 1
+                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][game[6]] = 1
             else:
-                SCHEDULE_DICT[team_name]['channel'][games[3]] = {}
-                SCHEDULE_DICT[team_name]['channel'][games[3]]['times_played'] = 1
-                SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'] = {}
-                SCHEDULE_DICT[team_name]['channel'][games[3]]['opponent'][games[6]] = 1
-
-        logger.info('Finished parsing schedule for: '+ team_name)
+                SCHEDULE_DICT[team_name]['channel'][game[3]] = {}
+                SCHEDULE_DICT[team_name]['channel'][game[3]]['times_played'] = 1
+                SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'] = {}
+                SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][game[6]] = 1
 
 
 '''
@@ -227,8 +266,8 @@ def read_player_csv(csv_f, schedule, player_name):
             threes += float(record[13])
 
             # If any games the player played before the ALL_STAR_BREAK
-            all_star = dt.strptime(ALL_STAR_DATE, "%Y-%m-%d")
-            game_date = dt.strptime(record[2], "%Y-%m-%d")
+            all_star = dt.strptime(ALL_STAR_DATE, '%Y-%m-%d')
+            game_date = dt.strptime(record[2], '%Y-%m-%d')
 
             # If the game is played pre all star break
             if all_star > game_date:
@@ -511,7 +550,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # Open all team schedules for processing
 SCHEDULE_DICT = {}
-for files in glob.glob("team_schedules/"+YEAR+"/*.csv"):
+for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
     team_name = files.split('/')[2].split('.c')[0]
     logger.info('Parsing schedule for: '+team_name)
 
@@ -519,13 +558,16 @@ for files in glob.glob("team_schedules/"+YEAR+"/*.csv"):
     with open(files, 'rb') as f:
         try:
             read_team_schedule_csv(f, team_name)
+            logger.info('Dumping json for: '+team_name)
 
+            with open('json_files/team_schedules/'+YEAR+'/'+team_name+'.json', 'w') as outfile:
+                json.dump(SCHEDULE_DICT, outfile)
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
 
 ALL_PLAYERS = {}
 # Open all player files for data parsing
-for files in glob.glob("player_logs/"+YEAR+"/*.csv"):
+for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
     player_name = files.split('/')[2].split('.c')[0]
 
     # this will need to be looped
@@ -543,12 +585,12 @@ for files in glob.glob("player_logs/"+YEAR+"/*.csv"):
             last_n_games(f, 10)
             # Dump the json file
             logger.info('Dumping json for: '+player_name)
-            with open('json_files/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
+            with open('json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
                 json.dump(PLAYER_DICT, outfile)
 
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
 # Dump a json for all players
-with open('json_files/'+YEAR+'/all_players.json', 'w') as outfile:
+with open('json_files/player_logs/'+YEAR+'/all_players.json', 'w') as outfile:
     json.dump(ALL_PLAYERS, outfile)
 

@@ -6,12 +6,12 @@ app.factory('fetch', ['$http', function($http) {
             });
         },
         getPlayer: function(year, name) {
-            return $http.get('scrape/json_files/'+year+'/'+name+'.json').then(function (response) {
+            return $http.get('scrape/json_files/player_logs/'+year+'/'+name+'.json').then(function (response) {
                 return response.data;
             });
         },
         getAllPlayers: function(year) {
-            return $http.get('scrape/json_files/'+year+'/all_players.json').then(function (response) {
+            return $http.get('scrape/json_files/player_logs/'+year+'/all_players.json').then(function (response) {
                 return response.data;
             });
         }
