@@ -22,7 +22,8 @@ app.controller('MainCtrl',
     $scope.alerts = {
         message: null,
         type: null
-    }
+    };
+    $scope.today = moment().format("YYYY-MM-DD");
 
     function processDepthChart() {
         fetch.getStarters().then(function (data){
@@ -30,8 +31,15 @@ app.controller('MainCtrl',
         });
     }
 
+    function getTeamSchedule(year, team) {
+        fetch.getTeamSchedule(year, team).then(function (data){
+            $scope.todayGame = data.by_date[$scope.today] ? data.by_date[$scope.today] : false;
+        });
+    }
+
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team]
+        getTeamSchedule($scope.year, $scope.team)
         return $scope.teamPlayers
     }
 

@@ -10,9 +10,9 @@ from datetime import datetime as dt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-YEAR = '2015'
+YEAR = '2016'
 
-ALL_STAR_DATE = '2015-02-13'
+ALL_STAR_DATE = '2016-02-13'
 
 REVERSE_TEAMS_DICT = {
     'Atlanta Hawks': 'ATL',
@@ -128,16 +128,18 @@ def read_team_schedule_csv(csv_f, team_name):
     SCHEDULE_DICT[team_name]['channel'] = {}
 
     logger.info('Completed creation of schedule dictionary for: '+team_name)
-
     schedule = csv.reader(csv_f)
     for game in schedule:
         # Count up the number of times the opponent is supposed to be played this season
-        # print REVERSE_TEAMS_DICT[game[6]]
-        # print game[1]
         if game[1] not in SCHEDULE_DICT[team_name]['by_date']:
+            if game[5] == '@':
+                location = 'Home'
+            else:
+                location = 'Away'
             SCHEDULE_DICT[team_name]['by_date'][game[1]] = {
                 'opp': REVERSE_TEAMS_DICT[game[6]],
-                'time': game[2]
+                'time': game[2],
+                'location': location
             }
 
         if game[6] in SCHEDULE_DICT[team_name]['opp']:
@@ -561,7 +563,7 @@ for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
             logger.info('Dumping json for: '+team_name)
 
             with open('json_files/team_schedules/'+YEAR+'/'+team_name+'.json', 'w') as outfile:
-                json.dump(SCHEDULE_DICT, outfile)
+                json.dump(SCHEDULE_DICT[team_name], outfile)
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
 

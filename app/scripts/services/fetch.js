@@ -14,6 +14,21 @@ app.factory('fetch', ['$http', function($http) {
             return $http.get('scrape/json_files/player_logs/'+year+'/all_players.json').then(function (response) {
                 return response.data;
             });
+        },
+        getTeamSchedule: function(year, team) {
+            return $http.get('scrape/json_files/team_schedules/'+year+'/'+team+'.json').then(function (response) {
+                var data = response.data;
+                var newKey;
+                // because python's time module is not as convenient as moment
+                // format date to yyyy-mm-dd
+                _.forEach(data.by_date, function(value, key) {
+                    newkey = moment(new Date(key)).format('YYYY-MM-DD');
+                    data.by_date[newkey] = data.by_date[key];
+                    delete data.by_date[key];
+                });
+                return data;
+            });
         }
+
     }
 }]);
