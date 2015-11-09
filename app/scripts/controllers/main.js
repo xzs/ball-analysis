@@ -31,21 +31,19 @@ app.controller('MainCtrl',
         });
     }
 
-    // right now we are doing a fetch everytime we switch teams
-    // maybe we should just get the schedule as a whole with all the teams.
-    // then we can get all the current games for today and also matych
+    // do a fetch everytime we switch teams
     function getTeamSchedule(year, team) {
         fetch.getTeamSchedule(year, team).then(function (data) {
             $scope.todayGame = data.by_date[$scope.today] ? data.by_date[$scope.today] : false;
         });
     }
 
+    // get seasons schedule
     function getLeagueSchedule(year) {
         fetch.getLeagueSchedule(year).then(function (data) {
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
         })
     }
-    getLeagueSchedule('2016');
 
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team]
@@ -68,14 +66,27 @@ app.controller('MainCtrl',
             $scope.playerStats = response.stats;
             $scope.playerCov = response.cov;
             $scope.playerLast5 = response.last_5_games;
-            $scope.playerPreAllStar = response.pre_all_star.stats;
-            $scope.playerPostAllStar = response.post_all_star.stats;
 
-            $scope.playerPlayerTimeAway = response.away_playtime;
-            $scope.playerPlayerTimeHome = response.home_playtime;
-
-            $scope.playerGmscAway = response.average_away_gmsc;
-            $scope.playerGmscHome = response.average_home_gmsc;
+            $scope.playerStatsOther = {
+                'playerStatsHome': {
+                    'playtime': response.home_playtime,
+                    'gmsc': response.average_home_gmsc
+                },
+                'playerStatsAway': {
+                    'playtime': response.away_playtime,
+                    'gmsc': response.average_away_gmsc
+                },
+                'playerPreAllStar': response.pre_all_star.stats,
+                'playerPostAllStar': response.post_all_star.stats,
+                'playerAgainstEast': {
+                    'games': response.eastern_conf.games,
+                    'gmsc': response.eastern_conf.gmsc
+                },
+                'playerAgainstWest': {
+                    'games': response.western_conf.games,
+                    'gmsc': response.western_conf.gmsc
+                }
+            };
 
             // Data for against opponents
             var playerTeamData = response.teams_against;
@@ -121,5 +132,6 @@ app.controller('MainCtrl',
 
     init($scope.year);
     processDepthChart();
+    getLeagueSchedule($scope.year);
 
 }]);

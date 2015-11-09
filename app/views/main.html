@@ -28,7 +28,6 @@
   </select>
 </div>
 
-
 <div class="panel panel-info" ng-if="todayGame">
  <div class="panel-heading">Today's Game</div>
   <table class="table">
@@ -61,30 +60,26 @@
   <h4>COV: {{playerCov}}</h4>
 </div>
 
-<!-- temp holder for base information for home and away -->
-<table class="table table-striped" ng-if="playerInfo">
-  <thead>
-    <tr>
-      <th></th>
-      <th>MIN</th>
-      <th>GMSC</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Home</td>
-      <td>{{playerPlayerTimeHome}}</td>
-      <td>{{playerGmscHome}}</td>
-    </tr>
-    <tr>
-      <td>Away</td>
-      <td>{{playerPlayerTimeAway}}</td>
-      <td>{{playerGmscAway}}</td>
-    </tr>
-  </tbody>
-</table>
-<div stats-table data='playerStats' heading="'Stats'" type='base'></div>
-<div stats-table data='playerLast5' heading="'Last 5 Games'" type='base'></div>
-<div stats-table data='playerPreAllStar' heading="'Pre All-Star'" type='base'></div>
-<div stats-table data='playerPostAllStar' heading="'Post All-Star'" type='base'></div>
-<div stats-table data='teamData' type='team'></div>
+<!-- tables -->
+<div stats-table data='playerStatsOther'
+      type='other'>
+</div>
+<div stats-table data='playerStats'
+      heading="'Stats'"
+      type='base'>
+</div>
+<div stats-table data='playerLast5'
+      heading="'Last 5 Games'"
+      type='base'>
+</div>
+<div stats-table data='playerStatsOther.playerPreAllStar'
+      heading="'Pre All-Star'"
+      type='base'>
+</div>
+<div stats-table data='playerStatsOther.playerPostAllStar'
+      heading="'Post All-Star'"
+      type='base'>
+</div>
+<div stats-table data='teamData'
+      type='team'>
+</div>

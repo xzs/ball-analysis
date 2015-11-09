@@ -1,0 +1,32 @@
+<!-- temp holder for base information for home and away -->
+<table class="table table-striped" ng-if="data">
+  <thead>
+    <tr>
+      <th></th>
+      <th>MIN</th>
+      <th>GMSC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Home</td>
+      <td>{{data.playerStatsHome.playtime}}</td>
+      <td>{{data.playerStatsHome.gmsc}}</td>
+    </tr>
+    <tr>
+      <td>Away</td>
+      <td>{{data.playerStatsAway.playtime}}</td>
+      <td>{{data.playerStatsAway.gmsc}}</td>
+    </tr>
+    <tr>
+      <td>East</td>
+      <td>-</td>
+      <td>{{data.playerAgainstEast.gmsc}}</td>
+    </tr>
+    <tr>
+      <td>West</td>
+      <td>-</td>
+      <td>{{data.playerAgainstWest.gmsc}}</td>
+    </tr>
+  </tbody>
+</table>
