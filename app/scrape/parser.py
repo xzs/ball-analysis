@@ -130,22 +130,44 @@ def read_team_schedule_csv(csv_f, team_name):
     logger.info('Completed creation of schedule dictionary for: '+team_name)
     schedule = csv.reader(csv_f)
     for game in schedule:
+        date = game[1]
+        opp = game[6]
+        time = game[2]
+        if game[5] == '@':
+            location = 'Away'
+        else:
+            location = 'Home'
         # Count up the number of times the opponent is supposed to be played this season
         if game[1] not in SCHEDULE_DICT[team_name]['by_date']:
-            if game[5] == '@':
-                location = 'Home'
-            else:
-                location = 'Away'
-            SCHEDULE_DICT[team_name]['by_date'][game[1]] = {
-                'opp': REVERSE_TEAMS_DICT[game[6]],
-                'time': game[2],
+            SCHEDULE_DICT[team_name]['by_date'][date] = {
+                'opp': REVERSE_TEAMS_DICT[opp],
+                'time': time,
                 'location': location
             }
-
-        if game[6] in SCHEDULE_DICT[team_name]['opp']:
-            SCHEDULE_DICT[team_name]['opp'][game[6]] += 1
+        # create the dict for the league schedule
+        # I need to remove duplicates
+        if date not in SCHEDULE_DICT['league_schedule']:
+            SCHEDULE_DICT['league_schedule'][date] = []
+            SCHEDULE_DICT['league_schedule'][date].append({
+                'team': team_name,
+                'opp': REVERSE_TEAMS_DICT[opp],
+                'time': time
+            })
         else:
-            SCHEDULE_DICT[team_name]['opp'][game[6]] = 1
+            # loop through to check if the game was already registered
+            if not any(game['opp'] == team_name for game in SCHEDULE_DICT['league_schedule'][date]):
+                SCHEDULE_DICT['league_schedule'][date].append({
+                    'team': team_name,
+                    'opp': REVERSE_TEAMS_DICT[opp],
+                    'time': time
+                })
+
+
+        # count the times the opp have been played
+        if opp in SCHEDULE_DICT[team_name]['opp']:
+            SCHEDULE_DICT[team_name]['opp'][opp] += 1
+        else:
+            SCHEDULE_DICT[team_name]['opp'][opp] = 1
 
         # Count the number of times the team played on national TV, and against who
         # If it's not played on a local TV channel
@@ -153,16 +175,15 @@ def read_team_schedule_csv(csv_f, team_name):
             if game[3] in SCHEDULE_DICT[team_name]['channel']:
                 SCHEDULE_DICT[team_name]['channel'][game[3]]['times_played'] += 1
                 # If the channel already exists but the opponent does not
-                if game[6] in SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent']:
-                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][game[6]] += 1
+                if opp in SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent']:
+                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][opp] += 1
                 else:
-                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][game[6]] = 1
+                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][opp] = 1
             else:
                 SCHEDULE_DICT[team_name]['channel'][game[3]] = {}
                 SCHEDULE_DICT[team_name]['channel'][game[3]]['times_played'] = 1
                 SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'] = {}
-                SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][game[6]] = 1
-
+                SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][opp] = 1
 
 '''
 GmSc
@@ -552,6 +573,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # Open all team schedules for processing
 SCHEDULE_DICT = {}
+SCHEDULE_DICT['league_schedule'] = {}
 for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
     team_name = files.split('/')[2].split('.c')[0]
     logger.info('Parsing schedule for: '+team_name)
@@ -566,6 +588,9 @@ for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
                 json.dump(SCHEDULE_DICT[team_name], outfile)
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
+
+with open('json_files/team_schedules/'+YEAR+'/league_schedule.json', 'w') as outfile:
+    json.dump(SCHEDULE_DICT['league_schedule'], outfile)
 
 ALL_PLAYERS = {}
 # Open all player files for data parsing

@@ -3,32 +3,31 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
-<!-- selects // this needs to be a directive soon as well -->
-<select ng-model="year"
-        ng-change="changeYear(year)">
-  <option ng-repeat="year in years">{{year}}</option>
-</select>
-<select ng-model="team"
-        ng-change="getPlayers(team)">
-  <option ng-repeat="team in teams">{{team}}</option>
-</select>
-<select ng-if="teamPlayers"
-        ng-model="player"
-        ng-change="getPlayerData(year, player)">
-  <option ng-repeat="player in teamPlayers">{{player.name}}</option>
-</select>
-
-<div ng-if="playerInfo">
-  <h2 ng-class="{'status-green' : playerInfo.isStarter}">
-    {{playerInfo.name}}
-  </h2>
-  <h4>{{playerInfo.age}}, {{playerInfo.team}}</h4>
-  <h4 ng-if="playerInfo.status"
-      ng-class="{'status-green' : (playerInfo.status == 'available')}">
-      Status: {{playerInfo.status}}
-  </h4>
-  <h4>COV: {{playerCov}}</h4>
+<div class="row">
+  <h2 class="panel-heading">Today's Games</h2>
+  <div class="panel panel-info col-lg-3 col-md-3 col-sm-3" ng-repeat="game in todaySchedule">
+    {{game.opp}} vs {{game.team}} 
+    <div>{{game.time}}</div>
+  </div>
 </div>
+
+<div class="page-header">
+  <!-- selects this needs to be a directive soon as well -->
+  <select ng-model="year"
+          ng-change="changeYear(year)">
+    <option ng-repeat="year in years">{{year}}</option>
+  </select>
+  <select ng-model="team"
+          ng-change="getPlayers(team)">
+    <option ng-repeat="team in teams">{{team}}</option>
+  </select>
+  <select ng-if="teamPlayers"
+          ng-model="player"
+          ng-change="getPlayerData(year, player)">
+    <option ng-repeat="player in teamPlayers">{{player.name}}</option>
+  </select>
+</div>
+
 
 <div class="panel panel-info" ng-if="todayGame">
  <div class="panel-heading">Today's Game</div>
@@ -49,6 +48,19 @@
     </tbody>
   </table>
 </div>
+
+<div ng-if="playerInfo">
+  <h2 ng-class="{'status-green' : playerInfo.isStarter}">
+    {{playerInfo.name}}
+  </h2>
+  <h4>{{playerInfo.age}}, {{playerInfo.team}}</h4>
+  <h4 ng-if="playerInfo.status"
+      ng-class="{'status-green' : (playerInfo.status == 'available')}">
+      Status: {{playerInfo.status}}
+  </h4>
+  <h4>COV: {{playerCov}}</h4>
+</div>
+
 <!-- temp holder for base information for home and away -->
 <table class="table table-striped" ng-if="playerInfo">
   <thead>

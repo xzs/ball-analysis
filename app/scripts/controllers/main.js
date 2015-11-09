@@ -31,11 +31,21 @@ app.controller('MainCtrl',
         });
     }
 
+    // right now we are doing a fetch everytime we switch teams
+    // maybe we should just get the schedule as a whole with all the teams.
+    // then we can get all the current games for today and also matych
     function getTeamSchedule(year, team) {
-        fetch.getTeamSchedule(year, team).then(function (data){
+        fetch.getTeamSchedule(year, team).then(function (data) {
             $scope.todayGame = data.by_date[$scope.today] ? data.by_date[$scope.today] : false;
         });
     }
+
+    function getLeagueSchedule(year) {
+        fetch.getLeagueSchedule(year).then(function (data) {
+            $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
+        })
+    }
+    getLeagueSchedule('2016');
 
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team]

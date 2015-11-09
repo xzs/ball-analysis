@@ -28,6 +28,20 @@ app.factory('fetch', ['$http', function($http) {
                 });
                 return data;
             });
+        },
+        getLeagueSchedule: function(year) {
+            return $http.get('scrape/json_files/team_schedules/'+year+'/league_schedule.json').then(function (response) {
+                var data = response.data;
+                var newKey;
+                // because python's time module is not as convenient as moment
+                // format date to yyyy-mm-dd
+                _.forEach(data, function(value, key) {
+                    newkey = moment(new Date(key)).format('YYYY-MM-DD');
+                    data[newkey] = data[key];
+                    delete data[key];
+                });
+                return data;
+            });
         }
 
     }
