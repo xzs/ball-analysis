@@ -9,10 +9,92 @@ from bs4 import BeautifulSoup
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+# we need to put this in
+NEWS_DICT = {
+    'ATL':'Atlanta Hawks',
+    'BOS':'Boston Celtics',
+    'BKN':'Brooklyn Nets',
+    'CHA':'Charlotte Hornets',
+    'CHI':'Chicago Bulls',
+    'CLE':'Cleveland Cavaliers',
+    'DAL':'Dallas Mavericks',
+    'DEN':'Denver Nuggets',
+    'DET':'Detroit Pistons',
+    'GS':'Golden State Warriors',
+    'HOU':'Houston Rockets',
+    'IND':'Indiana Pacers',
+    'LAC':'Los Angeles Clippers',
+    'LAK':'Los Angeles Lakers',
+    'MEM':'Memphis Grizzlies',
+    'MIA':'Miami Heat',
+    'MLW':'Milwaukee Bucks',
+    'MIN':'Minnesota Timberwolves',
+    'NO':'New Orleans Pelicans',
+    'NY':'New York Knicks',
+    'OKC':'Oklahoma City Thunder',
+    'ORL':'Orlando Magic',
+    'PHI':'Philadelphia 76ers',
+    'PHO':'Phoenix Suns',
+    'POR':'Portland Trail Blazers',
+    'SAC':'Sacramento Kings',
+    'SAS':'San Antonio Spurs',
+    'TOR':'Toronto Raptors',
+    'UTA':'Utah Jazz',
+    'WAS':'Washington Wizards'
+}
 
 BASE_URL = 'http://www.basketball-reference.com'
 DEPTH_URL = 'http://www.rotoworld.com/teams/depth-charts/nba.aspx'
+NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
+
 YEAR = '2016'
+
+
+def get_fantasy_news():
+
+    for team, name in NEWS_DICT.iteritems():
+        # add the - to the team names
+        split_string = name.split()
+        new_string = ''
+        for string in split_string:
+            new_string += string +'-'
+        team_link = new_string[:-1]
+
+        logger.info('Scraping news for: '+ team)
+        news_content = []
+        url = urllib2.urlopen(NEWS_URL+'/'+team+'/'+team_link)
+        soup = BeautifulSoup(url, 'html5lib')
+        news_holder = soup.find_all('div', attrs={'class':'RW_pn'})[1]
+        news = news_holder.find_all('div', attrs={'class':'pb'})
+
+        for info in news:
+            headline = info.find('div', attrs={'class':'headline'})
+            name = headline.find('a').text
+            news_report = info.find('div',attrs={'class':'report'}).find('p').text
+            news_impact = info.find('div',attrs={'class':'impact'}).text
+
+            news_content.append({
+                'player': name,
+                'report': news_report,
+                'impact': news_impact,
+            })
+
+        # some links dont transfer from bbref
+        translate_dict = {
+            'CHA':'CHO',
+            'GS':'GSW',
+            'LAK':'LAL',
+            'MLW':'MIL',
+            'NO':'NOP',
+            'NY':'NYK'
+        }
+
+        if team in translate_dict:
+            team = translate_dict[team]
+
+        with open('misc/news/'+team+'.json', 'w') as outfile:
+            logger.info('Writing news to json file: '+ team)
+            json.dump(news_content, outfile)
 
 
 def get_depth_chart():
@@ -170,7 +252,6 @@ def get_player_log(players_dict):
 def get_team_schedule(teams_dict):
 
     for team in teams_dict:
-        print BASE_URL+teams_dict[team]['schedule']
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['schedule'])
         soup = BeautifulSoup(url, 'html5lib')
         log_rows = []
@@ -196,3 +277,4 @@ get_team_schedule(TEAMS_DICT)
 PLAYERS_DICT = get_current_roster(TEAMS_DICT)
 get_player_log(PLAYERS_DICT);
 get_depth_chart()
+get_fantasy_news()
