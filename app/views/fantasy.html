@@ -1,32 +1,38 @@
+<div class="container">
+  <div class="row">
+    <a class="twitter-timeline" href="https://twitter.com/Rotoworld_BK" data-widget-id="664516062344384512" height="450" data-chrome="nofooter noborders">Tweets by @Rotoworld_BK</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
 
-<input type="file" ng-model="file.csv" fileread="file.csv" />
-<button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
-<div class="panel panel-default" ng-if="lineups.equalDistributedLineup">
-  <div class="panel-heading"><b>Line-up based on equal distribution</b></div>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>POS</th>
-        <th>NAME</th>
-        <th>SALARY</th>
-        <th>APPG</th>
-        <th>RATIO</th>
-        <th>TEAM</th>
-        <th>LOC</th>
-        <th>TIME</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="player in lineups.equalDistributedLineup">
-          <td>{{player.pos}}</td>
-          <td ng-class="{'starter' : player.isStarter}">{{player.name}}</td>
-          <td>{{player.salary}}</td>
-          <td>{{player.appg}}</td>
-          <td>{{player.appgCostRatio}}</td>
-          <td>{{player.team}}</td>
-          <td>{{player.location}}</td>
-          <td>{{player.gametime}}</td>
+  <input type="file" ng-model="file.csv" fileread="file.csv" />
+  <button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
+  <div class="panel panel-default" ng-if="lineups.equalDistributedLineup">
+    <div class="panel-heading"><b>Line-up based on equal distribution</b></div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>POS</th>
+          <th>NAME</th>
+          <th>SALARY</th>
+          <th>APPG</th>
+          <th>RATIO</th>
+          <th>TEAM</th>
+          <th>LOC</th>
+          <th>TIME</th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr ng-repeat="player in lineups.equalDistributedLineup">
+            <td>{{player.pos}}</td>
+            <td ng-class="{'starter' : player.isStarter}">{{player.name}}</td>
+            <td>{{player.salary}}</td>
+            <td>{{player.appg}}</td>
+            <td>{{player.appgCostRatio}}</td>
+            <td>{{player.team}}</td>
+            <td>{{player.location}}</td>
+            <td>{{player.gametime}}</td>
+          </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

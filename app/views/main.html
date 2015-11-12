@@ -3,13 +3,15 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
-<div class="row">
   <h2 class="panel-heading">Today's Games</h2>
-  <div class="panel panel-info col-lg-3 col-md-3 col-sm-3" ng-repeat="game in todaySchedule">
-    {{game.opp}} vs {{game.team}} 
-    <div>{{game.time}}</div>
-  </div>
-</div>
+
+  <slick dots="true" arrows="true" infinite="true" slides-to-show="3" slides-to-scroll="3">
+    <div ng-repeat="game in todaySchedule" style="text-align: center;">
+      {{game.opp}} vs {{game.team}}
+      <div>{{game.time}}</div>
+    </div>
+  </slick>
+
 
 <div class="page-header">
   <!-- selects this needs to be a directive soon as well -->

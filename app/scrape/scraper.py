@@ -105,6 +105,7 @@ def get_current_roster(teams_dict):
 
     for team in teams_dict:
         logger.info('Getting players information for: '+ team)
+        logger.info(BASE_URL+teams_dict[team]['url'])
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['url'])
         soup = BeautifulSoup(url, 'html5lib')
 
@@ -146,6 +147,7 @@ def get_player_log(players_dict):
         # loop through the array of players
         for player in players_dict[team]:
             for name in player:
+                logger.info('open url for: '+name)
                 url = urllib2.urlopen(BASE_URL+player[name]['log'])
                 soup = BeautifulSoup(url, 'html5lib')
                 log_rows = []

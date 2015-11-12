@@ -14,7 +14,8 @@ var app = angular.module('ballAnalysisApp', [
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'slick'
   ]);
 
 app.config(function ($routeProvider) {

@@ -92,3 +92,12 @@ body {
 .status-green {
   color: green;
 }
+
+.slick-prev:before {
+  color: red;
+  font-size: 20px;
+}
+.slick-next:before {
+  color: red;
+  font-size: 20px;
+}
