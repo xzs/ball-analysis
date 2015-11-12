@@ -19,6 +19,7 @@ app.controller('MainCtrl',
     $scope.year = '2016';
     $scope.team = 'GSW';
     $scope.player = 'Stephen Curry';
+    $scope.teamnews = {};
     $scope.alerts = {
         message: null,
         type: null
@@ -42,12 +43,25 @@ app.controller('MainCtrl',
     function getLeagueSchedule(year) {
         fetch.getLeagueSchedule(year).then(function (data) {
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
-        })
+        });
     }
 
+    function getTeamNews(team) {
+        if (!$scope.teamnews[team]) {
+            fetch.getTeamNews(team).then(function (data) {
+                $scope.teamnews[team] = data;
+            });
+        } else {
+            return $scope.teamnews[team];
+        }
+
+    }
+
+
     $scope.getPlayers = function(team) {
-        $scope.teamPlayers = local.allPlayers[team]
-        getTeamSchedule($scope.year, $scope.team)
+        $scope.teamPlayers = local.allPlayers[team];
+        getTeamSchedule($scope.year, $scope.team);
+        getTeamNews($scope.team);
         return $scope.teamPlayers
     }
 

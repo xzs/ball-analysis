@@ -3,14 +3,15 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
+<div>
   <h2 class="panel-heading">Today's Games</h2>
-
   <slick dots="true" arrows="true" infinite="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
       {{game.opp}} vs {{game.team}}
       <div>{{game.time}}</div>
     </div>
   </slick>
+</div>
 
 
 <div class="page-header">
@@ -28,6 +29,28 @@
           ng-change="getPlayerData(year, player)">
     <option ng-repeat="player in teamPlayers">{{player.name}}</option>
   </select>
+</div>
+
+<div class="padding-bottom-10">
+  <a class="cursor-pointer"
+    ng-click="showAllNews()">
+    Show All News for {{team}}
+  </a>
+</div>
+
+<div class="panel panel-info"
+      ng-repeat="news in teamnews[team]"
+      ng-if="news.player == playerInfo.name">
+   <div class="panel-heading">{{news.player}}</div>
+   <div class="panel-body">
+    <div class="padding-bottom-10">
+      {{news.report}}
+    </div>
+    <div class="text-blue">
+      {{news.impact}}
+    </div>
+   </div>
+
 </div>
 
 <div class="panel panel-info" ng-if="todayGame">

@@ -42,6 +42,11 @@ app.factory('fetch', ['$http', function($http) {
                 });
                 return data;
             });
+        },
+        getTeamNews: function(team) {
+            return $http.get('scrape/misc/news/'+team+'.json').then(function (response){
+                return response.data
+            })
         }
 
     }
