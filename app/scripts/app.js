@@ -30,6 +30,11 @@ app.config(function ($routeProvider) {
       controller: 'FantasyCtrl',
       controllerAs: 'fantasy'
     })
+    .when('/graph', {
+      templateUrl: 'views/graph.html',
+      controller: 'GraphCtrl',
+      controllerAs: 'graph'
+    })
     .otherwise({
       redirectTo: '/'
     });
