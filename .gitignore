@@ -8,3 +8,4 @@
 /app/scrape/team_schedules
 /app/scrape/misc
 /app/scrape/csv
+/app/scripts/controllers/graph.js

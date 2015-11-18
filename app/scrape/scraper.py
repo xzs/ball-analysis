@@ -197,6 +197,28 @@ def get_current_roster(teams_dict):
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
 
+        team_dict = {}
+
+        # find the team stats id=team_stats
+        team_stats_table = soup.find('table', attrs={'id':'team_stats'})
+        team_stats_table_header = team_stats_table.find('thead')
+        team_stats_header_rows = team_stats_table_header.find('tr').find_all('th')
+
+        team_stats_table_body = team_stats_table.find('tbody')
+        team_stats_rows = team_stats_table_body.find_all('tr')[1].find_all('td')
+        team_rank_rows = team_stats_table_body.find_all('tr')[2].find_all('td')
+
+        for header_row, stat_row, rank_row in zip(team_stats_header_rows, team_stats_rows, team_rank_rows):
+            stat = str(header_row.text)
+            if header_row.text != '':
+                team_dict[stat] = {}
+                team_dict[stat]['stat'] = str(stat_row.text)
+                team_dict[stat]['rank'] = str(rank_row.text)
+
+        with open('misc/team_stats/'+team+'.json', 'w') as outfile:
+            logger.info('Writing news to json file: '+ team)
+            json.dump(team_dict, outfile)
+
         for row in rows:
             # get the array of anchors
             links = row.find_all('a')
@@ -275,6 +297,6 @@ pp = pprint.PrettyPrinter(indent=4)
 TEAMS_DICT = get_active_teams()
 get_team_schedule(TEAMS_DICT)
 PLAYERS_DICT = get_current_roster(TEAMS_DICT)
-get_player_log(PLAYERS_DICT);
+get_player_log(PLAYERS_DICT)
 get_depth_chart()
 get_fantasy_news()
