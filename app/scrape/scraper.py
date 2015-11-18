@@ -208,6 +208,7 @@ def get_current_roster(teams_dict):
         team_stats_rows = team_stats_table_body.find_all('tr')[1].find_all('td')
         team_rank_rows = team_stats_table_body.find_all('tr')[2].find_all('td')
 
+        # loop through the rows in parallel
         for header_row, stat_row, rank_row in zip(team_stats_header_rows, team_stats_rows, team_rank_rows):
             stat = str(header_row.text)
             if header_row.text != '':
@@ -218,6 +219,29 @@ def get_current_roster(teams_dict):
         with open('misc/team_stats/'+team+'.json', 'w') as outfile:
             logger.info('Writing news to json file: '+ team)
             json.dump(team_dict, outfile)
+
+        # find the advanced stats id=advanced
+        advanced_table = soup.find('table', attrs={'id':'advanced'})
+        advanced_table_header = advanced_table.find('thead')
+        advanced_header_rows = advanced_table_header.find('tr').find_all('th')
+
+        advanced_table_body = advanced_table.find('tbody')
+        advanced_stats_rows = advanced_table_body.find_all('tr')
+
+        player_stats_dict = {}
+        # loop through each player and append each key for them
+        for player in advanced_stats_rows:
+            player_stats = player.find_all('td')
+            name = str(player_stats[1].text)
+            player_stats_dict[name] = {}
+            for stat, header in zip(player_stats, advanced_header_rows):
+                category = str(header.text)
+                if category != '':
+                    player_stats_dict[name][category] = str(stat.text)
+
+            with open('json_files/player_stats/'+YEAR+'/'+name+'.json', 'w') as outfile:
+                logger.info('Writing news to json file: '+ team)
+                json.dump(player_stats_dict, outfile)
 
         for row in rows:
             # get the array of anchors
