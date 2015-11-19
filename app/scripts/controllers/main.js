@@ -47,15 +47,16 @@ app.controller('MainCtrl',
     }
 
     function getTeamAdvancedStats(team) {
-        var removeList = ['2P', '2P%', '2PA', 'DRB', 'FT', 'G', 'MP', 'ORB', 'PF'];
-
+        var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'PTS'];
+        // ORtg DRtg Pace MOV FGA TRB AST STL BLK PTS
+        $scope.teamAdvancedStats[team] = {};
+        $scope.teamAdvancedStats['header'] = [];
         fetch.getTeamAdvancedStats(team).then(function (data) {
-            // remove some stats i do not need
-            for (var i=0; i<removeList.length; i++) {
-                delete data[removeList[i]];
+            for (var i=0; i<validList.length; i++) {
+                var stat = validList[i];
+                $scope.teamAdvancedStats[team][stat] = data[stat];
             }
-            $scope.teamAdvancedStats[team] = data;
-            $scope.teamAdvancedStats['header'] = Object.keys(data).sort();
+            $scope.teamAdvancedStats['header'] = validList;
         });
     }
 

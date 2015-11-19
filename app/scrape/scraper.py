@@ -208,6 +208,23 @@ def get_current_roster(teams_dict):
         team_stats_rows = team_stats_table_body.find_all('tr')[1].find_all('td')
         team_rank_rows = team_stats_table_body.find_all('tr')[2].find_all('td')
 
+        # find the team stats id=team_stats
+        team_misc_table = soup.find('table', attrs={'id':'team_misc'})
+        team_misc_table_header = team_misc_table.find('thead')
+        team_misc_header_rows = team_misc_table_header.find_all('tr')[1].find_all('th')
+
+        team_misc_table_body = team_misc_table.find('tbody')
+        team_misc_rows = team_misc_table_body.find_all('tr')[0].find_all('td')
+        team_misc_rank_rows = team_misc_table_body.find_all('tr')[1].find_all('td')
+
+        # misc
+        for header_row, stat_row, rank_row in zip(team_misc_header_rows, team_misc_rows, team_misc_rank_rows):
+            stat = str(header_row.text)
+            if header_row.text != '':
+                team_dict[stat] = {}
+                team_dict[stat]['stat'] = str(stat_row.text)
+                team_dict[stat]['rank'] = str(rank_row.text)
+
         # loop through the rows in parallel
         for header_row, stat_row, rank_row in zip(team_stats_header_rows, team_stats_rows, team_rank_rows):
             stat = str(header_row.text)
@@ -321,6 +338,6 @@ pp = pprint.PrettyPrinter(indent=4)
 TEAMS_DICT = get_active_teams()
 get_team_schedule(TEAMS_DICT)
 PLAYERS_DICT = get_current_roster(TEAMS_DICT)
-get_player_log(PLAYERS_DICT)
-get_depth_chart()
-get_fantasy_news()
+# get_player_log(PLAYERS_DICT)
+# get_depth_chart()
+# get_fantasy_news()

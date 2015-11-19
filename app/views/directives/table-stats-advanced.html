@@ -3,17 +3,75 @@
   <div class="panel-heading"><b>Team Adv. Stats</b></div>
   <table class="table table-striped">
     <thead>
+      <!-- we could loop these but for the sake of order we manually put them here-->
       <tr>
         <th></th>
-        <th ng-repeat="key in data.header">
-          {{key}}
-        </th>
+        <th>ORtg</th>
+        <th>DRtg</th>
+        <th>Pace</th>
+        <th>MOV</th>
+        <th>FGA</th>
+        <th>TRB</th>
+        <th>AST</th>
+        <th>STL</th>
+        <th>BLK</th>
+        <th>PTS</th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="(team, stats) in data" ng-if="team != 'header'">
         <td>{{team}}</td>
-        <td ng-repeat="(key, data) in stats">{{data.stat}} ({{data.rank}})</td>
+        <td>
+          {{stats.ORtg.stat}}
+          <br>
+          ({{stats.ORtg.rank}})
+        </td>
+        <td>
+          {{stats.DRtg.stat}}
+          <br>
+          ({{stats.DRtg.rank}})
+        </td>
+        <td>
+          {{stats.Pace.stat}}
+          <br>
+          ({{stats.Pace.rank}})
+        </td>
+        <td>
+          {{stats.MOV.stat}}
+          <br>
+          ({{stats.MOV.rank}})
+        </td>
+        <td>
+          {{stats.FGA.stat}}
+          <br>
+          ({{stats.FGA.rank}})
+        </td>
+        <td>
+          {{stats.TRB.stat}}
+          <br>
+          ({{stats.TRB.rank}})
+        </td>
+        <td>
+          {{stats.AST.stat}}
+          <br>
+          ({{stats.AST.rank}})
+        </td>
+        <td>
+          {{stats.STL.stat}}
+          <br>
+          ({{stats.STL.rank}})
+        </td>
+        <td>
+          {{stats.BLK.stat}}
+          <br>
+          ({{stats.BLK.rank}})
+        </td>
+        <td>
+          {{stats.PTS.stat}}
+          <br>
+          ({{stats.PTS.rank}})
+        </td>
+
       </tr>
     </tbody>
   </table>
