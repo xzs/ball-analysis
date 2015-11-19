@@ -46,6 +46,25 @@ app.controller('MainCtrl',
         });
     }
 
+    function getTeamAdvancedStats(team) {
+        var removeList = ['2P', '2P%', '2PA', 'DRB', 'FT', 'G', 'MP', 'ORB', 'PF'];
+
+        fetch.getTeamAdvancedStats(team).then(function (data) {
+            // remove some stats i do not need
+            for (var i=0; i<removeList.length; i++) {
+                delete data[removeList[i]];
+            }
+            $scope.teamAdvancedStats[team] = data;
+            $scope.teamAdvancedStats['header'] = Object.keys(data).sort();
+        });
+    }
+
+    $scope.getTeamStats = function(teams) {
+        $scope.teamAdvancedStats = {};
+        getTeamAdvancedStats(teams.opp);
+        getTeamAdvancedStats(teams.team);
+    }
+
     function getTeamNews(team) {
         if (!$scope.teamnews[team]) {
             fetch.getTeamNews(team).then(function (data) {
@@ -57,11 +76,11 @@ app.controller('MainCtrl',
 
     }
 
-
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team];
         getTeamSchedule($scope.year, $scope.team);
         getTeamNews($scope.team);
+        // getTeamAdvancedStats($scope.team);
         return $scope.teamPlayers
     }
 

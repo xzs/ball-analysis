@@ -47,7 +47,18 @@ app.factory('fetch', ['$http', function($http) {
             return $http.get('scrape/misc/news/'+team+'.json').then(function (response){
                 return response.data
             })
-        }
+        },
+        getPlayerAdvancedStats: function(name) {
+            return $http.get('scrape/json_files/player_stats/'+name+'.json').then(function (response){
+                return response.data
+            })
+        },
+        getTeamAdvancedStats: function(team) {
+            return $http.get('scrape/misc/team_stats/'+team+'.json').then(function (response){
+                return response.data
+            })
+        },
+
 
     }
 }]);

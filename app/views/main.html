@@ -7,12 +7,16 @@
   <h2 class="panel-heading">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
-      {{game.opp}} vs {{game.team}}
+      <div ng-click="getTeamStats(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}}</div>
       <div>{{game.time}}</div>
     </div>
   </slick>
 </div>
 
+<!-- advanced team stats table -->
+<div stats-table data='teamAdvancedStats'
+      type='advanced'>
+</div>
 
 <div class="page-header">
   <!-- selects this needs to be a directive soon as well -->

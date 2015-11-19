@@ -1,0 +1,20 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading"><b>Team Adv. Stats</b></div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th></th>
+        <th ng-repeat="key in data.header">
+          {{key}}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="(team, stats) in data" ng-if="team != 'header'">
+        <td>{{team}}</td>
+        <td ng-repeat="(key, data) in stats">{{data.stat}} ({{data.rank}})</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

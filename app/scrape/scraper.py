@@ -228,9 +228,9 @@ def get_current_roster(teams_dict):
         advanced_table_body = advanced_table.find('tbody')
         advanced_stats_rows = advanced_table_body.find_all('tr')
 
-        player_stats_dict = {}
         # loop through each player and append each key for them
         for player in advanced_stats_rows:
+            player_stats_dict = {}
             player_stats = player.find_all('td')
             name = str(player_stats[1].text)
             player_stats_dict[name] = {}
@@ -240,7 +240,7 @@ def get_current_roster(teams_dict):
                     player_stats_dict[name][category] = str(stat.text)
 
             with open('json_files/player_stats/'+YEAR+'/'+name+'.json', 'w') as outfile:
-                logger.info('Writing news to json file: '+ team)
+                logger.info('Writing news to json file: '+ name)
                 json.dump(player_stats_dict, outfile)
 
         for row in rows:
