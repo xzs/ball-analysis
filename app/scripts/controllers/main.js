@@ -87,55 +87,77 @@ app.controller('MainCtrl',
 
     $scope.getPlayerData = function(year, name) {
         $scope.player = name;
-        fetch.getPlayer(year, name).then(function (response) {
+
+        fetch.getPlayer(year, name).then(function (data) {
             $scope.alerts = isPlayerOnTeam(name);
             // temp use of object.keys until I determine the final structure of the json
             var isStarter = _.includes(Object.keys(local.starters), name);
 
             // Player info
-            $scope.playerInfo = response.basic_info;
+            $scope.playerInfo = data.basic_info;
             $scope.playerInfo.isStarter = isStarter;
             $scope.playerInfo.status = local.starters[name] ? local.starters[name].status : '';
             // Base stats
-            $scope.playerStats = response.stats;
-            $scope.playerCov = response.cov;
-            $scope.playerLast5 = response.last_5_games;
+            $scope.playerStats = data.stats;
+            $scope.playerCov = data.cov;
+            $scope.playerLast5 = data.last_5_games;
 
             $scope.playerStatsOther = {
                 'playerStatsHome': {
-                    'playtime': response.home_playtime,
-                    'gmsc': response.average_home_gmsc
+                    'playtime': data.home_playtime,
+                    'gmsc': data.average_home_gmsc
                 },
                 'playerStatsAway': {
-                    'playtime': response.away_playtime,
-                    'gmsc': response.average_away_gmsc
+                    'playtime': data.away_playtime,
+                    'gmsc': data.average_away_gmsc
                 },
-                'playerPreAllStar': response.pre_all_star.stats,
-                'playerPostAllStar': response.post_all_star.stats,
+                'playerPreAllStar': data.pre_all_star.stats,
+                'playerPostAllStar': data.post_all_star.stats,
                 'playerAgainstEast': {
-                    'games': response.eastern_conf.games,
-                    'gmsc': response.eastern_conf.gmsc
+                    'games': data.eastern_conf.games,
+                    'gmsc': data.eastern_conf.gmsc
                 },
                 'playerAgainstWest': {
-                    'games': response.western_conf.games,
-                    'gmsc': response.western_conf.gmsc
+                    'games': data.western_conf.games,
+                    'gmsc': data.western_conf.gmsc
                 }
             };
 
             // Data for against opponents
-            var playerTeamData = response.teams_against;
+            var playerTeamData = data.teams_against;
             $scope.teamDataHeader = Object.keys(playerTeamData);
             // add an array of your data objects to enable sorting
             // http://stackoverflow.com/a/27779633
             $scope.teamData = Object.keys(playerTeamData)
              .map(function (key) {
                return playerTeamData[key];
-             });
+            });
+
+            // get advanced stats for player
+            getPlayerAdvancedStats(year, name);
+
         }, function(error) {
             $scope.alerts.message = 'The player does not exist';
             $scope.alerts.type = 'danger';
         });
 
+
+    }
+
+    function getPlayerAdvancedStats(year, name) {
+        $scope.playerAdvancedStats = {};
+        fetch.getPlayerAdvancedStats(year, name).then(function (data) {
+            // TS%, PER, OWS, DWS, OBM, DBM, USG%
+            $scope.playerAdvancedStats = {
+                'OWS': data[name]['OWS'],
+                'DWS': data[name]['DWS'],
+                'OBPM': data[name]['OBPM'],
+                'DBPM': data[name]['DBPM'],
+                'TS': data[name]['TS%'],
+                'PER': data[name]['PER'],
+                'USG': data[name]['USG%']
+            };
+        });
     }
 
     function isPlayerOnTeam(name) {
@@ -152,9 +174,9 @@ app.controller('MainCtrl',
     }
 
     function init(year) {
-        fetch.getAllPlayers(year).then(function (response) {
-            local.allPlayers = response;
-            $scope.teams = Object.keys(response).sort();
+        fetch.getAllPlayers(year).then(function (data) {
+            local.allPlayers = data;
+            $scope.teams = Object.keys(data).sort();
             $scope.getPlayers($scope.team);
             $scope.getPlayerData(year, $scope.player);
         });

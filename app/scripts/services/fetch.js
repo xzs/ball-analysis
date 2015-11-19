@@ -48,8 +48,8 @@ app.factory('fetch', ['$http', function($http) {
                 return response.data
             })
         },
-        getPlayerAdvancedStats: function(name) {
-            return $http.get('scrape/json_files/player_stats/'+name+'.json').then(function (response){
+        getPlayerAdvancedStats: function(year, name) {
+            return $http.get('scrape/json_files/player_stats/'+year+'/'+name+'.json').then(function (response){
                 return response.data
             })
         },

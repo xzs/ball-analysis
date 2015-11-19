@@ -3,7 +3,7 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
-<div class="padding-bottom-20 ">
+<div class="padding-bottom-0 ">
   <h2 class="panel-heading">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
@@ -96,6 +96,11 @@
 <div stats-table data='playerStats'
       heading="'Stats'"
       type='base'>
+</div>
+<!-- advanced team stats table -->
+<div stats-table data='playerAdvancedStats'
+      heading="'Adv. Stats'"
+      type='player-advanced'>
 </div>
 <div stats-table data='playerLast5'
       heading="'Last 5 Games'"
