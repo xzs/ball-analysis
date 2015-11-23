@@ -1,0 +1,65 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading"><b>Team Depth Charts</b></div>
+  <table class="table table-striped">
+    <thead>
+      <!-- we could loop these but for the sake of order we manually put them here-->
+      <tr>
+        <th>Position</th>
+        <!-- team1 -->
+        <th ng-repeat="(team, position) in data">
+          {{team}}
+        </th>
+        <!-- team2 -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+          <td>PG</td>
+          <td ng-repeat="(team, position) in data">
+            <div ng-repeat="pg in position.PG"
+                ng-class="{'status-green' : pg == position.PG[0]}">
+              {{pg}}
+            </div>
+          </td>
+      </tr>
+      <tr>
+          <td>SG</td>
+          <td ng-repeat="(team, position) in data">
+            <div ng-repeat="sg in position.SG"
+                ng-class="{'status-green' : sg == position.SG[0]}">
+              {{sg}}
+            </div>
+          </td>
+      </tr>
+      <tr>
+          <td>SF</td>
+          <td ng-repeat="(team, position) in data">
+            <div ng-repeat="sf in position.SF"
+                ng-class="{'status-green' : sf == position.SF[0]}">
+              {{sf}}
+            </div>
+          </td>
+      </tr>
+      <tr>
+          <td>PF</td>
+          <td ng-repeat="(team, position) in data">
+            <div ng-repeat="pf in position.PF"
+                ng-class="{'status-green' : pf == position.PF[0]}">
+
+              {{pf}}
+            </div>
+          </td>
+      </tr>
+      <tr>
+          <td>C</td>
+          <td ng-repeat="(team, position) in data">
+            <div ng-repeat="c in position.C"
+                ng-class="{'status-green' : c == position.C[0]}">
+              {{c}}
+            </div>
+          </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

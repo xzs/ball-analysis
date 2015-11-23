@@ -26,9 +26,10 @@ app.controller('MainCtrl',
     };
     $scope.today = moment().format("YYYY-MM-DD");
 
-    function processDepthChart() {
-        fetch.getStarters().then(function (data){
-            local.starters = data;
+    function processDepthChart(team) {
+        $scope.teamDepthChart[team] = {};
+        fetch.getDepthChartByTeam(team).then(function (data){
+            $scope.teamDepthChart[team] = data;
         });
     }
 
@@ -62,8 +63,13 @@ app.controller('MainCtrl',
 
     $scope.getTeamStats = function(teams) {
         $scope.teamAdvancedStats = {};
+        $scope.teamDepthChart = {};
+        // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
+        processDepthChart(teams.opp);
         getTeamAdvancedStats(teams.team);
+        processDepthChart(teams.team);
+        console.log($scope.teamDepthChart);
     }
 
     function getTeamNews(team) {
@@ -91,12 +97,12 @@ app.controller('MainCtrl',
         fetch.getPlayer(year, name).then(function (data) {
             $scope.alerts = isPlayerOnTeam(name);
             // temp use of object.keys until I determine the final structure of the json
-            var isStarter = _.includes(Object.keys(local.starters), name);
+            // var isStarter = _.includes(Object.keys(local.starters), name);
 
             // Player info
             $scope.playerInfo = data.basic_info;
-            $scope.playerInfo.isStarter = isStarter;
-            $scope.playerInfo.status = local.starters[name] ? local.starters[name].status : '';
+            // $scope.playerInfo.isStarter = isStarter;
+            // $scope.playerInfo.status = local.starters[name] ? local.starters[name].status : '';
             // Base stats
             $scope.playerStats = data.stats;
             $scope.playerCov = data.cov;
@@ -187,7 +193,6 @@ app.controller('MainCtrl',
     }
 
     init($scope.year);
-    processDepthChart();
     getLeagueSchedule($scope.year);
 
 }]);
