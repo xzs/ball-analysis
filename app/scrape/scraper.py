@@ -42,9 +42,18 @@ NEWS_DICT = {
     'UTA':'Utah Jazz',
     'WAS':'Washington Wizards'
 }
+# some links dont transfer from bbref
+TRANSLATE_DICT = {
+    'CHA':'CHO',
+    'GS':'GSW',
+    'LAK':'LAL',
+    'MLW':'MIL',
+    'NO':'NOP',
+    'NY':'NYK'
+}
 
 BASE_URL = 'http://www.basketball-reference.com'
-DEPTH_URL = 'http://www.rotoworld.com/teams/depth-charts/nba.aspx'
+DEPTH_URL = 'http://www.rotoworld.com/teams/clubhouse/nba/'
 NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
 
 YEAR = '2016'
@@ -79,18 +88,8 @@ def get_fantasy_news():
                 'impact': news_impact,
             })
 
-        # some links dont transfer from bbref
-        translate_dict = {
-            'CHA':'CHO',
-            'GS':'GSW',
-            'LAK':'LAL',
-            'MLW':'MIL',
-            'NO':'NOP',
-            'NY':'NYK'
-        }
-
-        if team in translate_dict:
-            team = translate_dict[team]
+        if team in TRANSLATE_DICT:
+            team = TRANSLATE_DICT[team]
 
         with open('misc/news/'+team+'.json', 'w') as outfile:
             logger.info('Writing news to json file: '+ team)
@@ -98,37 +97,33 @@ def get_fantasy_news():
 
 
 def get_depth_chart():
-    current_starters = {}
-    url = urllib2.urlopen(DEPTH_URL)
-    soup = BeautifulSoup(url, 'html5lib')
-    table = soup.find('table', attrs={'id':'cp1_tblDepthCharts'})
-    table_body = table.find('tbody')
 
-    rows = table_body.find_all('tr')
+    for team in NEWS_DICT:
+        current_starters = {}
+        url = urllib2.urlopen(DEPTH_URL+team)
+        soup = BeautifulSoup(url, 'html5lib')
 
-    for row in rows:
-        logger.info('Getting starters for all teams');
 
-        players = row.find_all('td')
-        # loop through the players
-        if len(players) > 0:
+        table = soup.find('table', attrs={'id':'cp1_ctl04_tblDepthCharts'})
+        table_body = table.find('tbody')
+        rows = table_body.find_all('tr')
+        for row in rows[2:]:
+            players = row.find_all('td')
             for player in players:
-                starter_table = player.find('table')
-                if starter_table:
-                    starter_body = starter_table.find('tbody')
-                    starter = starter_body.find_all('tr', attrs={'class': 'highlight-row'})
-                    for info in starter:
-                        pos_player = info.find_all('td')
-                        for td in pos_player[1::2]:
-                            position = td.find('a').text
-                            current_starters[position] = {'status': 'available'}
-                            news = td.find('span')
-                            if news:
-                                current_starters[position]['status'] = news.text
+                possible_position = player.text
+                if possible_position in ['PG', 'SG', 'SF', 'PF', 'C']:
+                    current_starters[possible_position] = []
+                    current_position = possible_position
+                else:
+                    if player.find('a'):
+                        current_starters[current_position].append(str(player.find('a').text))
 
-    with open('misc/starters.json', 'w') as outfile:
-        logger.info('Writing to json file')
-        json.dump(current_starters, outfile)
+        if team in TRANSLATE_DICT:
+            team = TRANSLATE_DICT[team]
+
+        with open('misc/depth_chart/'+team+'.json', 'w') as outfile:
+            logger.info('Writing to depth chart file:'+ team)
+            json.dump(current_starters, outfile)
 
     return current_starters
 
@@ -338,6 +333,6 @@ pp = pprint.PrettyPrinter(indent=4)
 TEAMS_DICT = get_active_teams()
 get_team_schedule(TEAMS_DICT)
 PLAYERS_DICT = get_current_roster(TEAMS_DICT)
-# get_player_log(PLAYERS_DICT)
-# get_depth_chart()
-# get_fantasy_news()
+get_player_log(PLAYERS_DICT)
+get_depth_chart()
+get_fantasy_news()

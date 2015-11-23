@@ -95,16 +95,18 @@ var circleAttr = circles.attr('cx', 50)
 var spaceCircles = [30, 70, 110];
 
 
-
+// create the svg element
 var d3Selection = d3.select('body').append('svg')
                                 .attr('width', 200)
                                 .attr('height', 200);
 
+// use data binding to append the circle elements
 var circles = d3Selection.selectAll('circle')
                         .data(spaceCircles)
                         .enter()
                         .append('circle');
 
+// set properties for the circle
 var cricleSelection = circles.attr('cx', function (d){
                                 return d;
                             })
@@ -123,19 +125,77 @@ var cricleSelection = circles.attr('cx', function (d){
 
 
 
+var jsonCircles = [
+  {
+   "x_axis": 30,
+   "y_axis": 30,
+   "radius": 20,
+   "color" : "green"
+  }, {
+   "x_axis": 70,
+   "y_axis": 70,
+   "radius": 20,
+   "color" : "purple"
+  }, {
+   "x_axis": 110,
+   "y_axis": 100,
+   "radius": 20,
+   "color" : "red"
+}];
+
+
+var d3Selection = d3.select('body').append('svg')
+                                    .attr('height', 200)
+                                    .attr('width', 200);
+
+var circleSelection = d3Selection.selectAll('circle')
+                                    .data(jsonCircles)
+                                    .enter()
+                                    .append('circle');
+
+var circles = circleSelection.attr('cx', function(d){
+                                    return d.x_axis;
+                                })
+                                .attr('cy', function(d){
+                                    return d.y_axis;
+                                })
+                                .attr('r', function(d){
+                                    return d.radius;
+                                })
+                                .style('fill', function(d){
+                                    return d.color;
+                                })
 
 
 
+// when drawing lines and such we can think of it as a pen on paper
+// specifiy where the pen will drop (m) and the draw line to (l)
+// to draw a line in d3 we can use the d3.svg.line() function
 
+//The data for our line
+var lineData = [ { "x": 1,   "y": 5},  { "x": 20,  "y": 20},
+                 { "x": 40,  "y": 10}, { "x": 60,  "y": 40},
+                 { "x": 80,  "y": 5},  { "x": 100, "y": 60}];
 
+//This is the accessor function we talked about above
+// set the coordatines with the x and y values then interpolate the line as linear between the points
+var lineFunction = d3.svg.line()
+                         .x(function(d) { return d.x; })
+                         .y(function(d) { return d.y; })
+                         .interpolate("linear");
 
+//The SVG Container
+var svgContainer = d3.select("body").append("svg")
+                                    .attr("width", 200)
+                                    .attr("height", 200);
 
-
-
-
-
-
-
+//The line SVG Path we draw
+// <path d="M1,5L20,20L40,10L60,40L80,5L100,60" stroke="blue" stroke-width="2" fill="none"></path>
+var lineGraph = svgContainer.append("path")
+                            .attr("d", lineFunction(lineData))
+                            .attr("stroke", "blue")
+                            .attr("stroke-width", 2)
+                            .attr("fill", "none");
 
 
 
