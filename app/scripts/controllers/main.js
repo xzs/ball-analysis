@@ -42,7 +42,7 @@ app.controller('MainCtrl',
                 // get the index for the current player
                 var playerIndex = _.indexOf($scope.teamDepthChart[team][position], currentPlayer);
                 // set it to an obj with the adv data
-                $scope.teamDepthChart[team][position][playerIndex] = data;
+                $scope.teamDepthChart[team][position][playerIndex] = processPlayerAdvancedStats(data, currentPlayer);
             }, function(err){
                 // if player doesn't exist then create empty object
                 var playerIndex = _.indexOf($scope.teamDepthChart[team][position], player);
@@ -190,6 +190,7 @@ app.controller('MainCtrl',
         var playerAdvancedStats = {};
         // TS%, PER, OWS, DWS, OBM, DBM, USG%
         playerAdvancedStats = {
+            'name': name,
             'OWS': data[name]['OWS'],
             'DWS': data[name]['DWS'],
             'OBPM': data[name]['OBPM'],

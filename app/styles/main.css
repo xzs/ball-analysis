@@ -118,3 +118,7 @@ body {
   color: red;
   font-size: 20px;
 }
+
+.double-line-height {
+  line-height: 200%;
+}
