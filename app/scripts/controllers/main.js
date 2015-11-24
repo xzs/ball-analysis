@@ -5,10 +5,12 @@ app.controller('MainCtrl',
         'fetch',
         'processing',
         '$scope',
+        '$q',
         function (
             fetch,
             processing,
-            $scope
+            $scope,
+            $q
         )
     {
 
@@ -28,8 +30,39 @@ app.controller('MainCtrl',
 
     function processDepthChart(team) {
         $scope.teamDepthChart[team] = {};
+
+        // use $q to queue up the promises to manage the numerous calls to make sure its in order
+        var promises = [];
+
+        // function for getting the stats
+        function getPlayerStats(player, position) {
+            fetch.getPlayerAdvancedStats($scope.year, player).then(function (data) {
+                // grab the name of the current player since the player variable has moved on
+                var currentPlayer = Object.keys(data)[0];
+                // get the index for the current player
+                var playerIndex = _.indexOf($scope.teamDepthChart[team][position], currentPlayer);
+                // set it to an obj with the adv data
+                $scope.teamDepthChart[team][position][playerIndex] = data;
+            }, function(err){
+                // if player doesn't exist then create empty object
+                var playerIndex = _.indexOf($scope.teamDepthChart[team][position], player);
+                $scope.teamDepthChart[team][position][playerIndex] = {};
+                $scope.teamDepthChart[team][position][playerIndex][player] = {};
+            });
+        };
+
+        // get the depthChart first
         fetch.getDepthChartByTeam(team).then(function (data){
             $scope.teamDepthChart[team] = data;
+            // get the advance stats for the player
+            _.forEach(data, function(players, position) {
+                for (var i=0; i<players.length; i++) {
+                    var player = players[i];
+                    promises.push(getPlayerStats(player, position));
+                }
+            })
+
+            $q.all(promises);
         });
     }
 
@@ -67,9 +100,9 @@ app.controller('MainCtrl',
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);
+
         getTeamAdvancedStats(teams.team);
         processDepthChart(teams.team);
-        console.log($scope.teamDepthChart);
     }
 
     function getTeamNews(team) {
@@ -90,6 +123,7 @@ app.controller('MainCtrl',
         // getTeamAdvancedStats($scope.team);
         return $scope.teamPlayers
     }
+
 
     $scope.getPlayerData = function(year, name) {
         $scope.player = name;
@@ -140,7 +174,9 @@ app.controller('MainCtrl',
             });
 
             // get advanced stats for player
-            getPlayerAdvancedStats(year, name);
+            fetch.getPlayerAdvancedStats(year, name).then(function (data) {
+                $scope.playerAdvancedStats = processPlayerAdvancedStats(data, name)
+            });
 
         }, function(error) {
             $scope.alerts.message = 'The player does not exist';
@@ -150,20 +186,20 @@ app.controller('MainCtrl',
 
     }
 
-    function getPlayerAdvancedStats(year, name) {
-        $scope.playerAdvancedStats = {};
-        fetch.getPlayerAdvancedStats(year, name).then(function (data) {
-            // TS%, PER, OWS, DWS, OBM, DBM, USG%
-            $scope.playerAdvancedStats = {
-                'OWS': data[name]['OWS'],
-                'DWS': data[name]['DWS'],
-                'OBPM': data[name]['OBPM'],
-                'DBPM': data[name]['DBPM'],
-                'TS': data[name]['TS%'],
-                'PER': data[name]['PER'],
-                'USG': data[name]['USG%']
-            };
-        });
+    function processPlayerAdvancedStats(data, name) {
+        var playerAdvancedStats = {};
+        // TS%, PER, OWS, DWS, OBM, DBM, USG%
+        playerAdvancedStats = {
+            'OWS': data[name]['OWS'],
+            'DWS': data[name]['DWS'],
+            'OBPM': data[name]['OBPM'],
+            'DBPM': data[name]['DBPM'],
+            'TS': data[name]['TS%'],
+            'PER': data[name]['PER'],
+            'USG': data[name]['USG%']
+        };
+
+        return playerAdvancedStats;
     }
 
     function isPlayerOnTeam(name) {

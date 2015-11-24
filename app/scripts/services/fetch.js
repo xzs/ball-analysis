@@ -40,22 +40,22 @@ app.factory('fetch', ['$http', function($http) {
         },
         getTeamNews: function(team) {
             return $http.get('scrape/misc/news/'+team+'.json').then(function (response){
-                return response.data
+                return response.data;
             })
         },
         getPlayerAdvancedStats: function(year, name) {
             return $http.get('scrape/json_files/player_stats/'+year+'/'+name+'.json').then(function (response){
-                return response.data
+                return response.data;
             })
         },
         getTeamAdvancedStats: function(team) {
             return $http.get('scrape/misc/team_stats/'+team+'.json').then(function (response){
-                return response.data
+                return response.data;
             })
         },
         getDepthChartByTeam: function(team) {
             return $http.get('scrape/misc/depth_chart/'+team+'.json').then(function (response){
-                return response.data
+                return response.data;
             })
         }
 

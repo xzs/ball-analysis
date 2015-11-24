@@ -19,7 +19,7 @@
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pg in position.PG"
                 ng-class="{'status-green' : pg == position.PG[0]}">
-              {{pg}}
+              <div ng-repeat="(player, name) in pg track by $index">{{player}}</div>
             </div>
           </td>
       </tr>
@@ -28,7 +28,7 @@
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sg in position.SG"
                 ng-class="{'status-green' : sg == position.SG[0]}">
-              {{sg}}
+              <div ng-repeat="(player, name) in sg track by $index">{{player}}</div>
             </div>
           </td>
       </tr>
@@ -37,7 +37,7 @@
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sf in position.SF"
                 ng-class="{'status-green' : sf == position.SF[0]}">
-              {{sf}}
+              <div ng-repeat="(player, name) in sf track by $index">{{player}}</div>
             </div>
           </td>
       </tr>
@@ -47,7 +47,7 @@
             <div ng-repeat="pf in position.PF"
                 ng-class="{'status-green' : pf == position.PF[0]}">
 
-              {{pf}}
+              <div ng-repeat="(player, name) in pf track by $index">{{player}}</div>
             </div>
           </td>
       </tr>
@@ -56,7 +56,7 @@
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="c in position.C"
                 ng-class="{'status-green' : c == position.C[0]}">
-              {{c}}
+              <div ng-repeat="(player, name) in c track by $index">{{player}}</div>
             </div>
           </td>
       </tr>
