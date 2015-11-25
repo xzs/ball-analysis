@@ -57,6 +57,11 @@ app.factory('fetch', ['$http', function($http) {
             return $http.get('scrape/misc/depth_chart/'+team+'.json').then(function (response){
                 return response.data;
             })
+        },
+        getDefenseVsPositionStats: function(team) {
+            return $http.get('scrape/misc/fantasy_stats/'+team+'.json').then(function (response){
+                return response.data;
+            })
         }
 
     }

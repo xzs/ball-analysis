@@ -1,10 +1,11 @@
 app.directive('statsTable', function() {
     return {
-        restrict: 'A',
+        restrict: 'E',
         scope: {
           // the key needs to match that within the template
           data: '=data',
           heading: '=heading',
+          fantasy: '=fantasy'
         },
         controller: ['$scope', function($scope) {
             // set default predicate to the gmsc

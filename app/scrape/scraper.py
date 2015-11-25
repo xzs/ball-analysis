@@ -37,7 +37,7 @@ NEWS_DICT = {
     'PHO':'Phoenix Suns',
     'POR':'Portland Trail Blazers',
     'SAC':'Sacramento Kings',
-    'SAS':'San Antonio Spurs',
+    'SA':'San Antonio Spurs',
     'TOR':'Toronto Raptors',
     'UTA':'Utah Jazz',
     'WAS':'Washington Wizards'
@@ -81,7 +81,9 @@ TRANSLATE_DICT = {
     'LAK':'LAL',
     'MLW':'MIL',
     'NO':'NOP',
-    'NY':'NYK'
+    'NY':'NYK',
+    'BKN':'BRK',
+    'SA':'SAS',
 }
 
 TEAMS_DICT = {

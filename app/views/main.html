@@ -13,14 +13,16 @@
   </slick>
 </div>
 
-<div stats-table style="margin-top: 50px;" data='teamDepthChart'
+<stats-table style="margin-top: 50px;"
+      data='teamDepthChart'
+      fantasy='teamFantasyStats'
       type='depthchart'>
-</div>
+</stats-table>
 
 <!-- advanced team stats table -->
-<div stats-table style="margin-top: 50px;" data='teamAdvancedStats'
+<stats-table style="margin-top: 50px;" data='teamAdvancedStats'
       type='advanced'>
-</div>
+</stats-table>
 
 <div class="page-header">
   <!-- selects this needs to be a directive soon as well -->
@@ -94,30 +96,30 @@
 </div>
 
 <!-- tables -->
-<div stats-table data='playerStatsOther'
+<stats-table data='playerStatsOther'
       type='other'>
-</div>
-<div stats-table data='playerStats'
+</stats-table>
+<stats-table data='playerStats'
       heading="'Stats'"
       type='base'>
-</div>
+</stats-table>
 <!-- advanced team stats table -->
-<div stats-table data='playerAdvancedStats'
+<stats-table data='playerAdvancedStats'
       heading="'Adv. Stats'"
       type='player-advanced'>
-</div>
-<div stats-table data='playerLast5'
+</stats-table>
+<stats-table data='playerLast5'
       heading="'Last 5 Games'"
       type='base'>
-</div>
-<div stats-table data='playerStatsOther.playerPreAllStar'
+</stats-table>
+<stats-table data='playerStatsOther.playerPreAllStar'
       heading="'Pre All-Star'"
       type='base'>
-</div>
-<div stats-table data='playerStatsOther.playerPostAllStar'
+</stats-table>
+<stats-table data='playerStatsOther.playerPostAllStar'
       heading="'Post All-Star'"
       type='base'>
-</div>
-<div stats-table data='teamData'
+</stats-table>
+<stats-table data='teamData'
       type='team'>
-</div>
+</stats-table>

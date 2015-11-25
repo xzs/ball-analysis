@@ -118,15 +118,29 @@ app.controller('MainCtrl',
         });
     }
 
+    function getDefenseVsPositionStats(team) {
+        $scope.teamFantasyStats[team] = {};
+        fetch.getDefenseVsPositionStats(team).then(function (data){
+            $scope.teamFantasyStats[team] = data;
+            _.forEach(data, function(stats, position){
+                var lastFiveDiff = parseFloat(stats['Season']) - parseFloat(stats['Last 5']);
+                $scope.teamFantasyStats[team][position]['lastFiveDiff'] = lastFiveDiff.toFixed(2);
+            })
+        });
+    }
     $scope.getTeamStats = function(teams) {
         $scope.teamAdvancedStats = {};
         $scope.teamDepthChart = {};
+        $scope.teamFantasyStats = {};
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);
 
         getTeamAdvancedStats(teams.team);
         processDepthChart(teams.team);
+
+        getDefenseVsPositionStats(teams.team);
+        getDefenseVsPositionStats(teams.opp);
     }
 
     function getTeamNews(team) {
