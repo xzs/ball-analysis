@@ -17,10 +17,8 @@
       <tr>
           <td>PG</td>
           <td ng-repeat="(team, position) in data">
-            <div ng-repeat="pg in position.PG" ng-if="pg.name">
-              <div class="double-line-height" ng-class="{'status-green' : pg == position.PG[0]}">{{pg.name}}</div>
-              <div><b>OBPM</b>: {{pg.OBPM}} <b>DBPM</b>: {{pg.DBPM}}</div>
-              <div><b>TS</b>%: {{pg.TS}} <b>PER</b>: {{pg.PER}} <b>USG</b>%: {{pg.USG}}</div>
+            <div ng-repeat="pg in position.PG">
+              <position-info player='pg' position="position.PG"></position-info>
             </div>
           </td>
       </tr>
@@ -28,9 +26,7 @@
           <td>SG</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sg in position.SG" ng-if="sg.name">
-              <div class="double-line-height" ng-class="{'status-green' : sg == position.SG[0]}">{{sg.name}}</div>
-              <div><b>OBPM</b>: {{sg.OBPM}} <b>DBPM</b>: {{sg.DBPM}}</div>
-              <div><b>TS</b>%: {{sg.TS}} <b>PER</b>: {{sg.PER}} <b>USG</b>%: {{sg.USG}}</div>
+              <position-info player='sg' position="position.SG"></position-info>
             </div>
           </td>
       </tr>
@@ -38,9 +34,7 @@
           <td>SF</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sf in position.SF" ng-if="sf.name">
-              <div class="double-line-height" ng-class="{'status-green' : sf == position.SF[0]}">{{sf.name}}</div>
-              <div><b>OBPM</b>: {{sf.OBPM}} <b>DBPM</b>: {{sf.DBPM}}</div>
-              <div><b>TS</b>%: {{sf.TS}} <b>PER</b>: {{sf.PER}} <b>USG</b>%: {{sf.USG}}</div>
+              <position-info player='sf' position="position.SF"></position-info>
             </div>
           </td>
       </tr>
@@ -48,9 +42,7 @@
           <td>PF</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pf in position.PF" ng-if="pf.name">
-              <div class="double-line-height" ng-class="{'status-green' : pf == position.PF[0]}">{{pf.name}}</div>
-              <div><b>OBPM</b>: {{pf.OBPM}} <b>DBPM</b>: {{pf.DBPM}}</div>
-              <div><b>TS</b>%: {{pf.TS}} <b>PER</b>: {{pf.PER}} <b>USG</b>%: {{pf.USG}}</div>
+              <position-info player='pf' position="position.PF"></position-info>
             </div>
           </td>
       </tr>
@@ -58,9 +50,7 @@
           <td>C</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="c in position.C" ng-if="c.name">
-              <div class="double-line-height" ng-class="{'status-green' : c == position.C[0]}">{{c.name}}</div>
-              <div><b>OBPM</b>: {{c.OBPM}} <b>DBPM</b>: {{c.DBPM}}</div>
-              <div><b>TS</b>%: {{c.TS}} <b>PER</b>: {{c.PER}} <b>USG</b>%: {{c.USG}}</div>
+              <position-info player='c' position="position.C"></position-info>
             </div>
           </td>
       </tr>

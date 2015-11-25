@@ -103,7 +103,7 @@ def get_depth_chart():
         url = urllib2.urlopen(DEPTH_URL+team)
         soup = BeautifulSoup(url, 'html5lib')
 
-
+        # get id of the table
         table = soup.find('table', attrs={'id':'cp1_ctl04_tblDepthCharts'})
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
@@ -115,8 +115,15 @@ def get_depth_chart():
                     current_starters[possible_position] = []
                     current_position = possible_position
                 else:
+                    player_dict = {}
                     if player.find('a'):
-                        current_starters[current_position].append(str(player.find('a').text))
+                        player_dict['player'] = str(player.find('a').text)
+                        player_dict['status'] = 'Available'
+                        if player.find('div', attrs={'class': 'playercard'}):
+                            player_card = player.find('div', attrs={'class': 'playercard'})
+                            player_dict['status'] = player_card.find('span').text
+
+                        current_starters[current_position].append(player_dict)
 
         if team in TRANSLATE_DICT:
             team = TRANSLATE_DICT[team]

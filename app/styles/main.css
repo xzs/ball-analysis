@@ -94,6 +94,10 @@ body {
   color: green;
 }
 
+.status-red {
+  color: red;
+}
+
 .text-blue {
   color: blue;
 }
@@ -121,4 +125,10 @@ body {
 
 .double-line-height {
   line-height: 200%;
+}
+
+.container {
+  max-width: 960px !important;
+  margin-left: auto;
+  margin-right: auto;
 }

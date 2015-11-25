@@ -35,14 +35,35 @@ app.controller('MainCtrl',
         var promises = [];
 
         // function for getting the stats
-        function getPlayerStats(player, position) {
+        function getPlayerAdvancedStats(player, position, status) {
             fetch.getPlayerAdvancedStats($scope.year, player).then(function (data) {
                 // grab the name of the current player since the player variable has moved on
                 var currentPlayer = Object.keys(data)[0];
                 // get the index for the current player
-                var playerIndex = _.indexOf($scope.teamDepthChart[team][position], currentPlayer);
+                var playerIndex = _.findIndex($scope.teamDepthChart[team][position], {'player': currentPlayer});
                 // set it to an obj with the adv data
-                $scope.teamDepthChart[team][position][playerIndex] = processPlayerAdvancedStats(data, currentPlayer);
+                if (playerIndex > -1){
+                    $scope.teamDepthChart[team][position][playerIndex] = processPlayerAdvancedStats(data, currentPlayer);
+                    $scope.teamDepthChart[team][position][playerIndex]['status'] = status;
+                }
+            }, function(err){
+                // if player doesn't exist then create empty object
+                var playerIndex = _.findIndex($scope.teamDepthChart[team][position], player);
+                $scope.teamDepthChart[team][position][playerIndex] = {};
+                $scope.teamDepthChart[team][position][playerIndex][player] = {};
+            });
+        };
+
+        // function for getting the stats
+        function getPlayerStats(player, position) {
+            fetch.getPlayer($scope.year, player).then(function (data) {
+                var tempPlayer = player;
+                // get the index for the current player
+                var playerIndex = _.findIndex($scope.teamDepthChart[team][position], {'name': tempPlayer});
+                // set it to an obj with the adv data
+                if (playerIndex > -1) {
+                    $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data.stats;
+                }
             }, function(err){
                 // if player doesn't exist then create empty object
                 var playerIndex = _.indexOf($scope.teamDepthChart[team][position], player);
@@ -54,16 +75,20 @@ app.controller('MainCtrl',
         // get the depthChart first
         fetch.getDepthChartByTeam(team).then(function (data){
             $scope.teamDepthChart[team] = data;
+
             // get the advance stats for the player
             _.forEach(data, function(players, position) {
                 for (var i=0; i<players.length; i++) {
-                    var player = players[i];
+                    var player = players[i].player;
+                    var status = players[i].status;
+                    promises.push(getPlayerAdvancedStats(player, position, status));
                     promises.push(getPlayerStats(player, position));
                 }
             })
 
             $q.all(promises);
         });
+        console.log($scope.teamDepthChart);
     }
 
     // do a fetch everytime we switch teams
