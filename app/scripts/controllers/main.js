@@ -88,7 +88,6 @@ app.controller('MainCtrl',
 
             $q.all(promises);
         });
-        console.log($scope.teamDepthChart);
     }
 
     // do a fetch everytime we switch teams

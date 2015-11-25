@@ -42,6 +42,38 @@ NEWS_DICT = {
     'UTA':'Utah Jazz',
     'WAS':'Washington Wizards'
 }
+REVERSE_TEAMS_DICT = {
+    'Atlanta Hawks': 'ATL',
+    'Boston Celtics': 'BOS',
+    'Brooklyn Nets': 'BRK',
+    'Charlotte Hornets': 'CHO',
+    'Chicago Bulls': 'CHI',
+    'Cleveland Cavaliers': 'CLE',
+    'Dallas Mavericks': 'DAL',
+    'Denver Nuggets': 'DEN',
+    'Detroit Pistons': 'DET',
+    'Golden State Warriors': 'GSW',
+    'Houston Rockets': 'HOU',
+    'Indiana Pacers': 'IND',
+    'Los Angeles Clippers': 'LAC',
+    'Los Angeles Lakers': 'LAL',
+    'Memphis Grizzlies': 'MEM',
+    'Miami Heat': 'MIA',
+    'Milwaukee Bucks': 'MIL',
+    'Minnesota Timberwolves': 'MIN',
+    'New Orleans Pelicans': 'NOP',
+    'New York Knicks': 'NYK',
+    'Oklahoma City Thunder': 'OKC',
+    'Orlando Magic': 'ORL',
+    'Philadelphia 76ers': 'PHI',
+    'Phoenix Suns': 'PHO',
+    'Portland Trailblazers': 'POR',
+    'Sacramento Kings': 'SAC',
+    'San Antonio Spurs': 'SAS',
+    'Toronto Raptors': 'TOR',
+    'Utah Jazz': 'UTA',
+    'Washington Wizards': 'WAS'
+}
 # some links dont transfer from bbref
 TRANSLATE_DICT = {
     'CHA':'CHO',
@@ -52,9 +84,42 @@ TRANSLATE_DICT = {
     'NY':'NYK'
 }
 
+TEAMS_DICT = {
+    'ATL':'Atlanta Hawks',
+    'BOS':'Boston Celtics',
+    'BRK':'Brooklyn Nets',
+    'CHO':'Charlotte Hornets',
+    'CHI':'Chicago Bulls',
+    'CLE':'Cleveland Cavaliers',
+    'DAL':'Dallas Mavericks',
+    'DEN':'Denver Nuggets',
+    'DET':'Detroit Pistons',
+    'GSW':'Golden State Warriors',
+    'HOU':'Houston Rockets',
+    'IND':'Indiana Pacers',
+    'LAC':'Los Angeles Clippers',
+    'LAL':'Los Angeles Lakers',
+    'MEM':'Memphis Grizzlies',
+    'MIA':'Miami Heat',
+    'MIL':'Milwaukee Bucks',
+    'MIN':'Minnesota Timberwolves',
+    'NOP':'New Orleans Pelicans',
+    'NYK':'New York Knicks',
+    'OKC':'Oklahoma City Thunder',
+    'ORL':'Orlando Magic',
+    'PHI':'Philadelphia 76ers',
+    'PHO':'Phoenix Suns',
+    'POR':'Portland Trail Blazers',
+    'SAC':'Sacramento Kings',
+    'SAS':'San Antonio Spurs',
+    'TOR':'Toronto Raptors',
+    'UTA':'Utah Jazz',
+    'WAS':'Washington Wizards'
+}
 BASE_URL = 'http://www.basketball-reference.com'
 DEPTH_URL = 'http://www.rotoworld.com/teams/clubhouse/nba/'
 NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
+MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
 
 YEAR = '2016'
 
@@ -336,10 +401,55 @@ def get_team_schedule(teams_dict):
                 writer.writerows(row for row in log_rows if row)
 
 
+def get_team_against_position():
+    pos_list = ['PG', 'SG', 'SF', 'PF', 'C']
+    site = 'DraftKings'
+    matchup_data = {}
+
+    for position in pos_list:
+        logger.info('getting matchup information for: '+position)
+        url = urllib2.urlopen(MATCHUP_URL+'?site=%s&pos=%s' % (site, position))
+        soup = BeautifulSoup(url, 'html5lib')
+
+        table = soup.find('table', attrs={'class': 'footballproj-table'})
+        header = table.find('thead')
+        team_header = header.find_all('tr')[1].find_all('th')
+
+        table_body = table.find('tbody')
+        teams = table_body.find_all('tr')
+
+        for team in teams:
+            team_stats = team.find_all('td')
+            tempname = str(team_stats[0].text)
+            team_name = REVERSE_TEAMS_DICT[tempname]
+
+            if team_name not in matchup_data:
+                matchup_data[team_name] = {}
+
+            if position not in matchup_data[team_name]:
+                matchup_data[team_name][position] = {}
+
+            # zip with the header so it runs in "parallel"
+            for header, stat in zip(team_header, team_stats):
+                category = str(header.text)
+                matchup_data[team_name][position][category] = str(stat.text)
+
+
+    # loop each team
+    for team in TEAMS_DICT:
+        with open('misc/fantasy_stats/'+team+'.json', 'w') as outfile:
+            logger.info('Writing to fantasy_stats file:' +team)
+            json.dump(matchup_data[team], outfile)
+
+    return matchup_data
+
+
 pp = pprint.PrettyPrinter(indent=4)
-TEAMS_DICT = get_active_teams()
-get_team_schedule(TEAMS_DICT)
-PLAYERS_DICT = get_current_roster(TEAMS_DICT)
+teams_dict = get_active_teams()
+get_team_schedule(teams_dict)
+PLAYERS_DICT = get_current_roster(teams_dict)
 get_player_log(PLAYERS_DICT)
+
 get_depth_chart()
 get_fantasy_news()
+get_team_against_position()
