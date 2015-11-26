@@ -420,6 +420,7 @@ def get_team_against_position():
         table_body = table.find('tbody')
         teams = table_body.find_all('tr')
 
+        team_rank = 0
         for team in teams:
             team_stats = team.find_all('td')
             tempname = str(team_stats[0].text)
@@ -427,9 +428,12 @@ def get_team_against_position():
 
             if team_name not in matchup_data:
                 matchup_data[team_name] = {}
+                # the rank is in ascending order
 
             if position not in matchup_data[team_name]:
                 matchup_data[team_name][position] = {}
+                team_rank += 1
+                matchup_data[team_name][position]['rank'] = team_rank
 
             # zip with the header so it runs in "parallel"
             for header, stat in zip(team_header, team_stats):
@@ -447,11 +451,11 @@ def get_team_against_position():
 
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# teams_dict = get_active_teams()
+# get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
-get_depth_chart()
-get_fantasy_news()
+# get_depth_chart()
+# get_fantasy_news()
 get_team_against_position()

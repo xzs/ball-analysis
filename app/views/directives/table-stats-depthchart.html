@@ -1,5 +1,5 @@
 <!-- we are only goin to show this for when the match up is clicked -->
-<div class="panel panel-default" ng-if="data">
+<div class="panel panel-default" style="margin-top: 50px;" ng-if="data">
   <div class="panel-heading"><b>Team Depth Charts</b></div>
   <table class="table table-striped">
     <thead>
@@ -21,28 +21,28 @@
           <td>PG</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pg in position.PG">
-              <position-info player='pg' position="position.PG"></position-info>
+              <position-info player='pg' playertype="position.PG" position="pg"></position-info>
             </div>
           </td>
           <td ng-repeat="(team, position) in fantasy">
             <div>FPP Given:</div>
             <div><b>Last 5</b>: {{position.PG['Last 5']}}</div>
             <div><b>Last 10</b>: {{position.PG['Last 10']}}</div>
-            <div><b>Season</b>: {{position.PG['Season']}}</div>
-            <div><b>Last 5 Vs. Season</b>: {{position.PG['lastFiveDiff']}}</div>
+            <div><b>Season</b>: {{position.PG['Season']}} <span ng-class="{'status-red bold': position.PG['rank'] < 10 }">({{position.PG['rank']}})</span></div>
+            <div ng-class="{'status-red highlight': position.PG['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.PG['lastFiveDiff']}}</div>
           </td>
       </tr>
       <tr>
           <td>SG</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sg in position.SG" ng-if="sg.name">
-              <position-info player='sg' position="position.SG"></position-info>
+              <position-info player='sg' playertype="position.SG" position="sg"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
-                <div><b>Last 5</b>: {{position.SG['Last 5']}}</div>
+                <div><b>Last 5</b>: {{position.SG['Last 5']}}</span></div>
                 <div><b>Last 10</b>: {{position.SG['Last 10']}}</div>
-                <div><b>Season</b>: {{position.SG['Season']}}</div>
-                <div><b>Last 5 Vs. Season</b>: {{position.SG['lastFiveDiff']}}</div>
+                <div><b>Season</b>: {{position.SG['Season']}} <span ng-class="{'status-red bold': position.SG['rank'] < 10 }">({{position.SG['rank']}})</div>
+                <div ng-class="{'status-red highlight': position.SG['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.SG['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>
@@ -51,13 +51,13 @@
           <td>SF</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sf in position.SF" ng-if="sf.name">
-              <position-info player='sf' position="position.SF"></position-info>
+              <position-info player='sf' playertype="position.SF" position="sf"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.SF['Last 5']}}</div>
                 <div><b>Last 10</b>: {{position.SF['Last 10']}}</div>
-                <div><b>Season</b>: {{position.SF['Season']}}</div>
-                <div><b>Last 5 Vs. Season</b>: {{position.SF['lastFiveDiff']}}</div>
+                <div><b>Season</b>: {{position.SF['Season']}} <span ng-class="{'status-red bold': position.SF['rank'] < 10 }">({{position.SF['rank']}})</span></div>
+                <div ng-class="{'status-red highlight': position.SF['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.SF['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>
@@ -66,14 +66,13 @@
           <td>PF</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pf in position.PF" ng-if="pf.name">
-              <position-info player='pf' position="position.PF"></position-info>
+              <position-info player='pf' playertype="position.PF" position="pf"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.PF['Last 5']}}</div>
-                <div<b>Last 10</b> {{position.PF['Last 10']}}</div>
-                <div>Season: {{position.PF['Season']}}</div>
-                <div><b>Last 5 Vs. Season</b>: {{position.PF['lastFiveDiff']}}</div>
-
+                <div><b>Last 10</b> {{position.PF['Last 10']}}</div>
+                <div><b>Season</b>: {{position.PF['Season']}} <span ng-class="{'status-red bold': position.PF['rank'] < 10 }">({{position.PF['rank']}})</span></div>
+                <div ng-class="{'status-red highlight': position.PF['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.PF['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>
@@ -82,13 +81,13 @@
           <td>C</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="c in position.C" ng-if="c.name">
-              <position-info player='c' position="position.C"></position-info>
+              <position-info player='c' playertype="position.C" position="c"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.C['Last 5']}}</div>
                 <div><b>Last 10</b>: {{position.C['Last 10']}}</div>
-                <div><b>Season</b>: {{position.C['Season']}}</div>
-                <div><b>Last 5 Vs. Season</b>: {{position.C['lastFiveDiff']}}</div>
+                <div><b>Season</b>: {{position.C['Season']}} <span ng-class="{'status-red bold': position.C['rank'] < 10 }">({{position.C['rank']}})</span></div>
+                <div ng-class="{'status-red highlight': position.C['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.C['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>

@@ -123,7 +123,7 @@ app.controller('MainCtrl',
         fetch.getDefenseVsPositionStats(team).then(function (data){
             $scope.teamFantasyStats[team] = data;
             _.forEach(data, function(stats, position){
-                var lastFiveDiff = parseFloat(stats['Season']) - parseFloat(stats['Last 5']);
+                var lastFiveDiff = parseFloat(stats['Last 5']) - parseFloat(stats['Season']);
                 $scope.teamFantasyStats[team][position]['lastFiveDiff'] = lastFiveDiff.toFixed(2);
             })
         });

@@ -1,6 +1,6 @@
 app.directive('statsTable', function() {
     return {
-        restrict: 'E',
+        restrict: 'EA',
         scope: {
           // the key needs to match that within the template
           data: '=data',
