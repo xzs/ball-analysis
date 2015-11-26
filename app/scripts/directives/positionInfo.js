@@ -23,6 +23,11 @@ app.directive('positionInfo', function(){
 				}
 				return classes;
 			}
+			scope.twentytwenty = function(m1, m2){
+				if (m1 > 20 && m2 > 20 && scope.player.base_stats['playtime'] > 30) {
+					return 'twentytwenty';
+				}
+			}
 		}
 	}
 })
