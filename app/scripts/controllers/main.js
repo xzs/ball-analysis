@@ -18,6 +18,7 @@ app.controller('MainCtrl',
     var local = this;
     local.salary = 50000;
     local.allPlayers = {};
+    local.dkPlayers = {};
     $scope.years = ['2015', '2016'];
     $scope.year = '2016';
     $scope.team = 'GSW';
@@ -62,12 +63,16 @@ app.controller('MainCtrl',
         function getPlayerStats(player, position) {
             fetch.getPlayer($scope.year, player).then(function (data) {
                 var tempPlayer = player;
+
+                // get the dk stats for that player
+                var dkStats = local.dkPlayers['team'][team][position][tempPlayer];
                 // get the index for the current player
                 var playerIndex = _.findIndex($scope.teamDepthChart[team][position], {'name': tempPlayer});
                 // set it to an obj with the adv data
                 if (playerIndex > -1) {
                     $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data.stats;
-                    //
+                    // add the dk stats for that player
+                    $scope.teamDepthChart[team][position][playerIndex]['dk_stats'] = dkStats;
                     $scope.teamDepthChart[team][position][playerIndex]['USGvsMIN'] =
                         (parseFloat($scope.teamDepthChart[team][position][playerIndex]['USG']) / parseFloat(data.stats.playtime)).toFixed(2);
                     $scope.teamDepthChart[team][position][playerIndex]['USGvsPER'] =
@@ -241,16 +246,14 @@ app.controller('MainCtrl',
             complete: function(results) {
                 // remove the first and last element from the list
                 processCSV(_.dropRight(_.drop(results.data)));
+                $scope.csvComplete = true;
             }
         });
     }
 
     function processCSV(data) {
         // process the data into readable JSON format
-        // console.log(processing.setAllPlayersByPosition(data));
-        console.log(processing.setAllPlayersByTeam(data));
-        // $scope.lineups.equalDistributedLineup = processing.getEqualDistributionLineUp(local.salary);
-        // console.log($scope.lineups.equalDistributedLineup);
+        local.dkPlayers = processing.setAllPlayersByTeam(data);
 
         // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
         // Therefore, you have to make apply int he end of the onload function

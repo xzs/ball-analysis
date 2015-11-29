@@ -3,8 +3,10 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
-<input type="file" ng-model="file.csv" fileread="file.csv" />
-<button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
+<div ng-hide="csvComplete">
+  <input type="file" ng-model="file.csv" fileread="file.csv" />
+  <button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
+</div>
 
 <div class="padding-bottom-0 ">
   <h2 class="panel-heading">Today's Games</h2>
