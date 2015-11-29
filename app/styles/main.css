@@ -110,6 +110,10 @@ body {
   color: #FFD700;
 }
 
+.good-pick {
+  background: #2ecc71;
+}
+
 .padding-bottom-10 {
   padding-bottom: 10px;
 }
@@ -136,9 +140,14 @@ body {
 }
 
 .container {
-  max-width: 1024px !important;
+  max-width: 1120px !important;
   margin-left: auto;
   margin-right: auto;
+}
+
+.player-name-padding {
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .highlight {

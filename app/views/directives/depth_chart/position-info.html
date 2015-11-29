@@ -1,11 +1,36 @@
 <i ng-if="!player.name" class="fa fa-spinner fa-spin"></i>
 <div ng-if="player.name">
-  <div class="double-line-height"
+  <div class="double-line-height player-name-padding"
       ng-class="getPlayerStatus()">
     {{player.name}} ({{player.status}})
   </div>
-  <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'"><b>MIN</b>: {{player.base_stats.playtime}} <b>PTS</b>: {{player.base_stats.points}} <b>REB</b>: {{player.base_stats.rebounds}} <b>AST</b>: {{player.base_stats.assists}} <b>3PM</b>: {{player.base_stats.threes}} <b>STL</b>: {{player.base_stats.steals}}</div>
-  <div ng-if="position == 'pf' || position == 'c'"><b>MIN</b>: {{player.base_stats.playtime}} <b>PTS</b>: {{player.base_stats.points}} <b>REB</b>: {{player.base_stats.rebounds}} <b>BLK</b>: {{player.base_stats.blocks}}</div>
-  <div><b>OBPM</b>: {{player.OBPM}} <b>DBPM</b>: {{player.DBPM}}</div>
-  <div ng-class="twentytwenty(player.PER, player.USG)"><b>TS</b>%: {{player.TS}} <b>PER</b>: {{player.PER}} <b>USG</b>%: {{player.USG}}</div>
+  <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+  	<b>MIN</b>: {{player.base_stats.playtime}}
+  	<b>PTS</b>: {{player.base_stats.points}}
+  	<b>REB</b>: {{player.base_stats.rebounds}}
+  </div>
+  <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+    <b>AST</b>: {{player.base_stats.assists}}
+    <b>3PM</b>: {{player.base_stats.threes}}
+  	<b>STL</b>: {{player.base_stats.steals}}
+  </div>
+  <div ng-if="position == 'pf' || position == 'c'">
+  	<b>MIN</b>: {{player.base_stats.playtime}}
+  	<b>PTS</b>: {{player.base_stats.points}}
+  	<b>REB</b>: {{player.base_stats.rebounds}}
+  	<b>BLK</b>: {{player.base_stats.blocks}}
+  </div>
+  <div>
+  	<b>OBPM</b>: {{player.OBPM}}
+  	<b>DBPM</b>: {{player.DBPM}}
+  </div>
+  <div ng-class="twentytwenty(player.PER, player.USG)">
+  	<b>TS</b>: {{player.TS}}
+  	<b>PER</b>: {{player.PER}}
+  	<b>USG</b>: {{player.USG}}
+  </div>
+  <div>
+    <b>UPM</b>: {{player.USGvsMIN}}
+  	<b>UPP</b>: {{player.USGvsPER}}
+  </div>
 </div>

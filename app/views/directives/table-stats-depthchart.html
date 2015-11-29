@@ -21,15 +21,21 @@
           <td>PG</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pg in position.PG">
-              <position-info player='pg' playertype="position.PG" position="pg"></position-info>
+              <position-info player='pg' playertype="position.PG" position="pg" fantasy="fantasy[team].PG"></position-info>
             </div>
           </td>
           <td ng-repeat="(team, position) in fantasy">
             <div>FPP Given:</div>
             <div><b>Last 5</b>: {{position.PG['Last 5']}}</div>
             <div><b>Last 10</b>: {{position.PG['Last 10']}}</div>
-            <div><b>Season</b>: {{position.PG['Season']}} <span ng-class="{'status-red bold': position.PG['rank'] < 10 }">({{position.PG['rank']}})</span></div>
-            <div ng-class="{'status-red highlight': position.PG['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.PG['lastFiveDiff']}}</div>
+            <div><b>Season</b>: {{position.PG['Season']}}
+              <span ng-class="{'status-red bold': position.PG['rank'] < 10 }">
+                ({{position.PG['rank']}})
+              </span>
+            </div>
+            <div ng-class="{'status-red': position.PG['lastFiveDiff'] > 5}">
+              <b>Last 5 Vs. Season</b>: {{position.PG['lastFiveDiff']}}
+            </div>
           </td>
       </tr>
       <tr>
@@ -42,7 +48,7 @@
                 <div><b>Last 5</b>: {{position.SG['Last 5']}}</span></div>
                 <div><b>Last 10</b>: {{position.SG['Last 10']}}</div>
                 <div><b>Season</b>: {{position.SG['Season']}} <span ng-class="{'status-red bold': position.SG['rank'] < 10 }">({{position.SG['rank']}})</div>
-                <div ng-class="{'status-red highlight': position.SG['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.SG['lastFiveDiff']}}</div>
+                <div ng-class="{'status-red': position.SG['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.SG['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>
@@ -57,7 +63,7 @@
                 <div><b>Last 5</b>: {{position.SF['Last 5']}}</div>
                 <div><b>Last 10</b>: {{position.SF['Last 10']}}</div>
                 <div><b>Season</b>: {{position.SF['Season']}} <span ng-class="{'status-red bold': position.SF['rank'] < 10 }">({{position.SF['rank']}})</span></div>
-                <div ng-class="{'status-red highlight': position.SF['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.SF['lastFiveDiff']}}</div>
+                <div ng-class="{'status-red': position.SF['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.SF['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>
@@ -72,7 +78,7 @@
                 <div><b>Last 5</b>: {{position.PF['Last 5']}}</div>
                 <div><b>Last 10</b> {{position.PF['Last 10']}}</div>
                 <div><b>Season</b>: {{position.PF['Season']}} <span ng-class="{'status-red bold': position.PF['rank'] < 10 }">({{position.PF['rank']}})</span></div>
-                <div ng-class="{'status-red highlight': position.PF['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.PF['lastFiveDiff']}}</div>
+                <div ng-class="{'status-red': position.PF['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.PF['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>
@@ -87,7 +93,7 @@
                 <div><b>Last 5</b>: {{position.C['Last 5']}}</div>
                 <div><b>Last 10</b>: {{position.C['Last 10']}}</div>
                 <div><b>Season</b>: {{position.C['Season']}} <span ng-class="{'status-red bold': position.C['rank'] < 10 }">({{position.C['rank']}})</span></div>
-                <div ng-class="{'status-red highlight': position.C['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.C['lastFiveDiff']}}</div>
+                <div ng-class="{'status-red': position.C['lastFiveDiff'] > 5}"><b>Last 5 Vs. Season</b>: {{position.C['lastFiveDiff']}}</div>
               </td>
             </div>
           </td>

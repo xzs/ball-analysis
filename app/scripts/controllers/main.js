@@ -16,6 +16,7 @@ app.controller('MainCtrl',
 
     // Set salary
     var local = this;
+    local.salary = 50000;
     local.allPlayers = {};
     $scope.years = ['2015', '2016'];
     $scope.year = '2016';
@@ -26,6 +27,7 @@ app.controller('MainCtrl',
         message: null,
         type: null
     };
+    $scope.lineups = {};
     $scope.today = moment().format("YYYY-MM-DD");
 
     function processDepthChart(team) {
@@ -45,6 +47,8 @@ app.controller('MainCtrl',
                 if (playerIndex > -1){
                     $scope.teamDepthChart[team][position][playerIndex] = processPlayerAdvancedStats(data, currentPlayer);
                     $scope.teamDepthChart[team][position][playerIndex]['status'] = status;
+                    // base stats needs to be defined as the directive will render after the first element
+                    $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = {};
                 }
             }, function(err){
                 // if player doesn't exist then create empty object
@@ -63,6 +67,12 @@ app.controller('MainCtrl',
                 // set it to an obj with the adv data
                 if (playerIndex > -1) {
                     $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data.stats;
+                    //
+                    $scope.teamDepthChart[team][position][playerIndex]['USGvsMIN'] =
+                        (parseFloat($scope.teamDepthChart[team][position][playerIndex]['USG']) / parseFloat(data.stats.playtime)).toFixed(2);
+                    $scope.teamDepthChart[team][position][playerIndex]['USGvsPER'] =
+                        (parseFloat($scope.teamDepthChart[team][position][playerIndex]['USG']) / parseFloat($scope.teamDepthChart[team][position][playerIndex]['PER'])).toFixed(2);
+
                 }
             }, function(err){
                 // if player doesn't exist then create empty object
@@ -86,7 +96,9 @@ app.controller('MainCtrl',
                 }
             })
 
-            $q.all(promises);
+            $q.all(promises).then(function(response){
+                console.log($scope.teamDepthChart);
+            });
         });
     }
 
@@ -223,6 +235,28 @@ app.controller('MainCtrl',
 
 
     }
+
+    $scope.getCSV = function(csv){
+        Papa.parse(csv, {
+            complete: function(results) {
+                // remove the first element from the list
+                processCSV(_.drop(results.data));
+            }
+        });
+    }
+
+    function processCSV(data) {
+        // process the data into readable JSON format
+        console.log(processing.setAllPlayersByPosition(data));
+        // $scope.lineups.equalDistributedLineup = processing.getEqualDistributionLineUp(local.salary);
+        // console.log($scope.lineups.equalDistributedLineup);
+
+        // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
+        // Therefore, you have to make apply int he end of the onload function
+        // http://stackoverflow.com/a/33038028
+        $scope.$apply();
+
+    };
 
     function processPlayerAdvancedStats(data, name) {
         var playerAdvancedStats = {};

@@ -7,7 +7,7 @@ app.directive('statsTable', function() {
           heading: '=heading',
           fantasy: '=fantasy'
         },
-        controller: ['$scope', function($scope) {
+        controller: function($scope) {
             // set default predicate to the gmsc
             $scope.predicate = 'stats.gmsc';
             $scope.reverse = true;
@@ -15,7 +15,7 @@ app.directive('statsTable', function() {
                 $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
                 $scope.predicate = predicate;
             }
-        }],
+        },
         templateUrl: function(elem, attr) {
             return 'views/directives/table-stats-'+attr.type+'.html'
         }

@@ -18,6 +18,9 @@ app.factory('processing', function() {
         return result;
     }
 
+    finalData.setAllPlayersByTeam = function(data) {
+    }
+
     // this is more so the constructor
     finalData.setAllPlayersByPosition = function(data) {
         var dataLength = data.length;
