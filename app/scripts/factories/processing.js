@@ -19,6 +19,12 @@ app.factory('processing', function() {
     }
 
     finalData.setAllPlayersByTeam = function(data) {
+
+        for (var i=0; i<dataLength; i++) {
+            // get the team name
+            var team = data[i][5];
+
+        }
     }
 
     // this is more so the constructor
