@@ -239,15 +239,16 @@ app.controller('MainCtrl',
     $scope.getCSV = function(csv){
         Papa.parse(csv, {
             complete: function(results) {
-                // remove the first element from the list
-                processCSV(_.drop(results.data));
+                // remove the first and last element from the list
+                processCSV(_.dropRight(_.drop(results.data)));
             }
         });
     }
 
     function processCSV(data) {
         // process the data into readable JSON format
-        console.log(processing.setAllPlayersByPosition(data));
+        // console.log(processing.setAllPlayersByPosition(data));
+        console.log(processing.setAllPlayersByTeam(data));
         // $scope.lineups.equalDistributedLineup = processing.getEqualDistributionLineUp(local.salary);
         // console.log($scope.lineups.equalDistributedLineup);
 

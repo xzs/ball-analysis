@@ -1,4 +1,4 @@
-app.factory('processing', function() {
+app.factory('processing', ['common', function(common) {
     var finalData = {};
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
@@ -20,11 +20,35 @@ app.factory('processing', function() {
 
     finalData.setAllPlayersByTeam = function(data) {
 
-        for (var i=0; i<dataLength; i++) {
-            // get the team name
-            var team = data[i][5];
+        finalData['team'] = {};
+        var dataLength = data.length;
 
+        for (var i=0; i<dataLength; i++) {
+            var dataItem = data[i];
+            // get the team name
+            var team = common.translateDkDict()[dataItem[5]];
+
+            var playerPosition = dataItem[0];
+            var player = {
+                name: dataItem[1],
+                salary: dataItem[2],
+                appg: dataItem[4]
+            }
+            if (!finalData['team'][team]) {
+                finalData['team'][team] = {};
+                // add all positions for that team
+                finalData['team'][team]['PG'] = {};
+                finalData['team'][team]['SG'] = {};
+                finalData['team'][team]['SF'] = {};
+                finalData['team'][team]['PF'] = {};
+                finalData['team'][team]['C'] = {};
+
+                finalData['team'][team][playerPosition][player.name] = player;
+            } else {
+                finalData['team'][team][playerPosition][player.name] = player;
+            }
         }
+        return finalData;
     }
 
     // this is more so the constructor
@@ -36,45 +60,47 @@ app.factory('processing', function() {
         finalData['All'] = [];
         // parse the string and match the team
         for (var i=0; i<dataLength; i++) {
+            var dataItem = data[i];
+            var playerPosition = dataItem[0];
             // "Atl@NO 08:00PM ET"
             // If the team starts with the player's team then its home else away
-            var gameInfo = _.words(data[i][3]);
-            var locGame = gameInfo[0] == data[i][5] ? 'Home' : 'Away';
+            var gameInfo = _.words(dataItem[3]);
+            var locGame = gameInfo[0] == dataItem[5] ? 'Home' : 'Away';
             var gametime = gameInfo[2] + ':' + gameInfo[3] + gameInfo[4] + gameInfo[5];
             var player = {
-                pos: data[i][0],
-                name: data[i][1],
-                salary: data[i][2],
+                pos: playerPosition,
+                name: dataItem[1],
+                salary: dataItem[2],
                 location: locGame,
                 gametime: gametime,
-                appg: data[i][4],
-                team: data[i][5],
+                appg: dataItem[4],
+                team: dataItem[5],
             };
 
             player.appgCostRatio = calcPlayerCostToPoints(player);
 
             // categorize them by position
-            if (!finalData[data[i][0]]) {
-                finalData[data[i][0]] = [];
+            if (!finalData[playerPosition]) {
+                finalData[playerPosition] = [];
                 // If G
-                if (data[i][0] == 'PG' || data[i][0] == 'SG') {
+                if (playerPosition == 'PG' || playerPosition == 'SG') {
                     finalData['G'].push(player);
                 }
                 // If F
-                if (data[i][0] == 'SF' || data[i][0] == 'PF') {
+                if (playerPosition == 'SF' || playerPosition == 'PF') {
                     finalData['F'].push(player);
                 }
-                finalData[data[i][0]].push(player);
+                finalData[playerPosition].push(player);
             } else {
                 // If G
-                if (data[i][0] == 'PG' || data[i][0] == 'SG') {
+                if (playerPosition == 'PG' || playerPosition == 'SG') {
                     finalData['G'].push(player);
                 }
                 // If F
-                if (data[i][0] == 'SF' || data[i][0] == 'PF') {
+                if (playerPosition == 'SF' || playerPosition == 'PF') {
                     finalData['F'].push(player);
                 }
-                finalData[data[i][0]].push(player);
+                finalData[playerPosition].push(player);
             }
 
             // Push to all
@@ -151,4 +177,4 @@ app.factory('processing', function() {
     }
 
     return finalData
-});
+}]);
