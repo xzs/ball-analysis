@@ -27,8 +27,6 @@ app.factory('processing', ['common', function(common) {
             var dataItem = data[i];
             // get the team name
             var team = common.translateDkDict()[dataItem[5]];
-
-            var playerPosition = dataItem[0];
             var player = {
                 name: dataItem[1],
                 salary: dataItem[2],
@@ -36,16 +34,10 @@ app.factory('processing', ['common', function(common) {
             }
             if (!finalData['team'][team]) {
                 finalData['team'][team] = {};
-                // add all positions for that team
-                finalData['team'][team]['PG'] = {};
-                finalData['team'][team]['SG'] = {};
-                finalData['team'][team]['SF'] = {};
-                finalData['team'][team]['PF'] = {};
-                finalData['team'][team]['C'] = {};
 
-                finalData['team'][team][playerPosition][player.name] = player;
+                finalData['team'][team][player.name] = player;
             } else {
-                finalData['team'][team][playerPosition][player.name] = player;
+                finalData['team'][team][player.name] = player;
             }
         }
         return finalData;

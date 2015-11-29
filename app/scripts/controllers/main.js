@@ -65,7 +65,7 @@ app.controller('MainCtrl',
                 var tempPlayer = player;
 
                 // get the dk stats for that player
-                var dkStats = local.dkPlayers['team'][team][position][tempPlayer];
+                var dkStats = local.dkPlayers['team'][team][tempPlayer];
                 // get the index for the current player
                 var playerIndex = _.findIndex($scope.teamDepthChart[team][position], {'name': tempPlayer});
                 // set it to an obj with the adv data
