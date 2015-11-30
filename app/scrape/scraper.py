@@ -122,6 +122,11 @@ BASE_URL = 'http://www.basketball-reference.com'
 DEPTH_URL = 'http://www.rotoworld.com/teams/clubhouse/nba/'
 NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
 MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
+# order by minutes played
+LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.cgi?'\
+            'request=1&player_id=&match=single&lineup_type=5-man&output=total&year_id=2016&is_playoffs=N&'\
+            'opp_id=&game_num_min=0&game_num_max=99&game_month=&game_location=&game_result=&'\
+            'c1stat=&c1comp=ge&c1val=&c2stat=&c2comp=ge&c2val=&c3stat=&c3comp=ge&c3val=&c4stat=&c4comp=ge&c4val=&order_by=mp&team_id='
 
 YEAR = '2016'
 
@@ -450,6 +455,49 @@ def get_team_against_position():
     return matchup_data
 
 
+def top_n_lineups(n):
+    for team in TEAMS_DICT:
+        # print LINEUP_URL
+        url = urllib2.urlopen(LINEUP_URL+team)
+        soup = BeautifulSoup(url, 'html5lib')
+        log_rows = []
+
+        table = soup.find('table', attrs={'id':'stats'})
+
+        if table:
+            logger.info('Getting lineups for: ' + team)
+            table_header = table.find('thead')
+            header = table_header.find_all('tr')[1]
+            categories = header.find_all('th')
+
+            table_body = table.find('tbody')
+            rows = table_body.find_all('tr')
+
+            lineup = []
+            for row in rows[0:n]:
+                data = row.find_all('td')
+                dataset = {}
+                 # each row is a lineup
+                for info, category in zip(data, categories):
+                    # if there is a link inside the td
+                    if info.find_all('a'):
+                        tempList = []
+                        for link in info.find_all('a'):
+                            tempList.append(link.text)
+                        dataset[str(category.text)] = tempList
+                    else:
+                        dataset[str(category.text)] = info.text
+
+                lineup.append(dataset)
+
+        with open('misc/lineups/'+team+'.json', 'w') as outfile:
+            logger.info('Writing to lineups file:' +team)
+            json.dump(lineup, outfile)
+
+
+
+
+
 pp = pprint.PrettyPrinter(indent=4)
 teams_dict = get_active_teams()
 get_team_schedule(teams_dict)
@@ -459,3 +507,5 @@ get_player_log(PLAYERS_DICT)
 get_depth_chart()
 get_fantasy_news()
 get_team_against_position()
+
+top_n_lineups(5)

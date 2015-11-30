@@ -2,7 +2,7 @@
 <div ng-if="player.name">
   <div class="double-line-height player-name-padding"
       ng-class="getPlayerStatus()">
-    {{player.name}} ({{player.status}}) {{player.dk_stats.salary}} - ({{player.dk_stats.appg}})
+    {{player.name}} ({{player.status}}) ${{player.dk_stats.salary}} - ({{player.dk_stats.appg}})
   </div>
   <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
   	<b>MIN</b>: {{player.base_stats.playtime}}
