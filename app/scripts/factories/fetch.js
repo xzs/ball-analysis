@@ -62,6 +62,11 @@ app.factory('fetch', ['$http', function($http) {
             return $http.get('scrape/misc/fantasy_stats/'+team+'.json').then(function (response){
                 return response.data;
             })
+        },
+        getTopLineupsByTeam: function(team) {
+            return $http.get('scrape/misc/lineups/'+team+'.json').then(function (response){
+                return response.data;
+            })
         }
 
     }

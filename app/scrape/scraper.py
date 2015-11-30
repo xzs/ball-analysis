@@ -457,8 +457,12 @@ def get_team_against_position():
 
 def top_n_lineups(n):
     for team in TEAMS_DICT:
+        if team == 'BRK':
+            team_url = 'NJN'
+        else:
+            team_url = team
         # print LINEUP_URL
-        url = urllib2.urlopen(LINEUP_URL+team)
+        url = urllib2.urlopen(LINEUP_URL+team_url)
         soup = BeautifulSoup(url, 'html5lib')
         log_rows = []
 
@@ -499,13 +503,13 @@ def top_n_lineups(n):
 
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# teams_dict = get_active_teams()
+# get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
-get_depth_chart()
-get_fantasy_news()
-get_team_against_position()
+# get_depth_chart()
+# get_fantasy_news()
+# get_team_against_position()
 
 top_n_lineups(5)

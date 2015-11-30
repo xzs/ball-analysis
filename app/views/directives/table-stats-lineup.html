@@ -1,0 +1,55 @@
+<div class="panel panel-default" style="margin-top: 50px;" ng-if="data">
+  <div class="panel-heading"><b>Top Lineups</b></div>
+  <table class="table table-striped">
+    <thead>
+      <!-- we could loop these but for the sake of order we manually put them here-->
+      <tr>
+        <th>Rk</th>
+        <th>Lineup</th>
+        <th>G</th>
+        <th>MP</th>
+        <th>Pace</th>
+        <th>FG</th>
+        <th>FGA</th>
+        <th>FG%</th>
+        <th>eFG%</th>
+        <th>PTS</th>
+      </tr>
+    </thead>
+    <tbody ng-repeat="(key, value) in data">
+      <tr><td>{{key}}</td></tr>
+      <tr ng-repeat="category in value">
+          <td>
+            {{category['Rk']}}
+          </td>
+          <td>
+            <span ng-repeat="player in category['Lineup']">{{player}}&nbsp;&nbsp;</span>
+          </td>
+          <td>
+            {{category['G']}}
+          </td>
+          <td>
+            {{category['MP']}}
+          </td>
+          <td>
+            {{category['Pace']}}
+          </td>
+          <td>
+            {{category['FG']}}
+          </td>
+          <td>
+            {{category['FGA']}}
+          </td>
+          <td>
+            {{category['FG%']}}
+          </td>
+          <td>
+            {{category['eFG%']}}
+          </td>
+          <td>
+            {{category['PTS']}}
+          </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -65,7 +65,7 @@ app.controller('MainCtrl',
                 var tempPlayer = player;
 
                 // get the dk stats for that player
-                var dkStats = local.dkPlayers['team'][team][tempPlayer];
+                var dkStats = local.dkPlayers['team'] ? local.dkPlayers['team'][team][tempPlayer] : {};
                 // get the index for the current player
                 var playerIndex = _.findIndex($scope.teamDepthChart[team][position], {'name': tempPlayer});
                 // set it to an obj with the adv data
@@ -145,10 +145,21 @@ app.controller('MainCtrl',
             })
         });
     }
+
+    function getLineupsByTeam(team) {
+        $scope.teamLineups[team] = {};
+        fetch.getTopLineupsByTeam(team).then(function (data){
+            $scope.teamLineups[team] = data;
+            console.log($scope.teamLineups);
+        });
+    }
     $scope.getTeamStats = function(teams) {
         $scope.teamAdvancedStats = {};
         $scope.teamDepthChart = {};
         $scope.teamFantasyStats = {};
+        $scope.teamLineups = {};
+        $scope.currentTeam = teams.team;
+        $scope.oppTeam = teams.opp;
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);
@@ -158,6 +169,9 @@ app.controller('MainCtrl',
 
         getDefenseVsPositionStats(teams.team);
         getDefenseVsPositionStats(teams.opp);
+
+        getLineupsByTeam(teams.team);
+        getLineupsByTeam(teams.opp);
     }
 
     function getTeamNews(team) {
