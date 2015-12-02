@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment().format("YYYY-MM-DD");
+    $scope.today = moment("2015-12-01").format("YYYY-MM-DD");
 
     function processDepthChart(team) {
         $scope.teamDepthChart[team] = {};
@@ -73,6 +73,8 @@ app.controller('MainCtrl',
                     $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data.stats;
                     // add the dk stats for that player
                     $scope.teamDepthChart[team][position][playerIndex]['dk_stats'] = dkStats;
+                    $scope.teamDepthChart[team][position][playerIndex]['dk_stats']['VAL'] = 
+                        ((parseFloat(dkStats.appg) / parseFloat(dkStats.salary)) * 1000).toFixed(2);
                     $scope.teamDepthChart[team][position][playerIndex]['USGvsMIN'] =
                         (parseFloat($scope.teamDepthChart[team][position][playerIndex]['USG']) / parseFloat(data.stats.playtime)).toFixed(2);
                     $scope.teamDepthChart[team][position][playerIndex]['USGvsPER'] =
@@ -150,7 +152,6 @@ app.controller('MainCtrl',
         $scope.teamLineups[team] = {};
         fetch.getTopLineupsByTeam(team).then(function (data){
             $scope.teamLineups[team] = data;
-            console.log($scope.teamLineups);
         });
     }
     $scope.getTeamStats = function(teams) {
@@ -158,8 +159,7 @@ app.controller('MainCtrl',
         $scope.teamDepthChart = {};
         $scope.teamFantasyStats = {};
         $scope.teamLineups = {};
-        $scope.currentTeam = teams.team;
-        $scope.oppTeam = teams.opp;
+
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);

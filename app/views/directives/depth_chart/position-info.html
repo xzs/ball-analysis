@@ -4,33 +4,36 @@
       ng-class="getPlayerStatus()">
     {{player.name}} ({{player.status}}) ${{player.dk_stats.salary}} - ({{player.dk_stats.appg}})
   </div>
+  <div>
+    <b>VAL</b>: {{player.dk_stats.VAL}}
+  </div>
   <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
-  	<b>MIN</b>: {{player.base_stats.playtime}}
-  	<b>PTS</b>: {{player.base_stats.points}}
-  	<b>REB</b>: {{player.base_stats.rebounds}}
+    <b>MIN</b>: {{player.base_stats.playtime}}
+    <b>PTS</b>: {{player.base_stats.points}}
+    <b>REB</b>: {{player.base_stats.rebounds}}
   </div>
   <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
     <b>AST</b>: {{player.base_stats.assists}}
     <b>3PM</b>: {{player.base_stats.threes}}
-  	<b>STL</b>: {{player.base_stats.steals}}
+    <b>STL</b>: {{player.base_stats.steals}}
   </div>
   <div ng-if="position == 'pf' || position == 'c'">
-  	<b>MIN</b>: {{player.base_stats.playtime}}
-  	<b>PTS</b>: {{player.base_stats.points}}
-  	<b>REB</b>: {{player.base_stats.rebounds}}
-  	<b>BLK</b>: {{player.base_stats.blocks}}
+    <b>MIN</b>: {{player.base_stats.playtime}}
+    <b>PTS</b>: {{player.base_stats.points}}
+    <b>REB</b>: {{player.base_stats.rebounds}}
+    <b>BLK</b>: {{player.base_stats.blocks}}
   </div>
   <div>
-  	<b>OBPM</b>: {{player.OBPM}}
-  	<b>DBPM</b>: {{player.DBPM}}
+    <b>OBPM</b>: {{player.OBPM}}
+    <b>DBPM</b>: {{player.DBPM}}
   </div>
   <div ng-class="twentytwenty(player.PER, player.USG)">
-  	<b>TS</b>: {{player.TS}}
-  	<b>PER</b>: {{player.PER}}
-  	<b>USG</b>: {{player.USG}}
+    <b>TS</b>: {{player.TS}}
+    <b>PER</b>: {{player.PER}}
+    <b>USG</b>: {{player.USG}}
   </div>
   <div>
     <b>UPM</b>: {{player.USGvsMIN}}
-  	<b>UPP</b>: {{player.USGvsPER}}
+    <b>UPP</b>: {{player.USGvsPER}}
   </div>
 </div>

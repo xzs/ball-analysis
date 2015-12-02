@@ -459,12 +459,13 @@ def top_n_lineups(n):
     for team in TEAMS_DICT:
         if team == 'BRK':
             team_url = 'NJN'
+        elif team == 'NOP':
+            team_url = 'NOH'
         else:
             team_url = team
         # print LINEUP_URL
         url = urllib2.urlopen(LINEUP_URL+team_url)
         soup = BeautifulSoup(url, 'html5lib')
-        log_rows = []
 
         table = soup.find('table', attrs={'id':'stats'})
 

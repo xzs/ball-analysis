@@ -30,7 +30,7 @@ app.factory('common', function(){
                 'Sac':'SAC',
                 'SA':'SAS',
                 'Tor':'TOR',
-                'Utz':'UTA',
+                'Uta':'UTA',
                 'Was':'WAS'
             }
         }
