@@ -12,13 +12,12 @@
   <h2 class="panel-heading">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
-      <div ng-click="getTeamStats(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}}</div>
+      <div ng-click="getTeamStats(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}} ({{game.location}})</div>
       <div>{{game.time}}</div>
     </div>
   </slick>
 </div>
 
-<div>Goal: 5.6x the value</div>
 <stats-table data="teamLineups"
   type="lineup">
 </stats-table>

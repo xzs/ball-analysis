@@ -151,6 +151,7 @@ def read_team_schedule_csv(csv_f, team_name):
             SCHEDULE_DICT['league_schedule'][date].append({
                 'team': team_name,
                 'opp': REVERSE_TEAMS_DICT[opp],
+                'location': location,
                 'time': time
             })
         else:
@@ -159,6 +160,7 @@ def read_team_schedule_csv(csv_f, team_name):
                 SCHEDULE_DICT['league_schedule'][date].append({
                     'team': team_name,
                     'opp': REVERSE_TEAMS_DICT[opp],
+                    'location': location,
                     'time': time
                 })
 
@@ -606,6 +608,8 @@ for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
             categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
 
             # Since we need to go through the files again we seek to the beginning of the file
+            f.seek(0)
+            last_n_games(f, 1)
             f.seek(0)
             last_n_games(f, 5)
             f.seek(0)

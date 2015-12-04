@@ -29,14 +29,13 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2015-12-01").format("YYYY-MM-DD");
+    $scope.today = moment().format("YYYY-MM-DD");
 
     function processDepthChart(team) {
         $scope.teamDepthChart[team] = {};
 
         // use $q to queue up the promises to manage the numerous calls to make sure its in order
         var promises = [];
-
         // function for getting the stats
         function getPlayerAdvancedStats(player, position, status) {
             fetch.getPlayerAdvancedStats($scope.year, player).then(function (data) {
@@ -70,10 +69,10 @@ app.controller('MainCtrl',
                 var playerIndex = _.findIndex($scope.teamDepthChart[team][position], {'name': tempPlayer});
                 // set it to an obj with the adv data
                 if (playerIndex > -1) {
-                    $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data.stats;
+                    $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data;
                     // add the dk stats for that player
                     $scope.teamDepthChart[team][position][playerIndex]['dk_stats'] = dkStats;
-                    $scope.teamDepthChart[team][position][playerIndex]['dk_stats']['VAL'] = 
+                    $scope.teamDepthChart[team][position][playerIndex]['dk_stats']['VAL'] =
                         ((parseFloat(dkStats.appg) / parseFloat(dkStats.salary)) * 1000).toFixed(2);
                     $scope.teamDepthChart[team][position][playerIndex]['USGvsMIN'] =
                         (parseFloat($scope.teamDepthChart[team][position][playerIndex]['USG']) / parseFloat(data.stats.playtime)).toFixed(2);
@@ -160,6 +159,10 @@ app.controller('MainCtrl',
         $scope.teamFantasyStats = {};
         $scope.teamLineups = {};
 
+        console.log(teams);
+        // we can pass in both teams then store them in $scope variables
+        // or try to use Keys
+
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);
@@ -189,7 +192,7 @@ app.controller('MainCtrl',
         $scope.teamPlayers = local.allPlayers[team];
         getTeamSchedule($scope.year, $scope.team);
         getTeamNews($scope.team);
-        // getTeamAdvancedStats($scope.team);
+
         return $scope.teamPlayers
     }
 
@@ -210,7 +213,6 @@ app.controller('MainCtrl',
             $scope.playerStats = data.stats;
             $scope.playerCov = data.cov;
             $scope.playerLast5 = data.last_5_games;
-
             $scope.playerStatsOther = {
                 'playerStatsHome': {
                     'playtime': data.home_playtime,
