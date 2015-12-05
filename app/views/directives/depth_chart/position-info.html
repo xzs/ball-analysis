@@ -1,6 +1,6 @@
 <i ng-if="!player.name" class="fa fa-spinner fa-spin"></i>
 <div ng-if="player.name">
-    <div class="double-line-height player-name-padding"
+    <div class="double-line-height player-name-padding player-name"
       ng-class="getPlayerStatus()">
         {{player.name}} ({{player.status}}) ${{player.dk_stats.salary}} - ({{player.dk_stats.appg}})
     </div>
@@ -42,21 +42,76 @@
     </div>
     <br>
     <div>
-        <div>Last Game</div>
-        <b>MIN</b>: {{player.base_stats.last_1_games.playtime}}
-        <b>PTS</b>: {{player.base_stats.last_1_games.points}}
-        <b>REB</b>: {{player.base_stats.last_1_games.rebounds}}
-        <b>AST</b>: {{player.base_stats.last_1_games.assists}}
-        <b>3PM</b>: {{player.base_stats.last_1_games.threes}}
-        <b>STL</b>: {{player.base_stats.last_1_games.steals}}
+        <span>Last Game</span>
+        <div>
+            <b>MIN</b>: {{player.base_stats.last_1_games.playtime}}
+            <b>PTS</b>: {{player.base_stats.last_1_games.points}}
+            <b>REB</b>: {{player.base_stats.last_1_games.rebounds}}
+            <b>AST</b>: {{player.base_stats.last_1_games.assists}}
+        </div>
+        <div>
+            <b>3PM</b>: {{player.base_stats.last_1_games.threes}}
+            <b>STL</b>: {{player.base_stats.last_1_games.steals}}
+            <b>BLK</b>: {{player.base_stats.last_1_games.blocks}}
+        </div>
     </div>
     <div>
-        <div>Last 5 Games</div>
-        <b>MIN</b>: {{player.base_stats.last_5_games.playtime}}
-        <b>PTS</b>: {{player.base_stats.last_5_games.points}}
-        <b>REB</b>: {{player.base_stats.last_5_games.rebounds}}
-        <b>AST</b>: {{player.base_stats.last_5_games.assists}}
-        <b>3PM</b>: {{player.base_stats.last_5_games.threes}}
-        <b>STL</b>: {{player.base_stats.last_5_games.steals}}
+        <span>Last 3 Games</span>
+        <div>
+            <b>MIN</b>: {{player.base_stats.last_3_games.playtime}}
+            <b>PTS</b>: {{player.base_stats.last_3_games.points}}
+            <b>REB</b>: {{player.base_stats.last_3_games.rebounds}}
+            <b>AST</b>: {{player.base_stats.last_3_games.assists}}
+        </div>
+        <div>
+            <b>3PM</b>: {{player.base_stats.last_3_games.threes}}
+            <b>STL</b>: {{player.base_stats.last_3_games.steals}}
+            <b>BLK</b>: {{player.base_stats.last_3_games.blocks}}
+        </div>
     </div>
+    <div>
+        <span>Last 5 Games</span>
+        <div>
+            <b>MIN</b>: {{player.base_stats.last_5_games.playtime}}
+            <b>PTS</b>: {{player.base_stats.last_5_games.points}}
+            <b>REB</b>: {{player.base_stats.last_5_games.rebounds}}
+            <b>AST</b>: {{player.base_stats.last_5_games.assists}}
+        </div>
+        <div>
+            <b>3PM</b>: {{player.base_stats.last_5_games.threes}}
+            <b>STL</b>: {{player.base_stats.last_5_games.steals}}
+            <b>BLK</b>: {{player.base_stats.last_5_games.blocks}}
+        </div>
+    </div>
+    <br>
+    <!-- I need to show the last time the player played against the oppositing team -->
+    <div ng-if="player.teams_against_season">
+        <span>Season Matchup (vs. {{player.opponent}})</span>
+        <div>
+            <b>MIN</b>: {{player.teams_against_season.playtime}}
+            <b>PTS</b>: {{player.teams_against_season.points}}
+            <b>REB</b>: {{player.teams_against_season.rebounds}}
+            <b>AST</b>: {{player.teams_against_season.assists}}
+        </div>
+        <div>
+            <b>3PM</b>: {{player.teams_against_season.threes}}
+            <b>STL</b>: {{player.teams_against_season.steals}}
+            <b>BLK</b>: {{player.teams_against_season.blocks}}
+        </div>
+    </div>
+    <div ng-if="player.teams_against_last_season">
+        <span>Last Season (vs. {{player.opponent}})</span>
+        <div>
+            <b>MIN</b>: {{player.teams_against_last_season.playtime}}
+            <b>PTS</b>: {{player.teams_against_last_season.points}}
+            <b>REB</b>: {{player.teams_against_last_season.rebounds}}
+            <b>AST</b>: {{player.teams_against_last_season.assists}}
+        </div>
+        <div>
+            <b>3PM</b>: {{player.teams_against_last_season.threes}}
+            <b>STL</b>: {{player.teams_against_last_season.steals}}
+            <b>BLK</b>: {{player.teams_against_last_season.blocks}}
+        </div>
+    </div>
+    <br>
 </div>

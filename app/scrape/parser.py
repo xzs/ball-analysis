@@ -561,15 +561,15 @@ def last_n_games(csv_f, num_games):
             threes += float(record[13])
             count +=1
 
-    PLAYER_DICT['last_'+str(num_games)+'_games']['playtime'] = (playtime / num_games)/60
+    PLAYER_DICT['last_'+str(num_games)+'_games']['playtime'] = two_decimals((playtime / num_games)/60)
     PLAYER_DICT['last_'+str(num_games)+'_games']['gmsc'] = two_decimals(gmsc / num_games)
-    PLAYER_DICT['last_'+str(num_games)+'_games']['points'] = points / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = rebounds / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['assists'] = assists / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['steals'] = steals / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['blocks'] = blocks / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['turnovers'] = turnovers / num_games
-    PLAYER_DICT['last_'+str(num_games)+'_games']['threes'] = threes / num_games
+    PLAYER_DICT['last_'+str(num_games)+'_games']['points'] = two_decimals(points / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['rebounds'] = two_decimals(rebounds / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['assists'] = two_decimals(assists / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['steals'] = two_decimals(steals / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['blocks'] = two_decimals(blocks / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['turnovers'] = two_decimals(turnovers / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['threes'] = two_decimals(threes / num_games)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -610,6 +610,8 @@ for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
             # Since we need to go through the files again we seek to the beginning of the file
             f.seek(0)
             last_n_games(f, 1)
+            f.seek(0)
+            last_n_games(f, 3)
             f.seek(0)
             last_n_games(f, 5)
             f.seek(0)

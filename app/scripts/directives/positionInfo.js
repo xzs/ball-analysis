@@ -5,7 +5,7 @@ app.directive('positionInfo', function(){
             player: '=player',
             playertype: '=playertype',
             position: '@position',
-            fantasy: '=fantasy'
+            fantasy: '=fantasy',
         },
         templateUrl: 'views/directives/depth_chart/position-info.html',
         link: function(scope){

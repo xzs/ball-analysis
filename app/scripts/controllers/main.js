@@ -19,8 +19,8 @@ app.controller('MainCtrl',
     local.salary = 50000;
     local.allPlayers = {};
     local.dkPlayers = {};
-    $scope.years = ['2015', '2016'];
-    $scope.year = '2016';
+    $scope.years = [2015, 2016];
+    $scope.year = 2016;
     $scope.team = 'GSW';
     $scope.player = 'Stephen Curry';
     $scope.teamnews = {};
@@ -30,6 +30,7 @@ app.controller('MainCtrl',
     };
     $scope.lineups = {};
     $scope.today = moment().format("YYYY-MM-DD");
+    // $scope.csvComplete = false;
 
     function processDepthChart(team) {
         $scope.teamDepthChart[team] = {};
@@ -49,6 +50,7 @@ app.controller('MainCtrl',
                     $scope.teamDepthChart[team][position][playerIndex]['status'] = status;
                     // base stats needs to be defined as the directive will render after the first element
                     $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = {};
+
                 }
             }, function(err){
                 // if player doesn't exist then create empty object
@@ -70,6 +72,23 @@ app.controller('MainCtrl',
                 // set it to an obj with the adv data
                 if (playerIndex > -1) {
                     $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data;
+
+                    $scope.teamDepthChart[team][position][playerIndex]['team'] = (team == local.teamOne) ? local.teamOne : local.teamTwo;
+                    $scope.teamDepthChart[team][position][playerIndex]['opponent'] = (team == local.teamOne) ? local.teamTwo : local.teamOne;
+
+                    // if they played this season
+                    $scope.teamDepthChart[team][position][playerIndex]['teams_against_season'] =
+                        data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']] ?
+                            data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']].stats :
+                            null;
+                    // if they played last season
+                    fetch.getPlayer($scope.year-1, tempPlayer).then(function (data) {
+                        $scope.teamDepthChart[team][position][playerIndex]['teams_against_last_season'] =
+                            data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']] ?
+                                data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']].stats :
+                                null;
+                    })
+
                     // add the dk stats for that player
                     $scope.teamDepthChart[team][position][playerIndex]['dk_stats'] = dkStats;
                     $scope.teamDepthChart[team][position][playerIndex]['dk_stats']['VAL'] =
@@ -159,9 +178,9 @@ app.controller('MainCtrl',
         $scope.teamFantasyStats = {};
         $scope.teamLineups = {};
 
-        console.log(teams);
         // we can pass in both teams then store them in $scope variables
-        // or try to use Keys
+        local.teamOne = teams.opp;
+        local.teamTwo = teams.team;
 
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
@@ -236,6 +255,7 @@ app.controller('MainCtrl',
 
             // Data for against opponents
             var playerTeamData = data.teams_against;
+            console.log(data.teams_against);
             $scope.teamDataHeader = Object.keys(playerTeamData);
             // add an array of your data objects to enable sorting
             // http://stackoverflow.com/a/27779633
