@@ -21,7 +21,7 @@
           <td>PG</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pg in position.PG">
-              <position-info player='pg' playertype="position.PG" position="pg" fantasy="fantasy[team].PG"></position-info>
+              <position-info player='pg' playertype="position.PG" position="pg" fantasy="fantasy[team].PG" news="news"></position-info>
             </div>
           </td>
           <td ng-repeat="(team, position) in fantasy">
@@ -42,7 +42,7 @@
           <td>SG</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sg in position.SG" ng-if="sg.name">
-              <position-info player='sg' playertype="position.SG" position="sg"></position-info>
+              <position-info player='sg' playertype="position.SG" position="sg" news="news"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.SG['Last 5']}}</span></div>
@@ -57,7 +57,7 @@
           <td>SF</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="sf in position.SF" ng-if="sf.name">
-              <position-info player='sf' playertype="position.SF" position="sf"></position-info>
+              <position-info player='sf' playertype="position.SF" position="sf" news="news"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.SF['Last 5']}}</div>
@@ -72,7 +72,7 @@
           <td>PF</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="pf in position.PF" ng-if="pf.name">
-              <position-info player='pf' playertype="position.PF" position="pf"></position-info>
+              <position-info player='pf' playertype="position.PF" position="pf" news="news"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.PF['Last 5']}}</div>
@@ -87,7 +87,7 @@
           <td>C</td>
           <td ng-repeat="(team, position) in data">
             <div ng-repeat="c in position.C" ng-if="c.name">
-              <position-info player='c' playertype="position.C" position="c"></position-info>
+              <position-info player='c' playertype="position.C" position="c" news="news"></position-info>
               <td ng-repeat="(team, position) in fantasy">
                 <div>FPP Given:</div>
                 <div><b>Last 5</b>: {{position.C['Last 5']}}</div>

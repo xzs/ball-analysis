@@ -5,7 +5,8 @@ app.directive('statsTable', function() {
           // the key needs to match that within the template
           data: '=data',
           heading: '=heading',
-          fantasy: '=fantasy'
+          fantasy: '=fantasy',
+          news: '=news'
         },
         controller: function($scope) {
             // set default predicate to the gmsc

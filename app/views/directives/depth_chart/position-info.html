@@ -1,8 +1,13 @@
 <i ng-if="!player.name" class="fa fa-spinner fa-spin"></i>
 <div ng-if="player.name">
-    <div class="double-line-height player-name-padding player-name"
+    <div class="double-line-height player-name-padding"
       ng-class="getPlayerStatus()">
         {{player.name}} ({{player.status}}) ${{player.dk_stats.salary}} - ({{player.dk_stats.appg}})
+        <li ng-if="tooltip()"
+            class="fa fa-info-circle"
+            data-type="info"
+            data-animation="am-flip-x"
+            bs-tooltip="tooltip()"></li>
     </div>
     <div>
         <b>VAL</b>: {{player.dk_stats.VAL}}

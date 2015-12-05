@@ -194,6 +194,9 @@ app.controller('MainCtrl',
 
         getLineupsByTeam(teams.team);
         getLineupsByTeam(teams.opp);
+
+        getTeamNews(teams.team);
+        getTeamNews(teams.opp);
     }
 
     function getTeamNews(team) {
@@ -210,7 +213,7 @@ app.controller('MainCtrl',
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team];
         getTeamSchedule($scope.year, $scope.team);
-        getTeamNews($scope.team);
+        // getTeamNews($scope.team);
 
         return $scope.teamPlayers
     }

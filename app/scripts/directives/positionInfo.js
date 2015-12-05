@@ -5,7 +5,7 @@ app.directive('positionInfo', function(){
             player: '=player',
             playertype: '=playertype',
             position: '@position',
-            fantasy: '=fantasy',
+            news: '=news',
         },
         templateUrl: 'views/directives/depth_chart/position-info.html',
         link: function(scope){
@@ -14,8 +14,8 @@ app.directive('positionInfo', function(){
                 var classes = '';
                 if (scope.player == scope.playertype[0] && scope.player.status == 'Available') {
                     classes += ' status-green bold';
-                } else if (scope.player == scope.playertype[0] && scope.player.status == 'Sidelined') {
-                    classes += ' status-red bold';
+                } else if (scope.player.status == 'Sidelined') {
+                    classes += ' injured-player';
                 }
 
                 if (scope.player.base_stats.stats && scope.player.base_stats.stats['playtime'] > 20 && scope.player.USG > 20) {
@@ -29,6 +29,14 @@ app.directive('positionInfo', function(){
                 if (m1 > 20 && m2 > 20 && scope.player.base_stats['playtime'] > 30) {
                     return 'twentytwenty';
                 }
+            }
+
+            scope.tooltip = function() {
+                var news = _.findLast(scope.news[scope.player.team], {'player': scope.player.name});
+                if (news) {
+                    return news.report;
+                }
+                return null;
             }
         }
     }

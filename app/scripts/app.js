@@ -16,7 +16,7 @@ var app = angular.module('ballAnalysisApp', [
     'ngSanitize',
     'ngTouch',
     'slick',
-    'mgcrea.ngStrap.tooltip'
+    'mgcrea.ngStrap'
   ]);
 
 app.config(function ($routeProvider) {
