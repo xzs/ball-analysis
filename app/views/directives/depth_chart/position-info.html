@@ -47,7 +47,7 @@
     </div>
     <br>
     <div>
-        <span>Last Game</span>
+        <span>Last Game ({{player.base_stats.last_1_games.dk_points}})</span>
         <div>
             <b>MIN</b>: {{player.base_stats.last_1_games.playtime}}
             <b>PTS</b>: {{player.base_stats.last_1_games.points}}
@@ -61,7 +61,7 @@
         </div>
     </div>
     <div>
-        <span>Last 3 Games</span>
+        <span>Last 3 Games ({{player.base_stats.last_3_games.dk_points}})</span>
         <div>
             <b>MIN</b>: {{player.base_stats.last_3_games.playtime}}
             <b>PTS</b>: {{player.base_stats.last_3_games.points}}
@@ -75,7 +75,7 @@
         </div>
     </div>
     <div>
-        <span>Last 5 Games</span>
+        <span>Last 5 Games ({{player.base_stats.last_5_games.dk_points}})</span>
         <div>
             <b>MIN</b>: {{player.base_stats.last_5_games.playtime}}
             <b>PTS</b>: {{player.base_stats.last_5_games.points}}
@@ -91,7 +91,7 @@
     <br>
     <!-- I need to show the last time the player played against the oppositing team -->
     <div ng-if="player.teams_against_season">
-        <span>Season Matchup (vs. {{player.opponent}})</span>
+        <span>Season Matchup (vs. {{player.opponent}}) ({{player.teams_against_season.dk_points}})</span>
         <div>
             <b>MIN</b>: {{player.teams_against_season.playtime}}
             <b>PTS</b>: {{player.teams_against_season.points}}
@@ -105,7 +105,7 @@
         </div>
     </div>
     <div ng-if="player.teams_against_last_season">
-        <span>Last Season (vs. {{player.opponent}})</span>
+        <span>Last Season (vs. {{player.opponent}}) ({{player.teams_against_last_season.dk_points}})</span>
         <div>
             <b>MIN</b>: {{player.teams_against_last_season.playtime}}
             <b>PTS</b>: {{player.teams_against_last_season.points}}

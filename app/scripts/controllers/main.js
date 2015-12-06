@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment().format("YYYY-MM-DD");
+    $scope.today = moment("2015-12-06").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -72,7 +72,6 @@ app.controller('MainCtrl',
                 // set it to an obj with the adv data
                 if (playerIndex > -1) {
                     $scope.teamDepthChart[team][position][playerIndex]['base_stats'] = data;
-
                     $scope.teamDepthChart[team][position][playerIndex]['team'] = (team == local.teamOne) ? local.teamOne : local.teamTwo;
                     $scope.teamDepthChart[team][position][playerIndex]['opponent'] = (team == local.teamOne) ? local.teamTwo : local.teamOne;
 
@@ -81,12 +80,20 @@ app.controller('MainCtrl',
                         data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']] ?
                             data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']].stats :
                             null;
+                    if ($scope.teamDepthChart[team][position][playerIndex]['teams_against_season']) {
+                        $scope.teamDepthChart[team][position][playerIndex]['teams_against_season']['dk_points'] =
+                                processing.calcDkPoints($scope.teamDepthChart[team][position][playerIndex]['teams_against_season']);
+                    }
                     // if they played last season
                     fetch.getPlayer($scope.year-1, tempPlayer).then(function (data) {
                         $scope.teamDepthChart[team][position][playerIndex]['teams_against_last_season'] =
                             data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']] ?
                                 data.teams_against[$scope.teamDepthChart[team][position][playerIndex]['opponent']].stats :
                                 null;
+                        if ($scope.teamDepthChart[team][position][playerIndex]['teams_against_last_season']) {
+                            $scope.teamDepthChart[team][position][playerIndex]['teams_against_last_season']['dk_points'] =
+                                processing.calcDkPoints($scope.teamDepthChart[team][position][playerIndex]['teams_against_last_season']);
+                        }
                     })
 
                     // add the dk stats for that player
@@ -172,6 +179,7 @@ app.controller('MainCtrl',
             $scope.teamLineups[team] = data;
         });
     }
+
     $scope.getTeamStats = function(teams) {
         $scope.teamAdvancedStats = {};
         $scope.teamDepthChart = {};

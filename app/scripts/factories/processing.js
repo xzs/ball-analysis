@@ -168,5 +168,39 @@ app.factory('processing', ['common', function(common) {
         return lineup;
     }
 
+    finalData.calcDkPoints = function(stats) {
+        /*
+            Point = +1 PT
+            Made 3pt. shot = +0.5 PTs
+            Rebound = +1.25 PTs
+            Assist = +1.5 PTs
+            Steal = +2 PTs
+            Block = +2 PTs
+            Turnover = -0.5 PTs
+            Double-Double = +1.5PTs (MAX 1 PER PLAYER: Points, Rebounds, Assists, Blocks, Steals)
+            Triple-Double = +3PTs (MAX 1 PER PLAYER: Points, Rebounds, Assists, Blocks, Steals)
+        */
+
+        // for now excluding double/triple doubles
+        var dkPoints = 0;
+        var dkScoring = {
+            points: 1,
+            threes: 0.5,
+            rebounds: 1.25,
+            assists: 1.25,
+            steals: 2,
+            blocks: 2,
+            turnovers: -0.5
+        };
+
+        _.forEach(stats, function(value, key) {
+            if (dkScoring[key]) {
+                dkPoints += (value * dkScoring[key]);
+            }
+        });
+
+        return dkPoints.toFixed(2);
+    }
+
     return finalData
 }]);

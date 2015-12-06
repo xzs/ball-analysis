@@ -114,6 +114,26 @@ EASTERN_CONF = {
     'TOR':'Toronto Raptors',
     'WAS':'Washington Wizards'
 }
+'''
+    Point = +1 PT
+    Made 3pt. shot = +0.5 PTs
+    Rebound = +1.25 PTs
+    Assist = +1.5 PTs
+    Steal = +2 PTs
+    Block = +2 PTs
+    Turnover = -0.5 PTs
+    Double-Double = +1.5PTs (MAX 1 PER PLAYER: Points, Rebounds, Assists, Blocks, Steals)
+    Triple-Double = +3PTs (MAX 1 PER PLAYER: Points, Rebounds, Assists, Blocks, Steals)
+'''
+DK_SCORING = {
+    'points': 1,
+    'threes': 0.5,
+    'rebounds': 1.25,
+    'assists': 1.25,
+    'steals': 2,
+    'blocks': 2,
+    'turnovers': -0.5
+}
 
 def two_decimals(num):
     return float('{0:.2f}'.format(num))
@@ -350,6 +370,7 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['stats']['threes'] = two_decimals(float(threes / (away_games + home_games)))
         # avg gmscr
         player_dict['stats']['gmsc'] = two_decimals(float((away_gmsc + home_gmsc)/(away_games + home_games)))
+        player_dict['stats']['dk_points'] = calc_dk_points(player_dict['stats'])
 
         player_dict['cov'] = calc_coefficient_of_variance(player_dict)
 
@@ -437,6 +458,7 @@ def new_stats_dict(player_dict, layer, record):
         player_dict[layer]['stats']['turnovers'] = float(record[25])
         player_dict[layer]['stats']['threes'] = float(record[13])
 
+    player_dict[layer]['stats']['dk_points'] = calc_dk_points(player_dict[layer]['stats'])
     return player_dict
 
 
@@ -570,6 +592,18 @@ def last_n_games(csv_f, num_games):
     PLAYER_DICT['last_'+str(num_games)+'_games']['blocks'] = two_decimals(blocks / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['turnovers'] = two_decimals(turnovers / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['threes'] = two_decimals(threes / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['dk_points'] = calc_dk_points(PLAYER_DICT['last_'+str(num_games)+'_games'])
+
+
+def calc_dk_points(stats):
+    dk_points = 0
+    for (stat, value) in stats.iteritems():
+        if stat in DK_SCORING:
+            dk_points += (value * DK_SCORING[stat])
+
+    dk_points = two_decimals(dk_points)
+    return dk_points
+
 
 pp = pprint.PrettyPrinter(indent=4)
 

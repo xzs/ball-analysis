@@ -26,7 +26,7 @@ app.directive('positionInfo', function(){
                 return classes;
             }
             scope.twentytwenty = function(m1, m2){
-                if (m1 > 20 && m2 > 20 && scope.player.base_stats['playtime'] > 30) {
+                if (m1 > 20 && m2 > 20 && scope.player.base_stats.stats && scope.player.base_stats.stats['playtime'] > 30) {
                     return 'twentytwenty';
                 }
             }
@@ -38,6 +38,7 @@ app.directive('positionInfo', function(){
                 }
                 return null;
             }
+
         }
     }
 })
