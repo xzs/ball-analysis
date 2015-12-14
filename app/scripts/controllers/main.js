@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2015-12-06").format("YYYY-MM-DD");
+    $scope.today = moment().format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {

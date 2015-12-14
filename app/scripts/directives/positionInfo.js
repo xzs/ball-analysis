@@ -32,7 +32,7 @@ app.directive('positionInfo', function(){
             }
 
             scope.tooltip = function() {
-                var news = _.findLast(scope.news[scope.player.team], {'player': scope.player.name});
+                var news = _.find(scope.news[scope.player.team], {'player': scope.player.name});
                 if (news) {
                     return news.report;
                 }

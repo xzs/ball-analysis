@@ -222,6 +222,8 @@ def read_player_csv(csv_f, schedule, player_name):
 
     player_dict = {}
     player_dict['stats'] = {}
+    player_dict['as_starter'] = {}
+    player_dict['non_starter'] = {}
     player_dict['basic_info'] = {}
     player_dict['basic_info']['name'] = player_name
 
@@ -246,19 +248,48 @@ def read_player_csv(csv_f, schedule, player_name):
     turnovers = 0
     threes = 0
 
+    started_points = 0
+    started_rebounds = 0
+    started_assists = 0
+    started_steals = 0
+    started_blocks = 0
+    started_turnovers = 0
+    started_threes = 0
+
+    non_started_points = 0
+    non_started_rebounds = 0
+    non_started_assists = 0
+    non_started_steals = 0
+    non_started_blocks = 0
+    non_started_turnovers = 0
+    non_started_threes = 0
+
     east_gmsc = 0
     west_gmsc = 0
 
     away_games = 0
     home_games = 0
+
     away_gmsc = 0
     home_gmsc = 0
+
     play_time_seconds = 0
     home_playtime_seconds = 0
     away_playtime_seconds = 0
 
     pre_all_star_games = 0
     post_all_star_games = 0
+
+    #
+    started_games = 0
+    non_started_games = 0
+
+    started_gmsc = 0
+    non_started_gmsc = 0
+
+    started_playtime_seconds = 0
+    non_started_playtime_seconds = 0
+
 
     # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
     # The dictionary will also contain detailed information abou the teams the player has played agianst
@@ -268,6 +299,7 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['basic_info']['team'] = team
         # If he played
         if record[1]:
+
             if record[5]:
                 logger.info('Compling away games')
                 away_gmsc += float(record[28])
@@ -278,6 +310,18 @@ def read_player_csv(csv_f, schedule, player_name):
                 home_gmsc += float(record[28])
                 home_games += 1
                 home_playtime_seconds = process_playtime(home_playtime_seconds, record[9])
+
+            # for games the player started
+            if record[8] == '1':
+                logger.info('Compling home games')
+                started_gmsc += float(record[28])
+                started_games += 1
+                started_playtime_seconds = process_playtime(started_playtime_seconds, record[9])
+            else:
+                logger.info('Compling home games')
+                non_started_gmsc += float(record[28])
+                non_started_games += 1
+                non_started_playtime_seconds = process_playtime(non_started_playtime_seconds, record[9])
 
             # calculate the playtime for the player
             play_time_seconds = process_playtime(play_time_seconds, record[9])
@@ -301,7 +345,24 @@ def read_player_csv(csv_f, schedule, player_name):
                 player_dict['western_conf']['games'] += 1
                 west_gmsc += float(record[28])
 
-            # points = two_decimals(float(points + float(record[27])))
+
+            if record[8] == '1':
+                started_points += float(record[27])
+                started_rebounds += float(record[21])
+                started_assists += float(record[22])
+                started_steals += float(record[23])
+                started_blocks += float(record[24])
+                started_turnovers += float(record[25])
+                started_threes += float(record[13])
+            else:
+                non_started_points += float(record[27])
+                non_started_rebounds += float(record[21])
+                non_started_assists += float(record[22])
+                non_started_steals += float(record[23])
+                non_started_blocks += float(record[24])
+                non_started_turnovers += float(record[25])
+                non_started_threes += float(record[13])
+
             points += float(record[27])
             rebounds += float(record[21])
             assists += float(record[22])
@@ -330,26 +391,36 @@ def read_player_csv(csv_f, schedule, player_name):
         # value_when_true if condition else value_when_false
         if home_games > 0:
             player_dict['home_playtime'] = two_decimals(float(home_playtime_seconds / home_games)/60)
-        else:
-            player_dict['home_playtime'] = 0
-
-        if away_games > 0:
-            player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / away_games)/60)
-        else:
-            player_dict['away_playtime'] = 0
-
-        player_dict['stats']['playtime'] = two_decimals(float(play_time_seconds / (away_games + home_games))/60)
-
-        if home_games > 0:
             player_dict['average_home_gmsc'] = two_decimals(float(home_gmsc / home_games))
         else:
+            player_dict['home_playtime'] = 0
             player_dict['average_home_gmsc'] = 0
 
         if away_games > 0:
+            player_dict['away_playtime'] = two_decimals(float(away_playtime_seconds / away_games)/60)
             player_dict['average_away_gmsc'] = two_decimals(float(away_gmsc / away_games))
         else:
+            player_dict['away_playtime'] = 0
             player_dict['average_away_gmsc'] = 0
 
+        if started_games > 0:
+            player_dict['started_playtime'] = two_decimals(float(started_playtime_seconds / started_games)/60)
+            player_dict['average_started_gmsc'] = two_decimals(float(started_gmsc / started_games))
+        else:
+            player_dict['started_playtime'] = 0
+            player_dict['average_started_gmsc'] = 0
+
+        if non_started_games > 0:
+            player_dict['non_started_playtime'] = two_decimals(float(non_started_playtime_seconds / non_started_games)/60)
+            player_dict['average_non_started_gmsc'] = two_decimals(float(non_started_gmsc / non_started_games))
+        else:
+            player_dict['non_started_playtime'] = 0
+            player_dict['average_non_started_gmsc'] = 0
+
+        player_dict['stats']['playtime'] = two_decimals(float(play_time_seconds / (away_games + home_games))/60)
+
+        player_dict['as_starter']['playtime'] = player_dict['started_playtime']
+        player_dict['non_starter']['playtime'] = player_dict['non_started_playtime']
 
         if player_dict['eastern_conf']['games'] != 0:
             player_dict['eastern_conf']['gmsc'] = two_decimals(float(east_gmsc / player_dict['eastern_conf']['games']))
@@ -360,6 +431,32 @@ def read_player_csv(csv_f, schedule, player_name):
             player_dict['western_conf']['gmsc'] = two_decimals(float(west_gmsc / player_dict['western_conf']['games']))
         else:
             player_dict['western_conf']['gmsc'] = 0
+
+
+        if started_games > 0:
+            player_dict['as_starter']['points'] = two_decimals(float(started_points / started_games))
+            player_dict['as_starter']['rebounds'] = two_decimals(float(started_rebounds / started_games))
+            player_dict['as_starter']['assists'] = two_decimals(float(started_assists / started_games))
+            player_dict['as_starter']['steals'] = two_decimals(float(started_steals / started_games))
+            player_dict['as_starter']['blocks'] = two_decimals(float(started_blocks / started_games))
+            player_dict['as_starter']['turnovers'] = two_decimals(float(started_turnovers / started_games))
+            player_dict['as_starter']['threes'] = two_decimals(float(started_threes / started_games))
+            # avg gmscr
+            player_dict['as_starter']['gmsc'] = two_decimals(float(player_dict['average_started_gmsc']/started_games))
+            player_dict['as_starter']['dk_points'] = calc_dk_points(player_dict['as_starter'])
+
+        if non_started_games > 0:
+            player_dict['non_starter']['points'] = two_decimals(float(non_started_points / non_started_games))
+            player_dict['non_starter']['rebounds'] = two_decimals(float(non_started_rebounds / non_started_games))
+            player_dict['non_starter']['assists'] = two_decimals(float(non_started_assists / non_started_games))
+            player_dict['non_starter']['steals'] = two_decimals(float(non_started_steals / non_started_games))
+            player_dict['non_starter']['blocks'] = two_decimals(float(non_started_blocks / non_started_games))
+            player_dict['non_starter']['turnovers'] = two_decimals(float(non_started_turnovers / non_started_games))
+            player_dict['non_starter']['threes'] = two_decimals(float(non_started_threes / non_started_games))
+            # avg gmscr
+            player_dict['non_starter']['gmsc'] = two_decimals(float(player_dict['average_non_started_gmsc']/non_started_games))
+            player_dict['non_starter']['dk_points'] = calc_dk_points(player_dict['non_starter'])
+
 
         player_dict['stats']['points'] = two_decimals(float(points / (away_games + home_games)))
         player_dict['stats']['rebounds'] = two_decimals(float(rebounds / (away_games + home_games)))

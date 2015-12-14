@@ -67,7 +67,7 @@ REVERSE_TEAMS_DICT = {
     'Orlando Magic': 'ORL',
     'Philadelphia 76ers': 'PHI',
     'Phoenix Suns': 'PHO',
-    'Portland Trailblazers': 'POR',
+    'Portland Trail Blazers': 'POR',
     'Sacramento Kings': 'SAC',
     'San Antonio Spurs': 'SAS',
     'Toronto Raptors': 'TOR',
@@ -429,6 +429,7 @@ def get_team_against_position():
         for team in teams:
             team_stats = team.find_all('td')
             tempname = str(team_stats[0].text)
+
             team_name = REVERSE_TEAMS_DICT[tempname]
 
             if team_name not in matchup_data:
@@ -463,7 +464,7 @@ def top_n_lineups(n):
             team_url = 'NOH'
         else:
             team_url = team
-        # print LINEUP_URL
+
         url = urllib2.urlopen(LINEUP_URL+team_url)
         soup = BeautifulSoup(url, 'html5lib')
 
@@ -498,9 +499,6 @@ def top_n_lineups(n):
         with open('misc/lineups/'+team+'.json', 'w') as outfile:
             logger.info('Writing to lineups file:' +team)
             json.dump(lineup, outfile)
-
-
-
 
 
 pp = pprint.PrettyPrinter(indent=4)
