@@ -222,7 +222,7 @@ def get_active_teams():
     for row in rows:
         links = row.find_all('a')
         for link in links:
-            logger.info('Getting team information')
+            logger.debug('Getting team information')
             team_link = link.get('href')
             team = str(team_link.split('/')[2])
             schedule = str(link.get('href')) + YEAR + '_games.html'

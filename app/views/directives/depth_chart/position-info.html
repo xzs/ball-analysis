@@ -10,27 +10,73 @@
             bs-tooltip="tooltip()"></li>
     </div>
     <div>
+        <a ng-click="asStarter = !asStarter;"
+            class="cursor-pointer"
+            ng-class="clicked(asStarter)">As Starter</a>
+        <a ng-click="nonStarter = !nonStarter;"
+            class="cursor-pointer"
+            ng-class="clicked(nonStarter)">Non-Starter</a>
+    </div>
+    <div>
         <b>VAL</b>: {{player.dk_stats.VAL}}
     </div>
     <div>
         <b>Home</b>: {{player.base_stats.average_home_gmsc}}
         <b>Away</b>: {{player.base_stats.average_away_gmsc}}
     </div>
-    <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
-        <b>MIN</b>: {{player.base_stats.stats.playtime}}
-        <b>PTS</b>: {{player.base_stats.stats.points}}
-        <b>REB</b>: {{player.base_stats.stats.rebounds}}
+    <div ng-show="!asStarter && !nonStarter">
+        <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+            <b>MIN</b>: {{player.base_stats.stats.playtime}}
+            <b>PTS</b>: {{player.base_stats.stats.points}}
+            <b>REB</b>: {{player.base_stats.stats.rebounds}}
+        </div>
+        <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+            <b>AST</b>: {{player.base_stats.stats.assists}}
+            <b>3PM</b>: {{player.base_stats.stats.threes}}
+            <b>STL</b>: {{player.base_stats.stats.steals}}
+        </div>
+        <div ng-if="position == 'pf' || position == 'c'">
+            <b>MIN</b>: {{player.base_stats.stats.playtime}}
+            <b>PTS</b>: {{player.base_stats.stats.points}}
+            <b>REB</b>: {{player.base_stats.stats.rebounds}}
+            <b>BLK</b>: {{player.base_stats.stats.blocks}}
+        </div>
     </div>
-    <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
-        <b>AST</b>: {{player.base_stats.stats.assists}}
-        <b>3PM</b>: {{player.base_stats.stats.threes}}
-        <b>STL</b>: {{player.base_stats.stats.steals}}
+    <div ng-show="asStarter">
+        <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+            <b>MIN</b>: {{player.base_stats.as_starter.playtime}}
+            <b>PTS</b>: {{player.base_stats.as_starter.points}}
+            <b>REB</b>: {{player.base_stats.as_starter.rebounds}}
+        </div>
+        <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+            <b>AST</b>: {{player.base_stats.as_starter.assists}}
+            <b>3PM</b>: {{player.base_stats.as_starter.threes}}
+            <b>STL</b>: {{player.base_stats.as_starter.steals}}
+        </div>
+        <div ng-if="position == 'pf' || position == 'c'">
+            <b>MIN</b>: {{player.base_stats.as_starter.playtime}}
+            <b>PTS</b>: {{player.base_stats.as_starter.points}}
+            <b>REB</b>: {{player.base_stats.as_starter.rebounds}}
+            <b>BLK</b>: {{player.base_stats.as_starter.blocks}}
+        </div>
     </div>
-    <div ng-if="position == 'pf' || position == 'c'">
-        <b>MIN</b>: {{player.base_stats.stats.playtime}}
-        <b>PTS</b>: {{player.base_stats.stats.points}}
-        <b>REB</b>: {{player.base_stats.stats.rebounds}}
-        <b>BLK</b>: {{player.base_stats.stats.blocks}}
+    <div ng-show="nonStarter">
+        <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+            <b>MIN</b>: {{player.base_stats.non_starter.playtime}}
+            <b>PTS</b>: {{player.base_stats.non_starter.points}}
+            <b>REB</b>: {{player.base_stats.non_starter.rebounds}}
+        </div>
+        <div ng-if="position == 'pg' || position == 'sg' || position == 'sf'">
+            <b>AST</b>: {{player.base_stats.non_starter.assists}}
+            <b>3PM</b>: {{player.base_stats.non_starter.threes}}
+            <b>STL</b>: {{player.base_stats.non_starter.steals}}
+        </div>
+        <div ng-if="position == 'pf' || position == 'c'">
+            <b>MIN</b>: {{player.base_stats.non_starter.playtime}}
+            <b>PTS</b>: {{player.base_stats.non_starter.points}}
+            <b>REB</b>: {{player.base_stats.non_starter.rebounds}}
+            <b>BLK</b>: {{player.base_stats.non_starter.blocks}}
+        </div>
     </div>
     <div>
         <b>OBPM</b>: {{player.OBPM}}

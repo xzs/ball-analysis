@@ -147,7 +147,7 @@ def read_team_schedule_csv(csv_f, team_name):
     SCHEDULE_DICT[team_name]['by_date'] = {}
     SCHEDULE_DICT[team_name]['channel'] = {}
 
-    logger.info('Completed creation of schedule dictionary for: '+team_name)
+    logger.debug('Completed creation of schedule dictionary for: '+team_name)
     schedule = csv.reader(csv_f)
     for game in schedule:
         date = game[1]

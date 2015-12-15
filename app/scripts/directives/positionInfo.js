@@ -39,6 +39,17 @@ app.directive('positionInfo', function(){
                 return null;
             }
 
+            scope.clicked = function(elem) {
+                var cssClass;
+                if (!elem) {
+                    cssClass = 'text-blue';
+                } else{
+                    cssClass = 'status-green';
+                }
+                return cssClass
+            }
+            scope.asStarter = false;
+            scope.nonStarter = false;
         }
     }
 })
