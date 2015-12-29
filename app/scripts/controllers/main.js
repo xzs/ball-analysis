@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment('2015-12-15').format("YYYY-MM-DD");
+    $scope.today = moment("2015-12-23").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -148,7 +148,19 @@ app.controller('MainCtrl',
     function getLeagueSchedule(year) {
         fetch.getLeagueSchedule(year).then(function (data) {
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
+            local.allTeams = [];
+            _.forEach($scope.todaySchedule, function(game, key) {
+                local.allTeams.push(game.team);
+                local.allTeams.push(game.opp);
+            })
+            // console.log(local.allTeams);
+            getSummaryStats(local.allTeams);
         });
+    }
+
+    function getSummaryStats(teams) {
+        // console.log(teams);
+        console.log(processing.getAllCurrentPlayers(teams));
     }
 
     function getTeamAdvancedStats(team) {
@@ -193,6 +205,7 @@ app.controller('MainCtrl',
         local.teamOne = teams.opp;
         local.teamTwo = teams.team;
 
+        // maybe this should be in $q 
         // get advanced stats and depth chart for each team
         getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);

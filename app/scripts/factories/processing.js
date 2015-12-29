@@ -1,6 +1,12 @@
-app.factory('processing', ['common', function(common) {
+app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) {
     var finalData = {};
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
+
+    // 
+    finalData.maxUsage = {
+        player: undefined,
+        usage: undefined
+    };
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -200,6 +206,57 @@ app.factory('processing', ['common', function(common) {
         });
 
         return dkPoints.toFixed(2);
+    }
+
+    finalData.getAllCurrentPlayers = function(teams) {
+        var promises = [];
+        for (var i=0; i<teams.length; i++) {
+            fetch.getDepthChartByTeam(teams[i]).then(function (data){
+                _.forEach(data, function(players, position) {
+                    for (var i=0; i<players.length; i++) {
+                        var player = players[i].player;
+                        var status = players[i].status;
+                        getPlayerAdvancedStats(player, position, status)
+                    }
+                })
+            });
+        }
+
+        return finalData;
+    }
+
+    function getPlayerAdvancedStats(player, position, status) {
+        // I need to just store the max usage for each player
+        fetch.getPlayerAdvancedStats('2016', player).then(function (data) {
+            // grab the name of the current player since the player variable has moved on
+            var currentPlayer = Object.keys(data)[0];
+            getMaxUsage(data, player);
+        });
+    };
+
+    function getMaxUsage(data, player) {
+        if (!(finalData.maxUsage.usage > parseInt(data[player]['USG%']))) {
+            finalData.maxUsage.player = player;
+            finalData.maxUsage.usage = parseInt(data[player]['USG%']);
+        }
+        return finalData.maxUsage;
+    };
+
+    function processPlayerAdvancedStats(data, name) {
+        var playerAdvancedStats = {};
+        // TS%, PER, OWS, DWS, OBM, DBM, USG%
+        playerAdvancedStats = {
+            'name': name,
+            'OWS': data[name]['OWS'],
+            'DWS': data[name]['DWS'],
+            'OBPM': data[name]['OBPM'],
+            'DBPM': data[name]['DBPM'],
+            'TS': data[name]['TS%'],
+            'PER': data[name]['PER'],
+            'USG': data[name]['USG%']
+        };
+
+        return playerAdvancedStats;
     }
 
     return finalData

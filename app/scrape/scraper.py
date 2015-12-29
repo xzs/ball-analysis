@@ -331,7 +331,7 @@ def get_current_roster(teams_dict):
                     player_stats_dict[name][category] = str(stat.text)
 
             with open('json_files/player_stats/'+YEAR+'/'+name+'.json', 'w') as outfile:
-                logger.info('Writing news to json file: '+ name)
+                logger.info('Writing advanced stats to json file: '+ name)
                 json.dump(player_stats_dict, outfile)
 
         for row in rows:
