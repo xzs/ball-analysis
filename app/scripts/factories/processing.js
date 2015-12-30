@@ -3,10 +3,8 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
     // 
-    finalData.maxUsage = {
-        player: undefined,
-        usage: undefined
-    };
+    finalData.maxUsage = [];
+    finalData.lastPerformer = [];
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -216,7 +214,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     for (var i=0; i<players.length; i++) {
                         var player = players[i].player;
                         var status = players[i].status;
-                        getPlayerAdvancedStats(player, position, status)
+                        getPlayerStats(player, position, status)
                     }
                 })
             });
@@ -225,38 +223,38 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData;
     }
 
-    function getPlayerAdvancedStats(player, position, status) {
+    function getPlayerStats(player, position, status) {
         // I need to just store the max usage for each player
-        fetch.getPlayerAdvancedStats('2016', player).then(function (data) {
+        fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
             // grab the name of the current player since the player variable has moved on
-            var currentPlayer = Object.keys(data)[0];
-            getMaxUsage(data, player);
+            fetch.getPlayer('2016', player).then(function (data) {
+                getMaxUsage(advData, data, player);
+                lastGameVsAverage(data, player);
+            });
         });
     };
 
-    function getMaxUsage(data, player) {
-        if (!(finalData.maxUsage.usage > parseInt(data[player]['USG%']))) {
-            finalData.maxUsage.player = player;
-            finalData.maxUsage.usage = parseInt(data[player]['USG%']);
+    function getMaxUsage(advData, data, player) {
+        if (parseInt(advData[player]['USG%']) > 20 && parseInt(data.stats.playtime) > 20) {
+            finalData.maxUsage.push({
+                player : player,
+                usage : parseInt(advData[player]['USG%'])
+            })
         }
         return finalData.maxUsage;
     };
 
-    function processPlayerAdvancedStats(data, name) {
-        var playerAdvancedStats = {};
-        // TS%, PER, OWS, DWS, OBM, DBM, USG%
-        playerAdvancedStats = {
-            'name': name,
-            'OWS': data[name]['OWS'],
-            'DWS': data[name]['DWS'],
-            'OBPM': data[name]['OBPM'],
-            'DBPM': data[name]['DBPM'],
-            'TS': data[name]['TS%'],
-            'PER': data[name]['PER'],
-            'USG': data[name]['USG%']
-        };
-
-        return playerAdvancedStats;
+    function lastGameVsAverage(data, player) {
+        if ((data.last_1_games.dk_points - data.stats.dk_points) > 10) {
+            finalData.lastPerformer.push({
+                player : player,
+                dk_points : {
+                    average: data.stats.dk_points,
+                    last_1 : data.last_1_games.dk_points
+                }
+            })
+        }
+        return finalData.lastPerformer;
     }
 
     return finalData
