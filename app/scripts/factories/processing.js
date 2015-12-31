@@ -5,6 +5,11 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     // 
     finalData.maxUsage = [];
     finalData.lastPerformer = [];
+    finalData.increaseInMinutes = [];
+    finalData.dvpRank = {
+        positions: {},
+        categories: {}
+    };
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -214,10 +219,11 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     for (var i=0; i<players.length; i++) {
                         var player = players[i].player;
                         var status = players[i].status;
-                        getPlayerStats(player, position, status)
+                        getPlayerStats(player, position, status);
                     }
                 })
             });
+            getDefenseVsPositionStats(teams[i]);
         }
 
         return finalData;
@@ -230,6 +236,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             fetch.getPlayer('2016', player).then(function (data) {
                 getMaxUsage(advData, data, player);
                 lastGameVsAverage(data, player);
+                minuteIncrease(data, player);
             });
         });
     };
@@ -255,7 +262,77 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             })
         }
         return finalData.lastPerformer;
+    };
+
+    function minuteIncrease(data, player) {
+        if ((data.last_1_games.playtime - data.stats.playtime) > 10) {
+            finalData.increaseInMinutes.push({
+                player : player,
+                playtime : {
+                    average: data.stats.playtime,
+                    last_1 : data.last_1_games
+                }
+            })
+        }
+        return finalData.increaseInMinutes;
     }
+
+/*
+3PM: "1.3"
+AST: "2.7"
+BLK: "1.4"
+FG%: "41.8"
+FT%: "73.1"
+Last 5: "54.3"
+Last 10: "49.6"
+PTS: "19.4"
+REB: "11.1"
+STL: "1.0"
+Season: "44.5"
+TO: "2.1"
+Team: "Minnesota Timberwolves"
+Vs. Pos: "PF"
+rank: 20
+*/
+    function getDefenseVsPositionStats(team) {
+        var validList = ['3PM', 'AST', 'BLK', 'FG%', 'PTS', 'REB', 'STL'];
+        fetch.getDefenseVsPositionStats(team).then(function (data){
+            _.forEach(data, function(stats, position){
+                // determine the rank of tonight's matchups for each position
+                if (finalData.dvpRank['positions'] && finalData.dvpRank['positions'][position]) {
+                    if (finalData.dvpRank['positions'][position]['rank'] > stats.rank) {
+                        finalData.dvpRank['positions'][position] = stats;
+                    }
+                } else {
+                    finalData.dvpRank['positions'][position] = stats;
+                }
+
+                for (var i=0; i<validList.length; i++) {
+                    // determined the rank based on stat categories
+                    var category = validList[i];
+                    var statObj = {
+                        team: stats['Team'],
+                        stat: category,
+                        num: stats[category],
+                        position: stats['Vs. Pos'],
+                    };
+                    if (finalData.dvpRank['categories'] && finalData.dvpRank['categories'][category]) {
+                        if (finalData.dvpRank['categories'][category]['max']['num'] < stats[category]) {
+                            finalData.dvpRank['categories'][category]['max'] = statObj;
+                        } else if (finalData.dvpRank['categories'][category]['min']['num'] > stats[category]) {
+                            finalData.dvpRank['categories'][category]['min'] = statObj;
+                        }
+                    } else {
+                        finalData.dvpRank['categories'][category] = {
+                            max: statObj,
+                            min: statObj
+                        };
+                    }
+                }
+            })
+        });
+    }
+
 
     return finalData
 }]);

@@ -159,7 +159,6 @@ app.controller('MainCtrl',
     }
 
     function getSummaryStats(teams) {
-        // console.log(teams);
         $scope.summaryUsage = processing.getAllCurrentPlayers(teams);
         console.log($scope.summaryUsage);
     }
