@@ -277,25 +277,34 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.increaseInMinutes;
     }
 
-/*
-3PM: "1.3"
-AST: "2.7"
-BLK: "1.4"
-FG%: "41.8"
-FT%: "73.1"
-Last 5: "54.3"
-Last 10: "49.6"
-PTS: "19.4"
-REB: "11.1"
-STL: "1.0"
-Season: "44.5"
-TO: "2.1"
-Team: "Minnesota Timberwolves"
-Vs. Pos: "PF"
-rank: 20
-*/
+    /*
+    3PM: "1.3"
+    AST: "2.7"
+    BLK: "1.4"
+    FG%: "41.8"
+    FT%: "73.1"
+    Last 5: "54.3"
+    Last 10: "49.6"
+    PTS: "19.4"
+    REB: "11.1"
+    STL: "1.0"
+    Season: "44.5"
+    TO: "2.1"
+    Team: "Minnesota Timberwolves"
+    Vs. Pos: "PF"
+    rank: 20
+    */
     function getDefenseVsPositionStats(team) {
         var validList = ['3PM', 'AST', 'BLK', 'FG%', 'PTS', 'REB', 'STL'];
+
+        // set categories
+        for (var i=0; i<validList.length; i++) {
+            // determined the rank based on stat categories
+            var category = validList[i];
+            finalData.dvpRank['categories'][category] = {};
+        }
+
+
         fetch.getDefenseVsPositionStats(team).then(function (data){
             _.forEach(data, function(stats, position){
                 // determine the rank of tonight's matchups for each position
@@ -314,20 +323,23 @@ rank: 20
                         team: stats['Team'],
                         stat: category,
                         num: stats[category],
-                        position: stats['Vs. Pos'],
+                        position: stats['Vs. Pos']
                     };
-                    if (finalData.dvpRank['categories'] && finalData.dvpRank['categories'][category]) {
-                        if (finalData.dvpRank['categories'][category]['max']['num'] < stats[category]) {
-                            finalData.dvpRank['categories'][category]['max'] = statObj;
-                        } else if (finalData.dvpRank['categories'][category]['min']['num'] > stats[category]) {
-                            finalData.dvpRank['categories'][category]['min'] = statObj;
+
+                    // calc categories for each position
+                    if (finalData.dvpRank['categories'][category] && finalData.dvpRank['categories'][category][position]) {
+                        if (finalData.dvpRank['categories'][category][position]['max']['num'] < stats[category]) {
+                            finalData.dvpRank['categories'][category][position]['max'] = statObj;
+                        } else if (finalData.dvpRank['categories'][category][position]['min']['num'] > stats[category]) {
+                            finalData.dvpRank['categories'][category][position]['min'] = statObj;
                         }
                     } else {
-                        finalData.dvpRank['categories'][category] = {
+                            finalData.dvpRank['categories'][category][position] = {
                             max: statObj,
                             min: statObj
                         };
                     }
+
                 }
             })
         });
