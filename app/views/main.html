@@ -18,6 +18,39 @@
   </slick>
 </div>
 
+<stats-table
+      data='summaryUsage.dvpRank.positions'
+      type='worst-positions'>
+</stats-table>
+
+<stats-table
+      data='summaryUsage.dvpRank.categories'
+      type='worst-categories'>
+</stats-table>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="col-lg-4 col-md-4 col-sm-12">
+      <stats-table
+          data='summaryUsage.increaseInMinutes'
+          type='minutes-increase'>
+      </stats-table>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12">
+      <stats-table
+            data='summaryUsage.maxUsage'
+            type='max-usage'>
+      </stats-table>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12">
+      <stats-table
+            data='summaryUsage.lastPerformer'
+            type='last-performance'>
+      </stats-table>
+    </div>
+  </div>
+</div>
+
 <stats-table data="teamLineups"
   type="lineup">
 </stats-table>
@@ -32,7 +65,6 @@
       news='teamnews'
       type='depthchart'>
 </stats-table>
-
 
 <!-- 
 <div class="page-header">

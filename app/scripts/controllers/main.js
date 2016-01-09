@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2015-12-23").format("YYYY-MM-DD");
+    $scope.today = moment("2016-01-08").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -153,14 +153,17 @@ app.controller('MainCtrl',
                 local.allTeams.push(game.team);
                 local.allTeams.push(game.opp);
             })
-            // console.log(local.allTeams);
+
             getSummaryStats(local.allTeams);
         });
     }
 
     function getSummaryStats(teams) {
         $scope.summaryUsage = processing.getAllCurrentPlayers(teams);
+        console.log($scope.summaryUsage.dvpRank);
         console.log($scope.summaryUsage);
+        // console.log($scope.summaryUsage.lastPerformer);
+        console.log($scope.summaryUsage.increaseInMinutes);
     }
 
     function getTeamAdvancedStats(team) {
