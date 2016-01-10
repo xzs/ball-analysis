@@ -320,7 +320,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     // determined the rank based on stat categories
                     var category = validList[i];
                     var statObj = {
-                        team: stats['Team'],
+                        team: common.translateTeamNames()[stats['Team']],
                         stat: category,
                         num: stats[category],
                         position: stats['Vs. Pos']

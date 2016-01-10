@@ -1,0 +1,44 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading">
+    <a ng-show="showMax"
+      class="cursor-pointer"
+      ng-click="toggleCategories('min')">
+        <b>Worst Against (Categories)</b>
+    </a>
+    <a ng-show="showMin"
+      class="cursor-pointer"
+      ng-click="toggleCategories('max')">
+        <b>Best Against (Categories)</b>
+    </a>
+    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
+      data-target="#categories"
+      class="cursor-pointer"></span>
+  </div>
+  <div id="categories" class="panel-collapse collapse in">
+    <table class="table table-striped">
+      <thead>
+        <!-- we could loop these but for the sake of order we manually put them here-->
+        <tr>
+          <th></th>
+          <th>C</th>
+          <th>PF</th>
+          <th>PG</th>
+          <th>SF</th>
+          <th>SG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(category, position) in data">
+          <td>{{category}}</td>
+          <td ng-show="showMax" ng-repeat="(name, team) in position">
+            {{team.max.num}} ({{team.max.team}})
+          </td>
+          <td ng-show="showMin" ng-repeat="(name, team) in position">
+            {{team.min.num}} ({{team.min.team}})
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -160,10 +160,6 @@ app.controller('MainCtrl',
 
     function getSummaryStats(teams) {
         $scope.summaryUsage = processing.getAllCurrentPlayers(teams);
-        console.log($scope.summaryUsage.dvpRank);
-        console.log($scope.summaryUsage);
-        // console.log($scope.summaryUsage.lastPerformer);
-        console.log($scope.summaryUsage.increaseInMinutes);
     }
 
     function getTeamAdvancedStats(team) {

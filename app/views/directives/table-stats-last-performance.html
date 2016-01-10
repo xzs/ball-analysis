@@ -1,0 +1,29 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading">
+    <b>Increased Performance</b>
+    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
+      data-target="#performance"
+      class="cursor-pointer"></span>
+  </div>
+  <div id="performance" class="panel-collapse collapse in">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>
+          <a href="" ng-click="order('dk_points.last_1')">Performance</a>
+          <span class="sortorder" ng-show="predicate === 'dk_points.last_1'" ng-class="{reverse:reverse}"></span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="player in data | orderBy:predicate:reverse">
+        <td>{{player.player}}</td>
+        <td>{{player.dk_points.last_1}} ({{player.dk_points.average}})</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+</div>

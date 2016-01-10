@@ -16,6 +16,17 @@ app.directive('statsTable', function() {
                 $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
                 $scope.predicate = predicate;
             }
+            $scope.showMin = false;
+            $scope.showMax = true;
+            $scope.toggleCategories = function(category) {
+              if (category == 'max') {
+                $scope.showMin = false;
+                $scope.showMax = true;
+              } else {
+                $scope.showMin = true;
+                $scope.showMax = false;
+              }
+            }
         },
         templateUrl: function(elem, attr) {
             return 'views/directives/table-stats-'+attr.type+'.html'

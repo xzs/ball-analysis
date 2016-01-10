@@ -1,0 +1,32 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading">
+    <b>Worst Against (Positions)</b>
+    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
+      data-target="#positions"
+      class="cursor-pointer"></span>
+  </div>
+  <div id="positions" class="panel-collapse collapse in">
+    <table class="table table-striped">
+      <thead>
+        <!-- we could loop these but for the sake of order we manually put them here-->
+        <tr>
+          <th>Position</th>
+          <th>Team</th>
+          <th>Season</th>
+          <th>Last 5</th>
+          <th>Last 10</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(position, team) in data">
+          <td>{{position}}</td>
+          <td>{{team.Team}}</td>
+          <td>{{team.Season}}</td>
+          <td>{{team['Last 5']}}</td>
+          <td>{{team['Last 10']}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

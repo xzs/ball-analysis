@@ -8,7 +8,7 @@
   <button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
 </div>
 
-<div class="padding-bottom-0 ">
+<div class="padding-bottom-20">
   <h2 class="panel-heading">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
@@ -17,32 +17,34 @@
     </div>
   </slick>
 </div>
+<div class="col-lg-12 col-md-12 col-sm-12">
+  <stats-table
+        data='summaryUsage.dvpRank.positions'
+        type='worst-positions'>
+  </stats-table>
+</div>
+<div class="col-lg-12 col-md-12 col-sm-12">
+  <stats-table
+        data='summaryUsage.dvpRank.categories'
+        type='worst-categories'>
+  </stats-table>
+</div>
 
-<stats-table
-      data='summaryUsage.dvpRank.positions'
-      type='worst-positions'>
-</stats-table>
-
-<stats-table
-      data='summaryUsage.dvpRank.categories'
-      type='worst-categories'>
-</stats-table>
-
-<div class="row">
+<div class="row padding-bottom-20">
   <div class="col-lg-12 col-md-12 col-sm-12">
-    <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="col-lg-4 col-md-4 col-sm-12" style="height:376px; overflow: auto;">
       <stats-table
           data='summaryUsage.increaseInMinutes'
           type='minutes-increase'>
       </stats-table>
     </div>
-    <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="col-lg-4 col-md-4 col-sm-12" style="height:376px; overflow: auto;">
       <stats-table
             data='summaryUsage.maxUsage'
             type='max-usage'>
       </stats-table>
     </div>
-    <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="col-lg-4 col-md-4 col-sm-12" style="height:376px; overflow: auto;">
       <stats-table
             data='summaryUsage.lastPerformer'
             type='last-performance'>
