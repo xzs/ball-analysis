@@ -1,7 +1,16 @@
 <!-- we are only goin to show this for when the match up is clicked -->
 <div class="panel panel-default" ng-if="data">
   <div class="panel-heading">
-    <b>Worst Against (Positions)</b>
+    <a ng-show="showMax"
+      class="cursor-pointer"
+      ng-click="toggleCategories('min')">
+        <b>Worst Against (Positions)</b>
+    </a>
+    <a ng-show="showMin"
+      class="cursor-pointer"
+      ng-click="toggleCategories('max')">
+        <b>Best Against (Positions)</b>
+    </a>
     <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
       data-target="#positions"
       class="cursor-pointer"></span>
@@ -21,10 +30,14 @@
       <tbody>
         <tr ng-repeat="(position, team) in data">
           <td>{{position}}</td>
-          <td>{{team.Team}}</td>
-          <td>{{team.Season}}</td>
-          <td>{{team['Last 5']}}</td>
-          <td>{{team['Last 10']}}</td>
+          <td ng-show="showMax">{{team.max.Team}}</td>
+          <td ng-show="showMax">{{team.max.Season}}</td>
+          <td ng-show="showMax">{{team.max['Last 5']}}</td>
+          <td ng-show="showMax">{{team.max['Last 10']}}</td>
+          <td ng-show="showMin">{{team.min.Team}}</td>
+          <td ng-show="showMin">{{team.min.Season}}</td>
+          <td ng-show="showMin">{{team.min['Last 5']}}</td>
+          <td ng-show="showMin">{{team.min['Last 10']}}</td>
         </tr>
       </tbody>
     </table>

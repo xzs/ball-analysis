@@ -309,11 +309,17 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             _.forEach(data, function(stats, position){
                 // determine the rank of tonight's matchups for each position
                 if (finalData.dvpRank['positions'] && finalData.dvpRank['positions'][position]) {
-                    if (finalData.dvpRank['positions'][position]['rank'] > stats.rank) {
-                        finalData.dvpRank['positions'][position] = stats;
+                    if (finalData.dvpRank['positions'][position]['max']['rank'] > stats.rank) {
+                        finalData.dvpRank['positions'][position]['max'] = stats;
+                    } else if (finalData.dvpRank['positions'][position]['min']['rank'] < stats.rank) {
+                        finalData.dvpRank['positions'][position]['min'] = stats;
                     }
                 } else {
-                    finalData.dvpRank['positions'][position] = stats;
+                    // finalData.dvpRank['positions'][position] = stats;
+                    finalData.dvpRank['positions'][position] = {
+                        max: stats,
+                        min: stats
+                    };
                 }
 
                 for (var i=0; i<validList.length; i++) {
@@ -334,7 +340,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                             finalData.dvpRank['categories'][category][position]['min'] = statObj;
                         }
                     } else {
-                            finalData.dvpRank['categories'][category][position] = {
+                        finalData.dvpRank['categories'][category][position] = {
                             max: statObj,
                             min: statObj
                         };
