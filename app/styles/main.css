@@ -166,3 +166,8 @@ body {
   color: red;
   text-decoration: line-through;
 }
+
+.info-panel {
+  height:376px;
+  overflow: auto;
+}

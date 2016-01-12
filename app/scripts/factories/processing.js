@@ -2,7 +2,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     var finalData = {};
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
-    // 
     finalData.maxUsage = [];
     finalData.lastPerformer = [];
     finalData.increaseInMinutes = [];
@@ -211,6 +210,30 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return dkPoints.toFixed(2);
     }
 
+    finalData.getMaxVAL = function(data) {
+
+        finalData['maxVAL'] = [];
+        var dataLength = data.length;
+
+        for (var i=0; i<dataLength; i++) {
+            var dataItem = data[i];
+            // get the team name
+            var team = common.translateDkDict()[dataItem[5]];
+            var player = {
+                name: dataItem[1],
+                salary: dataItem[2],
+                appg: dataItem[4],
+                VAL : ((parseFloat(dataItem[4]) / parseFloat(dataItem[2])) * 1000).toFixed(2)
+            }
+
+            if (player.VAL > 4.5) {
+                finalData.maxVAL.push(player);
+            }
+
+        }
+        return finalData;
+    }
+
     finalData.getAllCurrentPlayers = function(teams) {
         var promises = [];
         for (var i=0; i<teams.length; i++) {
@@ -250,6 +273,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         }
         return finalData.maxUsage;
     };
+
 
     function lastGameVsAverage(data, player) {
         if ((data.last_1_games.dk_points - data.stats.dk_points) > 10) {

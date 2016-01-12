@@ -1,0 +1,29 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading">
+    <b>Max VAL</b>
+    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
+      data-target="#maxval"
+      class="cursor-pointer"></span>
+  </div>
+  <div id="maxval" class="panel-collapse collapse in">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>
+          <a href="" ng-click="order('VAL')">VAL</a>
+          <span class="sortorder" ng-show="predicate === 'VAL'" ng-class="{reverse:reverse}"></span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="player in data | orderBy:predicate:reverse">
+        <td>{{player.name}}</td>
+        <td>{{player.VAL}} (${{player.salary}})</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+</div>

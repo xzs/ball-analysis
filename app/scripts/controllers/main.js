@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2016-01-08").format("YYYY-MM-DD");
+    $scope.today = moment("2016-01-12").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -315,7 +315,7 @@ app.controller('MainCtrl',
     function processCSV(data) {
         // process the data into readable JSON format
         local.dkPlayers = processing.setAllPlayersByTeam(data);
-
+        $scope.maxVAL = processing.getMaxVAL(data);
         // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
         // Therefore, you have to make apply int he end of the onload function
         // http://stackoverflow.com/a/33038028
