@@ -412,7 +412,7 @@ def get_team_against_position():
     pos_list = ['PG', 'SG', 'SF', 'PF', 'C']
     site = 'DraftKings'
     matchup_data = {}
-
+    matchup_data['league'] = {}
     for position in pos_list:
         logger.info('getting matchup information for: '+position)
         url = urllib2.urlopen(MATCHUP_URL+'?site=%s&pos=%s' % (site, position))
@@ -426,6 +426,8 @@ def get_team_against_position():
         teams = table_body.find_all('tr')
 
         team_rank = 0
+        matchup_data['league'][position] = {}
+        total = 0
         for team in teams:
             team_stats = team.find_all('td')
             tempname = str(team_stats[0].text)
@@ -435,7 +437,6 @@ def get_team_against_position():
             if team_name not in matchup_data:
                 matchup_data[team_name] = {}
                 # the rank is in ascending order
-
             if position not in matchup_data[team_name]:
                 matchup_data[team_name][position] = {}
                 team_rank += 1
@@ -446,12 +447,21 @@ def get_team_against_position():
                 category = str(header.text)
                 matchup_data[team_name][position][category] = str(stat.text)
 
+                # sum up totals for league average
+                if category == 'Season':
+                    total += float(stat.text)
+
+        matchup_data['league'][position]['average'] = float(total / 30)
 
     # loop each team
     for team in TEAMS_DICT:
         with open('misc/fantasy_stats/'+team+'.json', 'w') as outfile:
             logger.info('Writing to fantasy_stats file:' +team)
             json.dump(matchup_data[team], outfile)
+
+    # dump league avg separately
+    with open('misc/fantasy_stats/league.json', 'w') as outfile:
+        json.dump(matchup_data['league'], outfile)
 
     return matchup_data
 

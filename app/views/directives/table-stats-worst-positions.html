@@ -22,7 +22,8 @@
         <tr>
           <th>Position</th>
           <th>Team</th>
-          <th>Season</th>
+          <th>Season (League Avg.)</th>
+          <th>Matchup Strength</th>
           <th>Last 5</th>
           <th>Last 10</th>
         </tr>
@@ -31,11 +32,13 @@
         <tr ng-repeat="(position, team) in data">
           <td>{{position}}</td>
           <td ng-show="showMax">{{team.max.Team}}</td>
-          <td ng-show="showMax">{{team.max.Season}}</td>
+          <td ng-show="showMax">{{team.max.Season}} ({{team.average}})</td>
+          <td ng-show="showMax">{{team.max.matchup}}</td>
           <td ng-show="showMax">{{team.max['Last 5']}}</td>
           <td ng-show="showMax">{{team.max['Last 10']}}</td>
           <td ng-show="showMin">{{team.min.Team}}</td>
-          <td ng-show="showMin">{{team.min.Season}}</td>
+          <td ng-show="showMin">{{team.min.Season}} ({{team.average}})</td>
+          <td ng-show="showMin">{{team.min.matchup}}</td>
           <td ng-show="showMin">{{team.min['Last 5']}}</td>
           <td ng-show="showMin">{{team.min['Last 10']}}</td>
         </tr>

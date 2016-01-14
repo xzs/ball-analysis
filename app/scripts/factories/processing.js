@@ -236,6 +236,8 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
     finalData.getAllCurrentPlayers = function(teams) {
         var promises = [];
+        // get league average
+        getLeagueAverageDefenseVsPositionStats();
         for (var i=0; i<teams.length; i++) {
             fetch.getDepthChartByTeam(teams[i]).then(function (data){
                 _.forEach(data, function(players, position) {
@@ -250,6 +252,12 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         }
 
         return finalData;
+    }
+
+    function getLeagueAverageDefenseVsPositionStats() {
+        fetch.getDefenseVsPositionStats('league').then(function (data){
+            finalData['leagueAverageDvP'] = data;
+        });
     }
 
     function getPlayerStats(player, position, status) {
@@ -328,21 +336,23 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             finalData.dvpRank['categories'][category] = {};
         }
 
-
         fetch.getDefenseVsPositionStats(team).then(function (data){
             _.forEach(data, function(stats, position){
                 // determine the rank of tonight's matchups for each position
                 if (finalData.dvpRank['positions'] && finalData.dvpRank['positions'][position]) {
                     if (finalData.dvpRank['positions'][position]['max']['rank'] > stats.rank) {
                         finalData.dvpRank['positions'][position]['max'] = stats;
+                        finalData.dvpRank['positions'][position]['max']['matchup'] = parseFloat(stats.Season / finalData.leagueAverageDvP[position].average).toFixed(2);
                     } else if (finalData.dvpRank['positions'][position]['min']['rank'] < stats.rank) {
                         finalData.dvpRank['positions'][position]['min'] = stats;
+                        finalData.dvpRank['positions'][position]['min']['matchup'] = parseFloat(stats.Season / finalData.leagueAverageDvP[position].average).toFixed(2);
                     }
                 } else {
                     // finalData.dvpRank['positions'][position] = stats;
                     finalData.dvpRank['positions'][position] = {
                         max: stats,
-                        min: stats
+                        min: stats,
+                        average: finalData.leagueAverageDvP[position].average.toFixed(2)
                     };
                 }
 
@@ -371,8 +381,9 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     }
 
                 }
-            })
+            });
         });
+
     }
 
 
