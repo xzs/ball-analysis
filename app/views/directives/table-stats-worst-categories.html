@@ -31,11 +31,11 @@
       <tbody>
         <tr ng-repeat="(category, position) in data">
           <td>{{category}}</td>
-          <td ng-show="showMax" ng-repeat="(name, team) in position">
-            {{team.max.num}} ({{team.max.team}})
+          <td ng-show="showMax" ng-repeat="(name, team) in position" ng-class="{'good-pick': team.max.matchup > 1.10}">
+            {{team.max.num}} ({{team.max.team}}) ({{team.max.matchup}})
           </td>
-          <td ng-show="showMin" ng-repeat="(name, team) in position">
-            {{team.min.num}} ({{team.min.team}})
+          <td ng-show="showMin" ng-repeat="(name, team) in position" ng-class="{'bad-pick': team.min.matchup < 0.80}">
+            {{team.min.num}} ({{team.min.team}}) ({{team.min.matchup}})
           </td>
         </tr>
       </tbody>

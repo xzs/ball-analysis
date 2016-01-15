@@ -22,9 +22,8 @@
         <tr>
           <th>Position</th>
           <th>Team</th>
-          <th>Season (League Avg.)</th>
-          <th>Matchup Strength</th>
-          <th>Last 5</th>
+          <th>Season (MS)</th>
+          <th>Last 5 (MS)</th>
           <th>Last 10</th>
         </tr>
       </thead>
@@ -32,15 +31,13 @@
         <tr ng-repeat="(position, team) in data">
           <td>{{position}}</td>
           <td ng-show="showMax">{{team.max.Team}}</td>
-          <td ng-show="showMax">{{team.max.Season}} ({{team.average}})</td>
-          <td ng-show="showMax">{{team.max.matchup}}</td>
-          <td ng-show="showMax">{{team.max['Last 5']}}</td>
-          <td ng-show="showMax">{{team.max['Last 10']}}</td>
+          <td ng-show="showMax" ng-class="{'good-pick': team.max.matchup > 1.10}">{{team.max.Season}} ({{team.max.matchup}})</td>
+          <td ng-show="showMax" ng-class="{'good-pick': team.max.matchup5 > 1.10}">{{team.max['Last 5']}} ({{team.max.matchup5}})</td>
+          <td ng-show="showMax" ng-class="{'good-pick': team.max.matchup10 > 1.10}">{{team.max['Last 10']}} ({{team.max.matchup10}})</td>
           <td ng-show="showMin">{{team.min.Team}}</td>
-          <td ng-show="showMin">{{team.min.Season}} ({{team.average}})</td>
-          <td ng-show="showMin">{{team.min.matchup}}</td>
-          <td ng-show="showMin">{{team.min['Last 5']}}</td>
-          <td ng-show="showMin">{{team.min['Last 10']}}</td>
+          <td ng-show="showMin" ng-class="{'bad-pick': team.min.matchup < 0.80}">{{team.min.Season}} ({{team.min.matchup}})</td>
+          <td ng-show="showMin" ng-class="{'bad-pick': team.min.matchup5 < 0.80}">{{team.min['Last 5']}} ({{team.min.matchup5}})</td>
+          <td ng-show="showMin" ng-class="{'bad-pick': team.min.matchup10 < 0.80}">{{team.min['Last 10']}} ({{team.max.matchup10}})</td>
         </tr>
       </tbody>
     </table>

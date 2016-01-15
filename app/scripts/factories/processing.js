@@ -5,6 +5,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.maxUsage = [];
     finalData.lastPerformer = [];
     finalData.increaseInMinutes = [];
+    finalData.playerCov = [];
     finalData.dvpRank = {
         positions: {},
         categories: {}
@@ -257,6 +258,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     function getLeagueAverageDefenseVsPositionStats() {
         fetch.getDefenseVsPositionStats('league').then(function (data){
             finalData['leagueAverageDvP'] = data;
+            console.log(data);
         });
     }
 
@@ -268,6 +270,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 getMaxUsage(advData, data, player);
                 lastGameVsAverage(data, player);
                 minuteIncrease(data, player);
+                getPlayerConsistency(data, player);
             });
         });
     };
@@ -309,6 +312,17 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.increaseInMinutes;
     }
 
+    function getPlayerConsistency(data, player) {
+        if (parseFloat(data.stats.playtime) > 20) {
+            finalData.playerCov.push({
+                player : player,
+                cov : parseFloat(data.cov).toFixed(2)
+            })
+        }
+        return finalData.playerCov;
+    };
+
+
     /*
     3PM: "1.3"
     AST: "2.7"
@@ -342,18 +356,21 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 if (finalData.dvpRank['positions'] && finalData.dvpRank['positions'][position]) {
                     if (finalData.dvpRank['positions'][position]['max']['rank'] > stats.rank) {
                         finalData.dvpRank['positions'][position]['max'] = stats;
-                        finalData.dvpRank['positions'][position]['max']['matchup'] = parseFloat(stats.Season / finalData.leagueAverageDvP[position].average).toFixed(2);
+                        calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['max'], stats, position);
                     } else if (finalData.dvpRank['positions'][position]['min']['rank'] < stats.rank) {
                         finalData.dvpRank['positions'][position]['min'] = stats;
-                        finalData.dvpRank['positions'][position]['min']['matchup'] = parseFloat(stats.Season / finalData.leagueAverageDvP[position].average).toFixed(2);
+                        calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['min'], stats, position);
                     }
                 } else {
                     // finalData.dvpRank['positions'][position] = stats;
                     finalData.dvpRank['positions'][position] = {
                         max: stats,
                         min: stats,
-                        average: finalData.leagueAverageDvP[position].average.toFixed(2)
+                        average: finalData.leagueAverageDvP['position'][position].average.toFixed(2)
                     };
+                    // set initial matchup strength
+                    calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['max'], stats, position);
+                    calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['min'], stats, position);
                 }
 
                 for (var i=0; i<validList.length; i++) {
@@ -363,21 +380,26 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         team: common.translateTeamNames()[stats['Team']],
                         stat: category,
                         num: stats[category],
-                        position: stats['Vs. Pos']
+                        position: stats['Vs. Pos'],
+                        average: finalData.leagueAverageDvP['category'][position][category].toFixed(2)
                     };
-
                     // calc categories for each position
                     if (finalData.dvpRank['categories'][category] && finalData.dvpRank['categories'][category][position]) {
                         if (finalData.dvpRank['categories'][category][position]['max']['num'] < stats[category]) {
                             finalData.dvpRank['categories'][category][position]['max'] = statObj;
+                            calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['max'], statObj, position, category);
                         } else if (finalData.dvpRank['categories'][category][position]['min']['num'] > stats[category]) {
                             finalData.dvpRank['categories'][category][position]['min'] = statObj;
+                            calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['min'], statObj, position, category);
                         }
                     } else {
                         finalData.dvpRank['categories'][category][position] = {
                             max: statObj,
                             min: statObj
                         };
+
+                        calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['max'], statObj, position, category);
+                        calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['min'], statObj, position, category);
                     }
 
                 }
@@ -386,6 +408,15 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
     }
 
+    function calcMatchupStrengthByPosition(dataObj, stats, position) {
+        dataObj['matchup'] = parseFloat(stats.Season / finalData.leagueAverageDvP['position'][position].average).toFixed(2);
+        dataObj['matchup5'] = parseFloat(stats['Last 5'] / finalData.leagueAverageDvP['position'][position].average).toFixed(2);
+        dataObj['matchup10'] = parseFloat(stats['Last 10'] / finalData.leagueAverageDvP['position'][position].average).toFixed(2);
+    }
+
+    function calcMatchupStrengthByCategory(dataObj, stats, position, category) {
+        dataObj['matchup'] = parseFloat(stats.num / finalData.leagueAverageDvP['category'][position][category]).toFixed(2);
+    }
 
     return finalData
 }]);

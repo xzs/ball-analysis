@@ -18,7 +18,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="player in data | orderBy:predicate:reverse">
+      <tr ng-repeat="player in data | orderBy:'dk_points.last_1':reverse">
         <td>{{player.player}}</td>
         <td>{{player.dk_points.last_1}} ({{player.dk_points.average}})</td>
       </tr>

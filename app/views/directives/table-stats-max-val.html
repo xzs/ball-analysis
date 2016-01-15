@@ -18,9 +18,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="player in data | orderBy:predicate:reverse">
+      <tr ng-repeat="player in data | orderBy:'VAL':reverse">
         <td>{{player.name}}</td>
-        <td>{{player.VAL}} (${{player.salary}})</td>
+        <td>{{player.VAL}} ({{player.appg}})</td>
       </tr>
     </tbody>
   </table>

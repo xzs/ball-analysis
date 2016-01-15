@@ -1,27 +1,27 @@
 <!-- we are only goin to show this for when the match up is clicked -->
 <div class="panel panel-default" ng-if="data">
   <div class="panel-heading">
-    <b>Max Usage (20+ Minutes)</b>
+    <b>Player COV (20+ Minutes)</b>
     <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
-      data-target="#usage"
+      data-target="#cov"
       class="cursor-pointer"></span>
   </div>
-  <div id="usage" class="panel-collapse collapse in">
+  <div id="cov" class="panel-collapse collapse in">
     <table class="table table-striped">
       <thead>
         <!-- we could loop these but for the sake of order we manually put them here-->
         <tr>
           <th>Player</th>
           <th>
-            <a href="" ng-click="order('usage')">Usage</a>
-            <span class="sortorder" ng-show="predicate === 'usage'" ng-class="{reverse:reverse}"></span>
+            <a href="" ng-click="order('cov')">COV</a>
+            <span class="sortorder" ng-show="predicate === 'cov'" ng-class="{reverse:reverse}"></span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="player in data | orderBy:'usage':reverse">
+        <tr ng-repeat="player in data | orderBy:'cov':reverse">
           <td>{{player.player}}</td>
-          <td>{{player.usage}}</td>
+          <td>{{player.cov}}</td>
         </tr>
       </tbody>
     </table>

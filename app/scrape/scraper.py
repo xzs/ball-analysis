@@ -413,6 +413,8 @@ def get_team_against_position():
     site = 'DraftKings'
     matchup_data = {}
     matchup_data['league'] = {}
+    matchup_data['league']['position'] = {}
+    total_stats = {}
     for position in pos_list:
         logger.info('getting matchup information for: '+position)
         url = urllib2.urlopen(MATCHUP_URL+'?site=%s&pos=%s' % (site, position))
@@ -426,8 +428,16 @@ def get_team_against_position():
         teams = table_body.find_all('tr')
 
         team_rank = 0
-        matchup_data['league'][position] = {}
-        total = 0
+        matchup_data['league']['position'][position] = {}
+        pp.pprint(matchup_data['league']['position'])
+
+        total_stats[position] = {}
+        league_total = 0
+        # only stats i care about
+        valid_list = ['3PM', 'AST', 'BLK', 'FG%', 'PTS', 'REB', 'STL']
+        for stat in valid_list:
+            total_stats[position][stat] = 0
+
         for team in teams:
             team_stats = team.find_all('td')
             tempname = str(team_stats[0].text)
@@ -449,10 +459,17 @@ def get_team_against_position():
 
                 # sum up totals for league average
                 if category == 'Season':
-                    total += float(stat.text)
+                    league_total += float(stat.text)
+                if category in valid_list:
+                    total_stats[position][category] += float(stat.text)
 
-        matchup_data['league'][position]['average'] = float(total / 30)
+            matchup_data['league']['position'][position]['average'] = float(league_total / 30)
 
+        # parse each category
+        for cat, total in total_stats[position].iteritems():
+            total_stats[position][cat] = float(total / 30)
+
+    matchup_data['league']['category'] = total_stats
     # loop each team
     for team in TEAMS_DICT:
         with open('misc/fantasy_stats/'+team+'.json', 'w') as outfile:
@@ -512,13 +529,13 @@ def top_n_lineups(n):
 
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# teams_dict = get_active_teams()
+# get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
-get_depth_chart()
-get_fantasy_news()
+# get_depth_chart()
+# get_fantasy_news()
 get_team_against_position()
 
-top_n_lineups(5)
+# top_n_lineups(5)

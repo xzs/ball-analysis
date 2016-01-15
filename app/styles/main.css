@@ -111,7 +111,11 @@ body {
 }
 
 .good-pick {
-  background: #2ecc71;
+  background-color: #2ecc71;
+}
+
+.bad-pick {
+  background-color: #e74c3c;
 }
 
 .padding-bottom-10 {

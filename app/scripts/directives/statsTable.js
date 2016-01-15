@@ -16,6 +16,7 @@ app.directive('statsTable', function() {
                 $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
                 $scope.predicate = predicate;
             }
+
             $scope.showMin = false;
             $scope.showMax = true;
             $scope.toggleCategories = function(category) {
