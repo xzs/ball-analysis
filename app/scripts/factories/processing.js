@@ -2,10 +2,13 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     var finalData = {};
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
-    finalData.maxUsage = [];
-    finalData.lastPerformer = [];
-    finalData.increaseInMinutes = [];
-    finalData.playerCov = [];
+    // finalData.maxUsage = [];
+    // finalData.lastPerformer = [];
+    // finalData.increaseInMinutes = [];
+    // finalData.playerCov = [];
+    // finalData.bestAt = [];
+    // finalData.dkPoints = [];
+    finalData.players = [];
     finalData.dvpRank = {
         positions: {},
         categories: {}
@@ -215,10 +218,10 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
         finalData['maxVAL'] = [];
         var dataLength = data.length;
-
         for (var i=0; i<dataLength; i++) {
             var dataItem = data[i];
             // get the team name
+
             var team = common.translateDkDict()[dataItem[5]];
             var player = {
                 name: dataItem[1],
@@ -235,42 +238,66 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData;
     }
 
-    finalData.getAllCurrentPlayers = function(teams) {
+    finalData.getAllCurrentPlayers = function(teams, games) {
         var promises = [];
         // get league average
         getLeagueAverageDefenseVsPositionStats();
+        var opponents = {};
         for (var i=0; i<teams.length; i++) {
-            fetch.getDepthChartByTeam(teams[i]).then(function (data){
+            var team = teams[i];
+            // get opponents
+            if (!opponents[team]) {
+                opponents[team] = {};
+                _.forEach(games, function(game) {
+                    if (game.opp == team && game.team != team) {
+                        opponents[team] = game.team;
+                    } else if (game.opp != team && game.team == team) {
+                        opponents[team] = game.opp;
+                    }
+                });
+            }
+            fetch.getDepthChartByTeam(team).then(function (data){
                 _.forEach(data, function(players, position) {
                     for (var i=0; i<players.length; i++) {
                         var player = players[i].player;
                         var status = players[i].status;
-                        getPlayerStats(player, position, status);
+                        getPlayerStats(player, position, opponents);
                     }
                 })
             });
-            getDefenseVsPositionStats(teams[i]);
+            getDefenseVsPositionStats(team);
         }
-
+        console.log(finalData);
         return finalData;
     }
 
     function getLeagueAverageDefenseVsPositionStats() {
         fetch.getDefenseVsPositionStats('league').then(function (data){
             finalData['leagueAverageDvP'] = data;
-            console.log(data);
         });
     }
 
-    function getPlayerStats(player, position, status) {
-        // I need to just store the max usage for each player
+    function getPlayerStats(player, position, opponent) {
+        var playerObj;
         fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
             // grab the name of the current player since the player variable has moved on
             fetch.getPlayer('2016', player).then(function (data) {
-                getMaxUsage(advData, data, player);
-                lastGameVsAverage(data, player);
-                minuteIncrease(data, player);
-                getPlayerConsistency(data, player);
+                // we are basically just going to use these methods as helpers to populate the players object
+                // almost just the if-else methods
+
+                // subsidize the player obj
+                playerObj = data;
+                playerObj.opponent = opponent[data.basic_info.team];
+                playerObj.usage = parseInt(advData[player]['USG%']);
+                // getMaxUsage(advData, data, player);
+                playerObj.lastGameBetterThanAverage = lastGameVsAverage(data, player);
+                playerObj.minuteIncrease = minuteIncrease(data, player);
+                // getPlayerConsistency(data, player);
+                playerObj.bestAt = getPlayerBestAt(data, player);
+                // getDkPoints(data, player);
+
+                finalData.players.push(playerObj);
+
             });
         });
     };
@@ -285,32 +312,39 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.maxUsage;
     };
 
-
     function lastGameVsAverage(data, player) {
-        if ((data.last_1_games.dk_points - data.stats.dk_points) > 10) {
-            finalData.lastPerformer.push({
-                player : player,
-                dk_points : {
-                    average: data.stats.dk_points,
-                    last_1 : data.last_1_games.dk_points
-                }
-            })
+        var tempObj = {};
+        if ((data.last_1_games.dk_points - data.stats.dk_points) > 5) {
+            tempObj.last_1_games = true;
+        } else {
+            tempObj.last_1_games = false;
         }
-        return finalData.lastPerformer;
+
+        if ((data.last_3_games.dk_points - data.stats.dk_points) > 5) {
+            tempObj.last_3_games = true;
+        } else {
+            tempObj.last_3_games = false;
+        }
+
+        return tempObj;
     };
 
     function minuteIncrease(data, player) {
-        if ((data.last_1_games.playtime - data.stats.playtime) > 10) {
-            finalData.increaseInMinutes.push({
-                player : player,
-                playtime : {
-                    average: data.stats.playtime,
-                    last_1 : data.last_1_games
-                }
-            })
+        var tempObj = {};
+        if ((data.last_1_games.playtime - data.stats.playtime) > 5) {
+            tempObj.last_1_games = true;
+        } else {
+            tempObj.last_1_games = false;
         }
-        return finalData.increaseInMinutes;
-    }
+
+        if ((data.last_3_games.playtime - data.stats.playtime) > 5) {
+            tempObj.last_3_games = true;
+        } else {
+            tempObj.last_3_games = false;
+        }
+
+        return tempObj;
+    };
 
     function getPlayerConsistency(data, player) {
         if (parseFloat(data.stats.playtime) > 20) {
@@ -322,6 +356,30 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.playerCov;
     };
 
+    function getPlayerBestAt(data, player) {
+
+        var away = data.average_away_gmsc;
+        var home = data.average_home_gmsc;
+        var diff = Math.abs(parseFloat(data.average_away_gmsc - data.average_home_gmsc));
+
+        if ((away > home) && (diff > 1.75)) {
+            return 'Away';
+        } else if ((away < home) && (diff > 1.75)) {
+            return 'Home';
+        }
+        return 'Netural';
+    };
+
+    function getDkPoints(data, player) {
+        finalData.dkPoints.push({
+            player : player,
+            dk_points : {
+                average: data.stats.dk_points,
+                last_3 : data.last_3_games.dk_points
+            }
+        });
+        return finalData.dkPoints;
+    };
 
     /*
     3PM: "1.3"

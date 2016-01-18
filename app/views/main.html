@@ -44,8 +44,16 @@
     </stats-table>
   </div>
 </div>
-
 <div class="row padding-bottom-20">
+  <div class="col-lg-12 col-md-12 col-sm-12 players-panel">
+    <stats-table
+          data='summaryUsage.players'
+          type='players'>
+    </stats-table>
+  </div>
+</div>
+
+<!-- <div class="row padding-bottom-20">
   <div class="col-lg-12 col-md-12 col-sm-12">
     <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
       <stats-table
@@ -67,14 +75,30 @@
     </div>
   </div>
 </div>
+
 <div class="row padding-bottom-20">
-  <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-    <stats-table
-        data='summaryUsage.playerCov'
-        type='player-cov'>
-    </stats-table>
+  <div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
+      <stats-table
+          data='summaryUsage.playerCov'
+          type='player-cov'>
+      </stats-table>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
+      <stats-table
+          data='summaryUsage.bestAt'
+          type='gmsc-diff'>
+      </stats-table>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
+      <stats-table
+          data='summaryUsage.dkPoints'
+          type='dk-points'>
+      </stats-table>
+    </div>
   </div>
-</div>
+</div> -->
+
 <stats-table data="teamLineups"
   type="lineup">
 </stats-table>

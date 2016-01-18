@@ -1,0 +1,68 @@
+<!-- we are only goin to show this for when the match up is clicked -->
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading">
+    <b>Players</b>
+    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
+      data-target="#maxval"
+      class="cursor-pointer"></span>
+  </div>
+  <div id="categories" class="panel-collapse collapse in">
+    <table class="table table-striped">
+      <thead>
+        <!-- we could loop these but for the sake of order we manually put them here-->
+        <tr>
+          <th>Name</th>
+          <th>Location</th>
+          <th>
+            <a href="" ng-click="order('last_1_games.playtime')">Min (Last 1)</a>
+            <span class="sortorder" ng-show="predicate === 'last_1_games.playtime'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('last_3_games.playtime')">Min (Last 3)</a>
+            <span class="sortorder" ng-show="predicate === 'last_3_games.playtime'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('stats.playtime')">Min (Avg)</a>
+            <span class="sortorder" ng-show="predicate === 'stats.playtime'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('last_1_games.dk_points')">FPP (Last 1)</a>
+            <span class="sortorder" ng-show="predicate === 'last_1_games.dk_points'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('last_3_games.dk_points')">FPP (Last 3)</a>
+            <span class="sortorder" ng-show="predicate === 'last_3_games.dk_points'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('stats.dk_points')">FPP (Avg)</a>
+            <span class="sortorder" ng-show="predicate === 'stats.dk_points'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            Season Matchup
+          </th>
+          <th>COV</th>
+          <th>
+            <a href="" ng-click="order('usage')">USG</a>
+            <span class="sortorder" ng-show="predicate === 'usage'" ng-class="{reverse:reverse}"></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="player in data | orderBy:predicate:reverse"
+            ng-if="player.last_3_games.playtime > 10">
+          <td>{{player.basic_info.name}}</td>
+          <td>{{player.bestAt}}</td>
+          <td ng-class="{'good-pick': player.minuteIncrease.last_1_games}">{{player.last_1_games.playtime}}</td>
+          <td ng-class="{'good-pick': player.minuteIncrease.last_3_games}">{{player.last_3_games.playtime}}</td>
+          <td>{{player.stats.playtime}}</td>
+          <td ng-class="{'good-pick': player.lastGameBetterThanAverage.last_1_games}">{{player.last_1_games.dk_points}}</td>
+          <td ng-class="{'good-pick': player.lastGameBetterThanAverage.last_3_games}">{{player.last_3_games.dk_points}}</td>
+          <td>{{player.stats.dk_points}}</td>
+          <td ng-if="player.teams_against[player.opponent]">{{player.teams_against[player.opponent].stats.dk_points}}</td>
+          <td>{{player.cov}}</td>
+          <td>{{player.usage}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

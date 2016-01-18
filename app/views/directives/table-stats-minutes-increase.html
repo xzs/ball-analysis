@@ -13,15 +13,15 @@
         <tr>
           <th>Player</th>
           <th>
-            <a href="" ng-click="order('playtime.last_1.playtime')">Minutes</a>
-            <span class="sortorder" ng-show="predicate === 'playtime.last_1.playtime'" ng-class="{reverse:reverse}"></span>
+            <a href="" ng-click="order('playtime.last_3.playtime')">Minutes</a>
+            <span class="sortorder" ng-show="predicate === 'playtime.last_3.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="player in data | orderBy:'playtime.last_1.playtime':reverse">
+        <tr ng-repeat="player in data | orderBy:'playtime.last_3.playtime':reverse">
           <td>{{player.player}}</td>
-          <td>{{player.playtime.last_1.playtime}} ({{player.playtime.average}})</td>
+          <td>{{player.playtime.last_3.playtime}} ({{player.playtime.average}})</td>
         </tr>
       </tbody>
     </table>

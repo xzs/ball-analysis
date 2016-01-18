@@ -175,3 +175,8 @@ body {
   height:376px;
   overflow: auto;
 }
+
+.players-panel {
+  height:676px;
+  overflow: auto;
+}
