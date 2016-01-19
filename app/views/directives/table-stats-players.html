@@ -12,7 +12,14 @@
         <!-- we could loop these but for the sake of order we manually put them here-->
         <tr>
           <th>Name</th>
-          <th>Opponent</th>
+          <th>
+            <a href="" ng-click="order('basic_info.position')">Position</a>
+            <span class="sortorder" ng-show="predicate === 'basic_info.position'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('opponent.opponent')">Opponent</a>
+            <span class="sortorder" ng-show="predicate === 'opponent.opponent'" ng-class="{reverse:reverse}"></span>
+          </th>
           <th>(> 1.75)</th>
           <th>
             <a href="" ng-click="order('last_1_games.playtime')">Min (Last 1)</a>
@@ -39,12 +46,16 @@
             <span class="sortorder" ng-show="predicate === 'stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            Season Vs.
+            <a href="" ng-click="order('teams_against[opponent.opponent].stats.dk_points')">Season Vs.</a>
+            <span class="sortorder" ng-show="predicate === 'teams_against[opponent.opponent].stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
             Opp. DvP.
           </th>
-          <th>COV</th>
+          <th>
+            <a href="" ng-click="order('cov')">COV</a>
+            <span class="sortorder" ng-show="predicate === 'cov'" ng-class="{reverse:reverse}"></span>
+          </th>
           <th>
             <a href="" ng-click="order('usage')">USG</a>
             <span class="sortorder" ng-show="predicate === 'usage'" ng-class="{reverse:reverse}"></span>
@@ -56,8 +67,9 @@
             ng-if="player.last_3_games.playtime > 10"
             ng-class="playerStatus(player.status)">
           <td>{{player.basic_info.name}}</td>
+          <td>{{player.basic_info.position}}</td>
           <td>{{player.opponent.location}} {{player.opponent.opponent}}</td>
-          <td>{{player.bestAt.location}} ({{player.bestAt.diff}})
+          <td>{{player.bestAt.location}} <span ng-if="(player.bestAt.location == 'Away' && player.opponent.location == '@') || (player.bestAt.location == 'Home' && player.opponent.location == 'vs')">({{player.bestAt.diff}})</span>
             <i ng-class="{'fa fa-angle-double-up status-green': player.bestAt.diff > 0 && ((player.bestAt.location == 'Away' && player.opponent.location == '@') || (player.bestAt.location == 'Home' && player.opponent.location == 'vs'))}"></i>
           </td>
           <td ng-class="{'good-pick': player.minuteIncrease.last_1_games}">{{player.last_1_games.playtime}}</td>
