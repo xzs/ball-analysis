@@ -28,6 +28,16 @@ app.directive('statsTable', function() {
                 $scope.showMax = false;
               }
             }
+
+            $scope.playerStatus = function(status){
+              var classes = '';
+              if (status == 'Sidelined') {
+                  classes += ' injured-player';
+              }
+              return classes;
+            }
+
+
         },
         templateUrl: function(elem, attr) {
             return 'views/directives/table-stats-'+attr.type+'.html'

@@ -7,12 +7,13 @@
       class="cursor-pointer"></span>
   </div>
   <div id="categories" class="panel-collapse collapse in">
-    <table class="table table-striped">
+    <table class="table table-hover">
       <thead>
         <!-- we could loop these but for the sake of order we manually put them here-->
         <tr>
           <th>Name</th>
-          <th>Location</th>
+          <th>Opponent</th>
+          <th>(> 1.75)</th>
           <th>
             <a href="" ng-click="order('last_1_games.playtime')">Min (Last 1)</a>
             <span class="sortorder" ng-show="predicate === 'last_1_games.playtime'" ng-class="{reverse:reverse}"></span>
@@ -38,7 +39,10 @@
             <span class="sortorder" ng-show="predicate === 'stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            Season Matchup
+            Season Vs.
+          </th>
+          <th>
+            Opp. DvP.
           </th>
           <th>COV</th>
           <th>
@@ -49,18 +53,25 @@
       </thead>
       <tbody>
         <tr ng-repeat="player in data | orderBy:predicate:reverse"
-            ng-if="player.last_3_games.playtime > 10">
+            ng-if="player.last_3_games.playtime > 10"
+            ng-class="playerStatus(player.status)">
           <td>{{player.basic_info.name}}</td>
-          <td>{{player.bestAt}}</td>
+          <td>{{player.opponent.location}} {{player.opponent.opponent}}</td>
+          <td>{{player.bestAt.location}} ({{player.bestAt.diff}})
+            <i ng-class="{'fa fa-angle-double-up status-green': player.bestAt.diff > 0 && ((player.bestAt.location == 'Away' && player.opponent.location == '@') || (player.bestAt.location == 'Home' && player.opponent.location == 'vs'))}"></i>
+          </td>
           <td ng-class="{'good-pick': player.minuteIncrease.last_1_games}">{{player.last_1_games.playtime}}</td>
           <td ng-class="{'good-pick': player.minuteIncrease.last_3_games}">{{player.last_3_games.playtime}}</td>
           <td>{{player.stats.playtime}}</td>
           <td ng-class="{'good-pick': player.lastGameBetterThanAverage.last_1_games}">{{player.last_1_games.dk_points}}</td>
           <td ng-class="{'good-pick': player.lastGameBetterThanAverage.last_3_games}">{{player.last_3_games.dk_points}}</td>
           <td>{{player.stats.dk_points}}</td>
-          <td ng-if="player.teams_against[player.opponent]">{{player.teams_against[player.opponent].stats.dk_points}}</td>
+          <td ng-if="player.teams_against[player.opponent.opponent]"
+              ng-class="{'good-pick': player.teams_against[player.opponent.opponent].stats.dk_points > player.stats.dk_points}">{{player.teams_against[player.opponent.opponent].stats.dk_points}}</td>
+          <td ng-if="!player.teams_against[player.opponent.opponent]">N/A</td>
+          <td ng-class="{'good-pick': player.dvp['last_5_ratio'] >= 1.15}">{{player.dvp['last_5']}} ({{player.dvp['last_5_ratio']}})</td>
           <td>{{player.cov}}</td>
-          <td>{{player.usage}}</td>
+          <td ng-class="{'good-pick': player.usage >= 20}">{{player.usage}}</td>
         </tr>
       </tbody>
     </table>

@@ -337,6 +337,7 @@ def get_current_roster(teams_dict):
         for row in rows:
             # get the array of anchors
             links = row.find_all('a')
+            position = row.find_all('td')[2]
             # get every other link to get the player
             player = links[::2][0]
             player_name = str(player.text)
@@ -345,7 +346,8 @@ def get_current_roster(teams_dict):
 
             player_obj = {
                 'url': player_link,
-                'log': player_log
+                'log': player_log,
+                'position': str(position.text)
             }
 
             players_dict[team].append(
@@ -376,10 +378,14 @@ def get_player_log(players_dict):
                     logger.info('Getting game logs for: ' + name)
                     table_body = table.find('tbody')
                     rows = table_body.find_all('tr')
-
                     for row in rows:
-                        log_rows.append([val.text.encode('utf8') for val in row.find_all('td')])
-
+                        temp_row = []
+                        for val in row.find_all('td'):
+                            temp_row.append(val.text.encode('utf8'))
+                        # only add if its not a heading row
+                        if row.find('td'):
+                            temp_row.append(player[name]['position'])
+                        log_rows.append(temp_row)
                     with open('player_logs/'+YEAR+'/'+name+'.csv', 'wb') as f:
                         writer = csv.writer(f)
                         logger.info('Writing log csv for: ' + name)

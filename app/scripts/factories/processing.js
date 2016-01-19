@@ -244,15 +244,26 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         getLeagueAverageDefenseVsPositionStats();
         var opponents = {};
         for (var i=0; i<teams.length; i++) {
+            getDefenseVsPositionStats(team);
             var team = teams[i];
             // get opponents
             if (!opponents[team]) {
                 opponents[team] = {};
                 _.forEach(games, function(game) {
                     if (game.opp == team && game.team != team) {
-                        opponents[team] = game.team;
+                        opponents[team].opponent = game.team;
+                        if (game.location == 'Away'){
+                            opponents[team].location = 'vs';
+                        } else {
+                            opponents[team].location = '@';
+                        }
                     } else if (game.opp != team && game.team == team) {
-                        opponents[team] = game.opp;
+                        opponents[team].opponent = game.opp;
+                        if (game.location == 'Away'){
+                            opponents[team].location = '@';
+                        } else {
+                            opponents[team].location = 'vs';
+                        }
                     }
                 });
             }
@@ -261,11 +272,10 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     for (var i=0; i<players.length; i++) {
                         var player = players[i].player;
                         var status = players[i].status;
-                        getPlayerStats(player, position, opponents);
+                        getPlayerStats(player, position, opponents, status);
                     }
                 })
             });
-            getDefenseVsPositionStats(team);
         }
         console.log(finalData);
         return finalData;
@@ -277,7 +287,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         });
     }
 
-    function getPlayerStats(player, position, opponent) {
+    function getPlayerStats(player, position, opponent, status) {
         var playerObj;
         fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
             // grab the name of the current player since the player variable has moved on
@@ -287,18 +297,39 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
                 // subsidize the player obj
                 playerObj = data;
+                playerObj.status = status;
+                playerObj.dvp = {};
                 playerObj.opponent = opponent[data.basic_info.team];
+
+                var playerPosition = data.basic_info.position;
+                fetch.getDefenseVsPositionStats(opponent[data.basic_info.team].opponent).then(function (data){
+                    playerObj.dvp.last_5 = data[playerPosition]['Last 5'];
+                    playerObj.dvp.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
+                    playerObj.dvp.season = data[playerPosition]['Season'];
+                    playerObj.dvp.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
+                });
                 playerObj.usage = parseInt(advData[player]['USG%']);
                 // getMaxUsage(advData, data, player);
                 playerObj.lastGameBetterThanAverage = lastGameVsAverage(data, player);
                 playerObj.minuteIncrease = minuteIncrease(data, player);
                 // getPlayerConsistency(data, player);
-                playerObj.bestAt = getPlayerBestAt(data, player);
+                playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                 // getDkPoints(data, player);
 
                 finalData.players.push(playerObj);
 
             });
+        });
+    };
+
+    function getDefenseVsPositionByTeam(player, team, playerPosition) {
+        fetch.getDefenseVsPositionStats(team).then(function (data){
+            player.last_5 = data[playerPosition]['Last 5'];
+            player.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
+            player.season = data[playerPosition]['Season'];
+            player.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
+            console.log(player);
+            return player;
         });
     };
 
@@ -356,18 +387,27 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.playerCov;
     };
 
-    function getPlayerBestAt(data, player) {
-
+    function getPlayerBestAt(data, player, opponent) {
+        var tempObj = {};
         var away = data.average_away_gmsc;
         var home = data.average_home_gmsc;
         var diff = Math.abs(parseFloat(data.average_away_gmsc - data.average_home_gmsc));
 
         if ((away > home) && (diff > 1.75)) {
-            return 'Away';
+            tempObj.location = 'Away';
+            tempObj.diff = diff.toFixed(2);
         } else if ((away < home) && (diff > 1.75)) {
-            return 'Home';
+            tempObj.location = 'Home';
+            tempObj.diff = diff.toFixed(2);
+        } else {
+            tempObj.location = 'Neutral';
+            if (opponent.location == '@') {
+                tempObj.diff = parseFloat(data.average_away_gmsc - data.average_home_gmsc).toFixed(2)
+            } else {
+                tempObj.diff = parseFloat(data.average_home_gmsc - data.average_away_gmsc).toFixed(2)
+            }
         }
-        return 'Netural';
+        return tempObj;
     };
 
     function getDkPoints(data, player) {
@@ -420,7 +460,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['min'], stats, position);
                     }
                 } else {
-                    // finalData.dvpRank['positions'][position] = stats;
                     finalData.dvpRank['positions'][position] = {
                         max: stats,
                         min: stats,

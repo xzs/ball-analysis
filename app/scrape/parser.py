@@ -315,6 +315,8 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['basic_info']['age'] = record[3].split('-')[0]
         team = record[4]
         player_dict['basic_info']['team'] = team
+        player_dict['basic_info']['position'] = record[len(record)-1]
+
         # If he played
         if record[1]:
 
