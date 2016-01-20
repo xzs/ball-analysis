@@ -2,17 +2,12 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     var finalData = {};
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
-    // finalData.maxUsage = [];
-    // finalData.lastPerformer = [];
-    // finalData.increaseInMinutes = [];
-    // finalData.playerCov = [];
-    // finalData.bestAt = [];
-    // finalData.dkPoints = [];
     finalData.players = [];
     finalData.dvpRank = {
         positions: {},
         categories: {}
     };
+    finalData.activeTeams = {};
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -267,18 +262,24 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     }
                 });
             }
-            fetch.getDepthChartByTeam(team).then(function (data){
-                _.forEach(data, function(players, position) {
-                    for (var i=0; i<players.length; i++) {
-                        var player = players[i].player;
-                        var status = players[i].status;
-                        getPlayerStats(player, position, opponents, status);
-                    }
-                })
-            });
+            finalData.activeTeams[team] = {};
+            getTeamDepthChart(team, opponents);
         }
         console.log(finalData);
         return finalData;
+    }
+
+    function getTeamDepthChart(team, opponents){
+        fetch.getDepthChartByTeam(team).then(function (data){
+            finalData.activeTeams[team] = data;
+            _.forEach(data, function(players, position) {
+                for (var i=0; i<players.length; i++) {
+                    var player = players[i].player;
+                    var status = players[i].status;
+                    getPlayerStats(player, position, opponents, status);
+                }
+            })
+        });
     }
 
     function getLeagueAverageDefenseVsPositionStats() {
@@ -294,7 +295,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             fetch.getPlayer('2016', player).then(function (data) {
                 // we are basically just going to use these methods as helpers to populate the players object
                 // almost just the if-else methods
-
+                console.log(player);
                 // subsidize the player obj
                 playerObj = data;
                 playerObj.status = status;
@@ -308,14 +309,16 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     playerObj.dvp.season = data[playerPosition]['Season'];
                     playerObj.dvp.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
                 });
+
                 playerObj.usage = parseInt(advData[player]['USG%']);
-                // getMaxUsage(advData, data, player);
+                playerObj.bpm = {
+                    dbpm: parseFloat(advData[player]['DBPM']),
+                    obpm: parseFloat(advData[player]['OBPM']),
+                }
+                // playerObj.ratings = parseInt(advData[player]['USG%']);
                 playerObj.lastGameBetterThanAverage = lastGameVsAverage(data, player);
                 playerObj.minuteIncrease = minuteIncrease(data, player);
-                // getPlayerConsistency(data, player);
                 playerObj.bestAt = getPlayerBestAt(data, player, opponent);
-                // getDkPoints(data, player);
-
                 finalData.players.push(playerObj);
 
             });
@@ -328,7 +331,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             player.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
             player.season = data[playerPosition]['Season'];
             player.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-            console.log(player);
             return player;
         });
     };
@@ -346,15 +348,15 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     function lastGameVsAverage(data, player) {
         var tempObj = {};
         if ((data.last_1_games.dk_points - data.stats.dk_points) > 5) {
-            tempObj.last_1_games = true;
-        } else {
-            tempObj.last_1_games = false;
+            tempObj.last_1_games = 'up';
+        } else if ((data.stats.dk_points - data.last_1_games.dk_points) > 5){
+            tempObj.last_1_games = 'down';
         }
 
         if ((data.last_3_games.dk_points - data.stats.dk_points) > 5) {
-            tempObj.last_3_games = true;
-        } else {
-            tempObj.last_3_games = false;
+            tempObj.last_3_games = 'up';
+        } else if ((data.stats.dk_points - data.last_3_games.dk_points) > 5){
+            tempObj.last_3_games = 'down';
         }
 
         return tempObj;
@@ -363,15 +365,15 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     function minuteIncrease(data, player) {
         var tempObj = {};
         if ((data.last_1_games.playtime - data.stats.playtime) > 5) {
-            tempObj.last_1_games = true;
-        } else {
-            tempObj.last_1_games = false;
+            tempObj.last_1_games = 'up';
+        } else if ((data.stats.playtime - data.last_1_games.playtime > 5)){
+            tempObj.last_1_games = 'down';
         }
 
         if ((data.last_3_games.playtime - data.stats.playtime) > 5) {
-            tempObj.last_3_games = true;
-        } else {
-            tempObj.last_3_games = false;
+            tempObj.last_3_games = 'up';
+        } else if ((data.stats.playtime - data.last_1_games.playtime > 5)){
+            tempObj.last_3_games = 'down';
         }
 
         return tempObj;
@@ -421,23 +423,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.dkPoints;
     };
 
-    /*
-    3PM: "1.3"
-    AST: "2.7"
-    BLK: "1.4"
-    FG%: "41.8"
-    FT%: "73.1"
-    Last 5: "54.3"
-    Last 10: "49.6"
-    PTS: "19.4"
-    REB: "11.1"
-    STL: "1.0"
-    Season: "44.5"
-    TO: "2.1"
-    Team: "Minnesota Timberwolves"
-    Vs. Pos: "PF"
-    rank: 20
-    */
     function getDefenseVsPositionStats(team) {
         var validList = ['3PM', 'AST', 'BLK', 'FG%', 'PTS', 'REB', 'STL'];
 

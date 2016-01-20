@@ -16,7 +16,8 @@ var app = angular.module('ballAnalysisApp', [
     'ngSanitize',
     'ngTouch',
     'slick',
-    'mgcrea.ngStrap'
+    'mgcrea.ngStrap',
+    'anguFixedHeaderTable'
   ]);
 
 app.config(function ($routeProvider) {

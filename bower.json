@@ -16,7 +16,8 @@
     "moment": "*",
     "angular-slick": "*",
     "d3": "*",
-    "angular-strap": "*"
+    "angular-strap": "*",
+    "angu-fixed-header-table": "*"
   },
   "devDependencies": {
     "angular-mocks": "^1.3.0"

@@ -39,6 +39,7 @@ module.exports = function(config) {
       'bower_components/d3/d3.js',
       'bower_components/angular-strap/dist/angular-strap.js',
       'bower_components/angular-strap/dist/angular-strap.tpl.js',
+      'bower_components/angu-fixed-header-table/angu-fixed-header-table.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",
