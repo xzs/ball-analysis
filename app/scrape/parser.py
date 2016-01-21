@@ -706,6 +706,39 @@ def calc_dk_points(stats):
     dk_points = two_decimals(dk_points)
     return dk_points
 
+# This method will calculate the trend for last n number of games
+def last_n_games_adv(csv_f, num_games):
+    # We read the file backwards from the csv file
+    # However, if the file does not fit in memory this method of using reverse will not work
+    logger.debug('Best stretch processing')
+    count = 0
+    # PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
+    ts = 0
+    efg = 0
+    usage = 0
+    ortg = 0
+    drtg = 0
+
+    for record in reversed(list(csv.reader(csv_f))):
+        # If he played
+        if record[1] and count != num_games:
+            if record[10]:
+                ts += float(record[10])
+            if record[19]:
+                usage += float(record[19])
+            if record[20]:
+                ortg += float(record[20])
+            if record[21]:
+                drtg += float(record[21])
+            if record[11]:
+                efg += float(record[11])
+            count +=1
+
+    PLAYER_DICT['last_'+str(num_games)+'_games']['ts'] = two_decimals((ts / num_games)/60)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['usage'] = two_decimals(usage / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['ortg'] = two_decimals(ortg / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['drtg'] = two_decimals(drtg / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['efg'] = two_decimals(efg / num_games)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -747,8 +780,20 @@ for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
             last_n_games(f, 5)
             f.seek(0)
             last_n_games(f, 10)
+            try:
+                with open('player_logs/advanced/'+YEAR+'/'+player_name+'.csv', 'rb') as adv_f:
+                    adv_f.seek(0)
+                    last_n_games_adv(adv_f, 1)
+                    adv_f.seek(0)
+                    last_n_games_adv(adv_f, 3)
+                    adv_f.seek(0)
+                    last_n_games_adv(adv_f, 5)
+                    adv_f.seek(0)
+                    last_n_games_adv(adv_f, 10)
+            except IOError as e:
+                print "Unable to open file" #Does not exist OR no read permissions
             # Dump the json file
-            logger.info('Dumping json for: '+player_name)
+            logger.debug('Dumping json for: '+player_name)
             with open('json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
                 json.dump(PLAYER_DICT, outfile)
 

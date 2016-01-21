@@ -295,7 +295,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             fetch.getPlayer('2016', player).then(function (data) {
                 // we are basically just going to use these methods as helpers to populate the players object
                 // almost just the if-else methods
-                console.log(player);
                 // subsidize the player obj
                 playerObj = data;
                 playerObj.status = status;
@@ -315,9 +314,10 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     dbpm: parseFloat(advData[player]['DBPM']),
                     obpm: parseFloat(advData[player]['OBPM']),
                 }
-                // playerObj.ratings = parseInt(advData[player]['USG%']);
-                playerObj.lastGameBetterThanAverage = lastGameVsAverage(data, player);
-                playerObj.minuteIncrease = minuteIncrease(data, player);
+                playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
+                playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
+                playerObj.minuteIncrease = minuteIncrease(data);
+                playerObj.usageIncrease = usageIncrease(data);
                 playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                 finalData.players.push(playerObj);
 
@@ -345,7 +345,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.maxUsage;
     };
 
-    function lastGameVsAverage(data, player) {
+    function lastGameVsAverage(data) {
         var tempObj = {};
         if ((data.last_1_games.dk_points - data.stats.dk_points) > 5) {
             tempObj.last_1_games = 'up';
@@ -362,7 +362,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return tempObj;
     };
 
-    function minuteIncrease(data, player) {
+    function minuteIncrease(data) {
         var tempObj = {};
         if ((data.last_1_games.playtime - data.stats.playtime) > 5) {
             tempObj.last_1_games = 'up';
@@ -378,6 +378,24 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
         return tempObj;
     };
+
+    function usageIncrease(data) {
+        var tempObj = {};
+        if ((data.last_1_games.usage - data.usage) > 3) {
+            tempObj.last_1_games = 'up';
+        } else if ((data.usage - data.last_1_games.usage > 3)){
+            tempObj.last_1_games = 'down';
+        }
+
+        if ((data.last_3_games.usage - data.usage) > 3) {
+            tempObj.last_3_games = 'up';
+        } else if ((data.usage - data.last_1_games.usage > 3)){
+            tempObj.last_3_games = 'down';
+        }
+
+        return tempObj;
+    };
+
 
     function getPlayerConsistency(data, player) {
         if (parseFloat(data.stats.playtime) > 20) {

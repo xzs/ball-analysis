@@ -141,7 +141,7 @@ def get_fantasy_news():
             new_string += string +'-'
         team_link = new_string[:-1]
 
-        logger.info('Scraping news for: '+ team)
+        logger.debug('Scraping news for: '+ team)
         news_content = []
         url = urllib2.urlopen(NEWS_URL+'/'+team+'/'+team_link)
         soup = BeautifulSoup(url, 'html5lib')
@@ -260,8 +260,8 @@ def get_current_roster(teams_dict):
     players_dict = {}
 
     for team in teams_dict:
-        logger.info('Getting players information for: '+ team)
-        logger.info(BASE_URL+teams_dict[team]['url'])
+        logger.debug('Getting players information for: '+ team)
+        logger.debug(BASE_URL+teams_dict[team]['url'])
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['url'])
         soup = BeautifulSoup(url, 'html5lib')
 
@@ -368,7 +368,7 @@ def get_player_log(players_dict):
         # loop through the array of players
         for player in players_dict[team]:
             for name in player:
-                logger.info('open url for: '+name)
+                logger.debug('open url for: '+name)
                 url = urllib2.urlopen(BASE_URL+player[name]['log'])
                 soup = BeautifulSoup(url, 'html5lib')
                 log_rows = []
@@ -391,6 +391,23 @@ def get_player_log(players_dict):
                         logger.info('Writing log csv for: ' + name)
                         writer.writerows(row for row in log_rows if row)
 
+                adv_table = soup.find('table', attrs={'id':'pgl_advanced'})
+                if adv_table:
+                    adv_log_rows = []
+                    adv_table_body = adv_table.find('tbody')
+                    adv_rows = adv_table_body.find_all('tr')
+                    for row in adv_rows:
+                        adv_temp_row = []
+                        for val in row.find_all('td'):
+                            adv_temp_row.append(val.text.encode('utf8'))
+                        # only add if its not a heading row
+                        if row.find('td'):
+                            adv_temp_row.append(player[name]['position'])
+                        adv_log_rows.append(adv_temp_row)
+                    with open('player_logs/advanced/'+YEAR+'/'+name+'.csv', 'wb') as f:
+                        adv_writer = csv.writer(f)
+                        adv_writer.writerows(row for row in adv_log_rows if row)
+
 # Get the schedule for each team
 def get_team_schedule(teams_dict):
 
@@ -401,7 +418,7 @@ def get_team_schedule(teams_dict):
 
         table = soup.find('table', attrs={'id':'teams_games'})
         if table:
-            logger.info('Getting schedule for: ' + team)
+            logger.debug('Getting schedule for: ' + team)
             table_body = table.find('tbody')
             rows = table_body.find_all('tr')
 
@@ -435,7 +452,6 @@ def get_team_against_position():
 
         team_rank = 0
         matchup_data['league']['position'][position] = {}
-        pp.pprint(matchup_data['league']['position'])
 
         total_stats[position] = {}
         league_total = 0
@@ -504,7 +520,7 @@ def top_n_lineups(n):
         table = soup.find('table', attrs={'id':'stats'})
 
         if table:
-            logger.info('Getting lineups for: ' + team)
+            logger.debug('Getting lineups for: ' + team)
             table_header = table.find('thead')
             header = table_header.find_all('tr')[1]
             categories = header.find_all('th')
