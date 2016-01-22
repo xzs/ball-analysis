@@ -315,10 +315,12 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     obpm: parseFloat(advData[player]['OBPM']),
                 }
                 playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
+                playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
                 playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
                 playerObj.minuteIncrease = minuteIncrease(data);
                 playerObj.usageIncrease = usageIncrease(data);
                 playerObj.bestAt = getPlayerBestAt(data, player, opponent);
+                playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
                 finalData.players.push(playerObj);
 
             });
