@@ -29,7 +29,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment().format("YYYY-MM-DD");
+    $scope.today = moment("2016-01-23").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -150,7 +150,7 @@ app.controller('MainCtrl',
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
 
             $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
-                return (game.time == "8:00p EST");
+                return (game.time == "8:00p EST" || game.time == "8:30p EST");
             });
             console.log($scope.todaySchedule);
 
@@ -248,6 +248,34 @@ app.controller('MainCtrl',
         return $scope.teamPlayers
     }
 
+    $scope.getCombinations = function() {
+        // sort players into buckets
+        // var positions = ['PG', 'SG', 'SF', 'PF', 'C'];
+        var buckets = {};
+        var playersLength = $scope.summaryUsage.players.length;
+        var position, player;
+        for (var i=0; i<playersLength; i++) {
+            player = $scope.summaryUsage.players[i];
+            position = player.basic_info.position;
+            if (player.last_3_games.playtime > 10 && player.status == 'Available' && player.opportunityScore > 0.5 &&
+                !(
+                    player.lastGameBetterThanAverage.last_1_games == 'down'
+                    && player.lastGameBetterThanAverage.last_3_games == 'down'
+                    && player.minuteIncrease.last_1_games == 'down'
+                    && player.minuteIncrease.last_3_games == 'down'
+                )
+            ) {
+                if (!buckets[position]) {
+                    buckets[position] = [];
+                    buckets[position].push($scope.summaryUsage.players[i]);
+                } else {
+                    buckets[position].push($scope.summaryUsage.players[i]);
+                }
+            }
+
+        }
+        console.log(buckets);
+    }
 
     $scope.getPlayerData = function(year, name) {
         $scope.player = name;

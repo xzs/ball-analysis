@@ -226,6 +226,7 @@ def read_player_csv(csv_f, schedule, player_name):
     player_dict['non_starter'] = {}
     player_dict['basic_info'] = {}
     player_dict['basic_info']['name'] = player_name
+    player_dict['dfs_stats'] = {}
 
     player_dict['pre_all_star'] = {}
     player_dict['post_all_star'] = {}
@@ -240,14 +241,6 @@ def read_player_csv(csv_f, schedule, player_name):
     assists_list = []
     rebounds_list = []
 
-    points = 0
-    rebounds = 0
-    assists = 0
-    steals = 0
-    blocks = 0
-    turnovers = 0
-    threes = 0
-
     stats_dict = {
         'all': {
             'points' : 0,
@@ -257,6 +250,7 @@ def read_player_csv(csv_f, schedule, player_name):
             'blocks' : 0,
             'turnovers' : 0,
             'threes' : 0,
+            'fouls' : 0,
             'games': 0
         },
         'as_starter': {
@@ -267,6 +261,7 @@ def read_player_csv(csv_f, schedule, player_name):
             'blocks' : 0,
             'turnovers' : 0,
             'threes' : 0,
+            'fouls' : 0,
             'games': 0
         },
         'non_starter': {
@@ -277,6 +272,7 @@ def read_player_csv(csv_f, schedule, player_name):
             'blocks' : 0,
             'turnovers' : 0,
             'threes' : 0,
+            'fouls' : 0,
             'games': 0
         }
 
@@ -386,6 +382,19 @@ def read_player_csv(csv_f, schedule, player_name):
                 # Create statistic layers for post all star games
                 new_stats_dict(player_dict, 'post_all_star', record)
 
+            if record[30]:
+                dfs_points = float(record[30])
+                if 'max' not in player_dict['dfs_stats']:
+                    player_dict['dfs_stats']['max'] = dfs_points
+                else:
+                    if player_dict['dfs_stats']['max'] < dfs_points:
+                        player_dict['dfs_stats']['max'] = dfs_points
+                if 'min' not in player_dict['dfs_stats']:
+                    player_dict['dfs_stats']['min'] = dfs_points
+                else:
+                    if player_dict['dfs_stats']['min'] > dfs_points:
+                        player_dict['dfs_stats']['min'] = dfs_points
+
     #  For now we only consider players who have played both a home and away game
     if home_games > 0 or away_games > 0:
         logger.debug('First level dictionary values processing')
@@ -455,6 +464,7 @@ def read_player_csv(csv_f, schedule, player_name):
         player_dict['best_stretch']['assists'] = consecutive_sum(assists_list, 5)
         player_dict['best_stretch']['rebounds'] = consecutive_sum(rebounds_list, 5)
 
+
         # Process the stats for pre and post all star
         average_stats(player_dict['pre_all_star'])
         average_stats(player_dict['post_all_star'])
@@ -471,6 +481,7 @@ def process_basic_stats(dict_obj, record):
     dict_obj['blocks'] += float(record[24])
     dict_obj['turnovers'] += float(record[25])
     dict_obj['threes'] += float(record[13])
+    dict_obj['fouls'] += float(record[26])
 
     return dict_obj
 
@@ -484,6 +495,7 @@ def process_summary_stats_def(dict_obj, stats_dict, gmsc):
     dict_obj['blocks'] = two_decimals(float(stats_dict['blocks'] / stats_dict['games']))
     dict_obj['turnovers'] = two_decimals(float(stats_dict['turnovers'] / stats_dict['games']))
     dict_obj['threes'] = two_decimals(float(stats_dict['threes'] / stats_dict['games']))
+    dict_obj['fouls'] = two_decimals(float(stats_dict['fouls'] / stats_dict['games']))
     # avg gmscr
     dict_obj['gmsc'] = two_decimals(float(gmsc /stats_dict['games']))
     dict_obj['dk_points'] = calc_dk_points(dict_obj)
@@ -530,6 +542,7 @@ def new_stats_dict(player_dict, layer, record):
             player_dict[layer]['stats']['blocks'] = float(player_dict[layer]['stats']['blocks'] + float(record[24]))
             player_dict[layer]['stats']['turnovers'] = float(player_dict[layer]['stats']['turnovers'] + float(record[25]))
             player_dict[layer]['stats']['threes'] = float(player_dict[layer]['stats']['threes'] + float(record[13]))
+            player_dict[layer]['stats']['fouls'] = float(player_dict[layer]['stats']['fouls'] + float(record[26]))
         else:
             player_dict[layer]['stats'] = {}
             if layer != 'pre_all_star' and layer != 'post_all_star':
@@ -544,6 +557,7 @@ def new_stats_dict(player_dict, layer, record):
             player_dict[layer]['stats']['blocks'] = float(record[24])
             player_dict[layer]['stats']['turnovers'] = float(record[25])
             player_dict[layer]['stats']['threes'] = float(record[13])
+            player_dict[layer]['stats']['fouls'] = float(record[26])
     else:
         player_dict[layer] = {}
         player_dict[layer]['stats'] = {}
@@ -559,6 +573,7 @@ def new_stats_dict(player_dict, layer, record):
         player_dict[layer]['stats']['blocks'] = float(record[24])
         player_dict[layer]['stats']['turnovers'] = float(record[25])
         player_dict[layer]['stats']['threes'] = float(record[13])
+        player_dict[layer]['stats']['fouls'] = float(record[26])
 
     player_dict[layer]['stats']['dk_points'] = calc_dk_points(player_dict[layer]['stats'])
     return player_dict
@@ -663,6 +678,7 @@ def last_n_games(csv_f, num_games):
     PLAYER_DICT['last_'+str(num_games)+'_games'] = {}
     playtime = 0
     threes = 0
+    fouls = 0
     gmsc = 0
     points = 0
     rebounds = 0
@@ -683,6 +699,7 @@ def last_n_games(csv_f, num_games):
             blocks += float(record[24])
             turnovers += float(record[25])
             threes += float(record[13])
+            fouls += float(record[26])
             count +=1
 
     PLAYER_DICT['last_'+str(num_games)+'_games']['playtime'] = two_decimals((playtime / num_games)/60)
@@ -694,6 +711,7 @@ def last_n_games(csv_f, num_games):
     PLAYER_DICT['last_'+str(num_games)+'_games']['blocks'] = two_decimals(blocks / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['turnovers'] = two_decimals(turnovers / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['threes'] = two_decimals(threes / num_games)
+    PLAYER_DICT['last_'+str(num_games)+'_games']['fouls'] = two_decimals(fouls / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['dk_points'] = calc_dk_points(PLAYER_DICT['last_'+str(num_games)+'_games'])
 
 

@@ -3,6 +3,8 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     var positions = ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'All'];
 
     finalData.players = [];
+    finalData.permArr = [];
+    finalData.usedChars = [];
     finalData.dvpRank = {
         positions: {},
         categories: {}
@@ -265,6 +267,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             finalData.activeTeams[team] = {};
             getTeamDepthChart(team, opponents);
         }
+
         console.log(finalData);
         return finalData;
     }
@@ -276,7 +279,8 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 for (var i=0; i<players.length; i++) {
                     var player = players[i].player;
                     var status = players[i].status;
-                    getPlayerStats(player, position, opponents, status);
+                    var rank = i;
+                    getPlayerStats(player, position, opponents, status, rank);
                 }
             })
         });
@@ -288,7 +292,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         });
     }
 
-    function getPlayerStats(player, position, opponent, status) {
+    function getPlayerStats(player, position, opponent, status, rank) {
         var playerObj;
         fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
             // grab the name of the current player since the player variable has moved on
@@ -298,9 +302,17 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 // subsidize the player obj
                 playerObj = data;
                 playerObj.status = status;
+                playerObj.rank = rank;
+                // console.log(playerObj.rank);
                 playerObj.dvp = {};
                 playerObj.opponent = opponent[data.basic_info.team];
-
+                playerObj.stats.fouls = parseFloat(playerObj.stats.fouls / playerObj.stats.playtime * 36).toFixed(2);
+                // get opponent stats
+                fetch.getDepthChartByTeam(playerObj.opponent.opponent).then(function (data){
+                    if (data[playerPosition][playerObj.rank]){
+                        playerObj.matchup = data[playerPosition][playerObj.rank].player;
+                    }
+                });
                 var playerPosition = data.basic_info.position;
                 fetch.getDefenseVsPositionStats(opponent[data.basic_info.team].opponent).then(function (data){
                     playerObj.dvp.last_5 = data[playerPosition]['Last 5'];
@@ -313,6 +325,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 playerObj.bpm = {
                     dbpm: parseFloat(advData[player]['DBPM']),
                     obpm: parseFloat(advData[player]['OBPM']),
+                    net: parseFloat(parseFloat(advData[player]['OBPM']) + parseFloat(advData[player]['DBPM'])).toFixed(2)
                 }
                 playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                 playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);

@@ -3,10 +3,10 @@
   <div class="panel-heading">
     <b>Players</b>
     <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
-      data-target="#maxval"
+      data-target="#players"
       class="cursor-pointer"></span>
   </div>
-  <div id="categories" class="panel-collapse collapse in">
+  <div id="players" class="panel-collapse collapse in">
     <table class="table table-hover" table-height="550px" fixed-header>
       <thead>
         <!-- we could loop these but for the sake of order we manually put them here-->
@@ -20,13 +20,13 @@
             <a href="" ng-click="order('opponent.opponent')">Opp</a>
             <span class="sortorder" ng-show="predicate === 'opponent.opponent'" ng-class="{reverse:reverse}"></span>
           </th>
-          <th>Pref (> 1.75)</th>
+          <th>Pref</th>
           <th>
-            <a href="" ng-click="order('last_1_games.playtime')">Min (L1)</a>
+            <a href="" ng-click="order('last_1_games.playtime')">Min (1)</a>
             <span class="sortorder" ng-show="predicate === 'last_1_games.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('last_3_games.playtime')">Min (L3)</a>
+            <a href="" ng-click="order('last_3_games.playtime')">Min (3)</a>
             <span class="sortorder" ng-show="predicate === 'last_3_games.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
@@ -34,11 +34,11 @@
             <span class="sortorder" ng-show="predicate === 'stats.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('last_1_games.dk_points')">FP (L1)</a>
+            <a href="" ng-click="order('last_1_games.dk_points')">FP (1)</a>
             <span class="sortorder" ng-show="predicate === 'last_1_games.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('last_3_games.dk_points')">FP (L3)</a>
+            <a href="" ng-click="order('last_3_games.dk_points')">FP (3)</a>
             <span class="sortorder" ng-show="predicate === 'last_3_games.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
@@ -46,15 +46,15 @@
             <span class="sortorder" ng-show="predicate === 'stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('fppPerMinute')">FP/Min (Avg)</a>
+            <a href="" ng-click="order('fppPerMinute')">FP/M (Avg)</a>
             <span class="sortorder" ng-show="predicate === 'fppPerMinute'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('opportunityScore')">OppScr (L3)</a>
+            <a href="" ng-click="order('opportunityScore')">OpS (3)</a>
             <span class="sortorder" ng-show="predicate === 'opportunityScore'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('teams_against[opponent.opponent].stats.dk_points')">Season Vs</a>
+            <a href="" ng-click="order('teams_against[opponent.opponent].stats.dk_points')">Season</a>
             <span class="sortorder" ng-show="predicate === 'teams_against[opponent.opponent].stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
@@ -62,23 +62,31 @@
             <span class="sortorder" ng-show="predicate === 'dvp.last_5'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('bpm.obpm')">OBPM</a>
-            <span class="sortorder" ng-show="predicate === 'bpm.obpm'" ng-class="{reverse:reverse}"></span>
+            <a href="" ng-click="order('dfs_stats.min')">FMin</a>
+            <span class="sortorder" ng-show="predicate === 'dfs_stats.min'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('bpm.dbpm')">DBPM</a>
-            <span class="sortorder" ng-show="predicate === 'bpm.dbpm'" ng-class="{reverse:reverse}"></span>
+            <a href="" ng-click="order('dfs_stats.max')">FMax</a>
+            <span class="sortorder" ng-show="predicate === 'dfs_stats.max'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('bpm.net')">BPM</a>
+            <span class="sortorder" ng-show="predicate === 'bpm.net'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
             <a href="" ng-click="order('cov')">COV</a>
             <span class="sortorder" ng-show="predicate === 'cov'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('last_1_games.usage')">USG (L1)</a>
+            <a href="" ng-click="order('stats.fouls')">F36</a>
+            <span class="sortorder" ng-show="predicate === 'stats.fouls'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('last_1_games.usage')">USG (1)</a>
             <span class="sortorder" ng-show="predicate === 'last_1_games.usage'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('last_3_games.usage')">USG (L3)</a>
+            <a href="" ng-click="order('last_3_games.usage')">USG (3)</a>
             <span class="sortorder" ng-show="predicate === 'last_3_games.usage'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
@@ -92,7 +100,8 @@
             ng-class="playerStatus(player.status)">
           <td>{{player.basic_info.name}}</td>
           <td>{{player.basic_info.position}}</td>
-          <td>{{player.opponent.location}} {{player.opponent.opponent}}</td>
+          <td>{{player.opponent.location}} {{player.opponent.opponent}} 
+            <div>({{player.matchup}})</div></td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.bestAt.diff > 0 && ((player.bestAt.location == 'Away' && player.opponent.location == '@') || (player.bestAt.location == 'Home' && player.opponent.location == 'vs'))}"></i>
             {{player.bestAt.location}} <span ng-if="(player.bestAt.location == 'Away' && player.opponent.location == '@') || (player.bestAt.location == 'Home' && player.opponent.location == 'vs')">({{player.bestAt.diff}})</span>
@@ -121,9 +130,13 @@
               ng-class="{'good-pick': player.teams_against[player.opponent.opponent].stats.dk_points > player.stats.dk_points}">{{player.teams_against[player.opponent.opponent].stats.dk_points}}</td>
           <td ng-if="!player.teams_against[player.opponent.opponent]">N/A</td>
           <td ng-class="{'good-pick': player.dvp['last_5_ratio'] >= 1.15}">{{player.dvp['last_5']}} ({{player.dvp['last_5_ratio']}})</td>
-          <td>{{player.bpm.obpm}}</td>
-          <td>{{player.bpm.dbpm}}</td>
+          <td>{{player.dfs_stats.min}}</td>
+          <td>{{player.dfs_stats.max}}</td>
+          <td>
+          <a href data-animation="am-flip-x" title="OBPM: {{player.bpm.obpm}} / DBPM: {{player.bpm.dbpm}}" bs-tooltip>{{player.bpm.net}}</a>
+          </td>
           <td>{{player.cov}}</td>
+          <td>{{player.stats.fouls}}</td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.usageIncrease.last_1_games == 'up', 'fa fa-arrow-down status-red': player.usageIncrease.last_1_games == 'down'}"></i>
             {{player.last_1_games.usage}}
