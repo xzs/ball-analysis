@@ -213,7 +213,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
     finalData.getMaxVAL = function(data) {
 
-        finalData['maxVAL'] = [];
+        finalData['maxVAL'] = {};
         var dataLength = data.length;
         for (var i=0; i<dataLength; i++) {
             var dataItem = data[i];
@@ -223,21 +223,16 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             var player = {
                 name: dataItem[1],
                 salary: dataItem[2],
-                appg: dataItem[4],
-                VAL : ((parseFloat(dataItem[4]) / parseFloat(dataItem[2])) * 1000).toFixed(2)
+                appg: dataItem[4]
             }
-
-            if (player.VAL > 4.5) {
-                finalData.maxVAL.push(player);
-            }
-
+            finalData['maxVAL'][dataItem[1]] = player;
         }
-        return finalData;
+        return finalData.maxVAL;
     }
 
     finalData.getAllCurrentPlayers = function(teams, games) {
-        var promises = [];
         // get league average
+        finalData.players = [];
         getLeagueAverageDefenseVsPositionStats();
         var opponents = {};
         for (var i=0; i<teams.length; i++) {
@@ -334,6 +329,11 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 playerObj.usageIncrease = usageIncrease(data);
                 playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                 playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
+
+                if (finalData.maxVAL[player]) {
+                    playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.maxVAL[player].salary) * 1000).toFixed(2);
+                    playerObj.salary = finalData.maxVAL[player].salary;
+                }
                 finalData.players.push(playerObj);
 
             });
@@ -366,12 +366,16 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             tempObj.last_1_games = 'up';
         } else if ((data.stats.dk_points - data.last_1_games.dk_points) > 5){
             tempObj.last_1_games = 'down';
+        } else {
+            tempObj.last_1_games = 'none';
         }
 
         if ((data.last_3_games.dk_points - data.stats.dk_points) > 5) {
             tempObj.last_3_games = 'up';
         } else if ((data.stats.dk_points - data.last_3_games.dk_points) > 5){
             tempObj.last_3_games = 'down';
+        } else {
+            tempObj.last_3_games = 'none';
         }
 
         return tempObj;
@@ -383,12 +387,16 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             tempObj.last_1_games = 'up';
         } else if ((data.stats.playtime - data.last_1_games.playtime > 5)){
             tempObj.last_1_games = 'down';
+        } else {
+            tempObj.last_1_games = 'none';
         }
 
         if ((data.last_3_games.playtime - data.stats.playtime) > 5) {
             tempObj.last_3_games = 'up';
         } else if ((data.stats.playtime - data.last_1_games.playtime > 5)){
             tempObj.last_3_games = 'down';
+        } else {
+            tempObj.last_3_games = 'none';
         }
 
         return tempObj;

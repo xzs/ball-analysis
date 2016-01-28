@@ -19,7 +19,6 @@ app.controller('MainCtrl',
     local.salary = 50000;
     local.allPlayers = {};
     local.dkPlayers = {};
-    $scope.years = [2015, 2016];
     $scope.year = 2016;
     $scope.team = 'GSW';
     $scope.player = 'Stephen Curry';
@@ -29,7 +28,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2016-01-23").format("YYYY-MM-DD");
+    $scope.today = moment("2016-01-27").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -144,30 +143,6 @@ app.controller('MainCtrl',
         });
     }
 
-    // get seasons schedule
-    function getLeagueSchedule(year) {
-        fetch.getLeagueSchedule(year).then(function (data) {
-            $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
-
-            $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
-                return (game.time == "8:00p EST" || game.time == "8:30p EST");
-            });
-            console.log($scope.todaySchedule);
-
-            local.allTeams = [];
-            _.forEach($scope.todaySchedule, function(game, key) {
-
-                local.allTeams.push(game.team);
-                local.allTeams.push(game.opp);
-            })
-
-            getSummaryStats(local.allTeams, $scope.todaySchedule);
-        });
-    }
-
-    function getSummaryStats(teams, games) {
-        $scope.summaryUsage = processing.getAllCurrentPlayers(teams, games);
-    }
 
     function getTeamAdvancedStats(team) {
         var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'PTS'];
@@ -243,38 +218,8 @@ app.controller('MainCtrl',
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team];
         getTeamSchedule($scope.year, $scope.team);
-        // getTeamNews($scope.team);
 
         return $scope.teamPlayers
-    }
-
-    $scope.getCombinations = function() {
-        // sort players into buckets
-        // var positions = ['PG', 'SG', 'SF', 'PF', 'C'];
-        var buckets = {};
-        var playersLength = $scope.summaryUsage.players.length;
-        var position, player;
-        for (var i=0; i<playersLength; i++) {
-            player = $scope.summaryUsage.players[i];
-            position = player.basic_info.position;
-            if (player.last_3_games.playtime > 10 && player.status == 'Available' && player.opportunityScore > 0.5 &&
-                !(
-                    player.lastGameBetterThanAverage.last_1_games == 'down'
-                    && player.lastGameBetterThanAverage.last_3_games == 'down'
-                    && player.minuteIncrease.last_1_games == 'down'
-                    && player.minuteIncrease.last_3_games == 'down'
-                )
-            ) {
-                if (!buckets[position]) {
-                    buckets[position] = [];
-                    buckets[position].push($scope.summaryUsage.players[i]);
-                } else {
-                    buckets[position].push($scope.summaryUsage.players[i]);
-                }
-            }
-
-        }
-        console.log(buckets);
     }
 
     $scope.getPlayerData = function(year, name) {
@@ -337,27 +282,6 @@ app.controller('MainCtrl',
 
     }
 
-    $scope.getCSV = function(csv){
-        Papa.parse(csv, {
-            complete: function(results) {
-                // remove the first and last element from the list
-                processCSV(_.dropRight(_.drop(results.data)));
-                $scope.csvComplete = true;
-            }
-        });
-    }
-
-    function processCSV(data) {
-        // process the data into readable JSON format
-        local.dkPlayers = processing.setAllPlayersByTeam(data);
-        $scope.maxVAL = processing.getMaxVAL(data);
-        // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
-        // Therefore, you have to make apply int he end of the onload function
-        // http://stackoverflow.com/a/33038028
-        $scope.$apply();
-
-    };
-
     function processPlayerAdvancedStats(data, name) {
         var playerAdvancedStats = {};
         // TS%, PER, OWS, DWS, OBM, DBM, USG%
@@ -388,20 +312,99 @@ app.controller('MainCtrl',
         return alertObj;
     }
 
-    function init(year) {
-        fetch.getAllPlayers(year).then(function (data) {
-            local.allPlayers = data;
-            $scope.teams = Object.keys(data).sort();
-            $scope.getPlayers($scope.team);
-            $scope.getPlayerData(year, $scope.player);
+    // get seasons schedule
+    function getLeagueSchedule(year, csvData) {
+        fetch.getLeagueSchedule(year).then(function (data) {
+            $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
+
+            $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
+                return (game.time == "9:00p EST" || game.time == "10:30p EST");
+            });
+            console.log($scope.todaySchedule);
+
+            $scope.allTeams = [];
+            _.forEach($scope.todaySchedule, function(game, key) {
+
+                $scope.allTeams.push(game.team);
+                $scope.allTeams.push(game.opp);
+            })
+            $scope.getSummaryStats($scope.allTeams, $scope.todaySchedule, csvData)
+        });
+
+
+    }
+
+    $scope.getSummaryStats = function(teams, games) {
+        $scope.summaryUsage = processing.getAllCurrentPlayers(teams, games);
+    }
+
+    $scope.getCombinations = function() {
+        // sort players into buckets
+        // var positions = ['PG', 'SG', 'SF', 'PF', 'C'];
+        // var buckets = {};
+        var tempList = [];
+        var playersLength = $scope.summaryUsage.players.length;
+        var position, player;
+        for (var i=0; i<playersLength; i++) {
+            player = $scope.summaryUsage.players[i];
+            position = player.basic_info.position;
+            if (player.last_3_games.playtime > 10 && player.status == 'Available' && player.opportunityScore > 0.5 &&
+                !(
+                    player.lastGameBetterThanAverage.last_1_games == 'down'
+                    && player.lastGameBetterThanAverage.last_3_games == 'down'
+                    && player.minuteIncrease.last_1_games == 'down'
+                    && player.minuteIncrease.last_3_games == 'down'
+                )
+            ) {
+                tempList.push($scope.summaryUsage.players[i]);
+                // if (!buckets[position]) {
+                //     buckets[position] = [];
+                //     buckets[position].push($scope.summaryUsage.players[i]);
+                // } else {
+                //     buckets[position].push($scope.summaryUsage.players[i]);
+                // }
+            }
+
+        }
+        $scope.summaryUsage.players = tempList;
+
+    }
+
+    $scope.getCSV = function(csv){
+        Papa.parse(csv, {
+            complete: function(results) {
+                var finalResults = _.dropRight(_.drop(results.data));
+                processing.getMaxVAL(finalResults);
+                getLeagueSchedule($scope.year, finalResults)
+                $scope.$apply();
+                $scope.csvComplete = true;
+            }
         });
     }
 
-    $scope.changeYear = function(year) {
-        init(year);
-    }
+    function processCSV(data) {
+        // process the data into readable JSON format
+        local.dkPlayers = processing.setAllPlayersByTeam(data);
 
-    init($scope.year);
-    getLeagueSchedule($scope.year);
+        // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
+        // Therefore, you have to make apply int he end of the onload function
+        // http://stackoverflow.com/a/33038028
+
+    };
+
+
+    // function init(year) {
+    //     fetch.getAllPlayers(year).then(function (data) {
+    //         local.allPlayers = data;
+    //         $scope.teams = Object.keys(data).sort();
+    //         $scope.getPlayers($scope.team);
+    //         $scope.getPlayerData(year, $scope.player);
+    //     });
+    // }
+
+    // $scope.changeYear = function(year) {
+    //     init(year);
+    // }
+
 
 }]);

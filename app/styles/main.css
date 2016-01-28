@@ -118,6 +118,14 @@ body {
   background-color: #e74c3c;
 }
 
+.warning {
+  background-color: #F7CA18;
+}
+
+.potential {
+  background-color: #A2DED0;
+}
+
 .padding-bottom-10 {
   padding-bottom: 10px;
 }
@@ -174,4 +182,8 @@ body {
 .info-panel {
   height:376px;
   overflow: auto;
+}
+
+.endangered {
+  background-color: #F1A9A0;
 }

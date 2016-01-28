@@ -114,6 +114,11 @@ EASTERN_CONF = {
     'TOR':'Toronto Raptors',
     'WAS':'Washington Wizards'
 }
+
+AMB_PLAYERS = {
+    'Patrick Mills': 'Patty Mills'
+}
+
 '''
     Point = +1 PT
     Made 3pt. shot = +0.5 PTs

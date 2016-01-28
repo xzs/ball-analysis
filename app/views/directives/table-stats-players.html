@@ -54,20 +54,20 @@
             <span class="sortorder" ng-show="predicate === 'opportunityScore'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
+            <a href="" ng-click="order('val')">VAL (3)</a>
+            <span class="sortorder" ng-show="predicate === 'val'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('salary')">$</a>
+            <span class="sortorder" ng-show="predicate === 'salary'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
             <a href="" ng-click="order('teams_against[opponent.opponent].stats.dk_points')">Season</a>
             <span class="sortorder" ng-show="predicate === 'teams_against[opponent.opponent].stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
             <a href="" ng-click="order('dvp.last_5')">Opp DvP</a>
             <span class="sortorder" ng-show="predicate === 'dvp.last_5'" ng-class="{reverse:reverse}"></span>
-          </th>
-          <th>
-            <a href="" ng-click="order('dfs_stats.min')">FMin</a>
-            <span class="sortorder" ng-show="predicate === 'dfs_stats.min'" ng-class="{reverse:reverse}"></span>
-          </th>
-          <th>
-            <a href="" ng-click="order('dfs_stats.max')">FMax</a>
-            <span class="sortorder" ng-show="predicate === 'dfs_stats.max'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
             <a href="" ng-click="order('bpm.net')">BPM</a>
@@ -97,7 +97,7 @@
       </thead>
       <tbody>
         <tr ng-repeat="player in data | orderBy:predicate:reverse"
-            ng-class="playerStatus(player.status)">
+            ng-class="playerStatus(player)">
           <td>{{player.basic_info.name}}</td>
           <td>{{player.basic_info.position}}</td>
           <td>{{player.opponent.location}} {{player.opponent.opponent}} 
@@ -126,17 +126,17 @@
           <td>{{player.stats.dk_points}}</td>
           <td>{{player.fppPerMinute}}</td>
           <td>{{player.opportunityScore}}</td>
+          <td>{{player.val}}</td>
+          <td>{{player.salary}}</td>
           <td ng-if="player.teams_against[player.opponent.opponent]"
               ng-class="{'good-pick': player.teams_against[player.opponent.opponent].stats.dk_points > player.stats.dk_points}">{{player.teams_against[player.opponent.opponent].stats.dk_points}}</td>
           <td ng-if="!player.teams_against[player.opponent.opponent]">N/A</td>
-          <td ng-class="{'good-pick': player.dvp['last_5_ratio'] >= 1.15}">{{player.dvp['last_5']}} ({{player.dvp['last_5_ratio']}})</td>
-          <td>{{player.dfs_stats.min}}</td>
-          <td>{{player.dfs_stats.max}}</td>
+          <td ng-class="{'good-pick': player.dvp['last_5_ratio'] >= 1.15, 'bad-pick': player.dvp['last_5_ratio'] <= 0.90}">{{player.dvp['last_5']}} ({{player.dvp['last_5_ratio']}})</td>
           <td>
           <a href data-animation="am-flip-x" title="OBPM: {{player.bpm.obpm}} / DBPM: {{player.bpm.dbpm}}" bs-tooltip>{{player.bpm.net}}</a>
           </td>
           <td>{{player.cov}}</td>
-          <td>{{player.stats.fouls}}</td>
+          <td ng-class="{'warning': player.stats.fouls >= 4.5}">{{player.stats.fouls}}</td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.usageIncrease.last_1_games == 'up', 'fa fa-arrow-down status-red': player.usageIncrease.last_1_games == 'down'}"></i>
             {{player.last_1_games.usage}}
@@ -146,7 +146,6 @@
             {{player.last_3_games.usage}}
           </td>
           <td ng-class="{'good-pick': player.usage >= 20}">{{player.usage}}</td>
-
         </tr>
       </tbody>
     </table>
