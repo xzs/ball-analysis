@@ -338,34 +338,44 @@ app.controller('MainCtrl',
         $scope.summaryUsage = processing.getAllCurrentPlayers(teams, games);
     }
 
-    $scope.getCombinations = function() {
+    $scope.getCombinations = function(type) {
         // sort players into buckets
         // var positions = ['PG', 'SG', 'SF', 'PF', 'C'];
         // var buckets = {};
         var tempList = [];
         var playersLength = $scope.summaryUsage.players.length;
         var position, player;
-        for (var i=0; i<playersLength; i++) {
-            player = $scope.summaryUsage.players[i];
-            position = player.basic_info.position;
-            if (player.last_3_games.playtime > 10 && player.status == 'Available' && player.opportunityScore > 0.5 &&
-                !(
-                    player.lastGameBetterThanAverage.last_1_games == 'down'
-                    && player.lastGameBetterThanAverage.last_3_games == 'down'
-                    && player.minuteIncrease.last_1_games == 'down'
-                    && player.minuteIncrease.last_3_games == 'down'
-                )
-            ) {
-                tempList.push($scope.summaryUsage.players[i]);
-                // if (!buckets[position]) {
-                //     buckets[position] = [];
-                //     buckets[position].push($scope.summaryUsage.players[i]);
-                // } else {
-                //     buckets[position].push($scope.summaryUsage.players[i]);
-                // }
-            }
 
+        if (type == 'modified') {
+            for (var i=0; i<playersLength; i++) {
+                player = $scope.summaryUsage.players[i];
+                position = player.basic_info.position;
+                if (player.last_3_games.playtime > 10 && player.status == 'Available' && player.opportunityScore > 0.5 &&
+                    !(
+                        player.lastGameBetterThanAverage.last_1_games == 'down'
+                        && player.lastGameBetterThanAverage.last_3_games == 'down'
+                        && player.minuteIncrease.last_1_games == 'down'
+                        && player.minuteIncrease.last_3_games == 'down'
+                    )
+                ) {
+                    tempList.push($scope.summaryUsage.players[i]);
+                    // if (!buckets[position]) {
+                    //     buckets[position] = [];
+                    //     buckets[position].push($scope.summaryUsage.players[i]);
+                    // } else {
+                    //     buckets[position].push($scope.summaryUsage.players[i]);
+                    // }
+                }
+            }
+        } else if (type == 'fourFive') {
+            for (var i=0; i<playersLength; i++) {
+                player = $scope.summaryUsage.players[i];
+                if (player.salary <= 4500) {
+                    tempList.push($scope.summaryUsage.players[i]);
+                }
+            }
         }
+
         $scope.summaryUsage.players = tempList;
 
     }
