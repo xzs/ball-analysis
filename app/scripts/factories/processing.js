@@ -292,31 +292,31 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
             // grab the name of the current player since the player variable has moved on
             fetch.getPlayer('2016', player).then(function (data) {
-                // we are basically just going to use these methods as helpers to populate the players object
-                // almost just the if-else methods
-                // subsidize the player obj
                 playerObj = data;
                 playerObj.status = status;
                 playerObj.rank = rank;
-                // console.log(playerObj.rank);
+
                 playerObj.dvp = {};
                 playerObj.opponent = opponent[data.basic_info.team];
                 playerObj.stats.fouls = parseFloat(playerObj.stats.fouls / playerObj.stats.playtime * 36).toFixed(2);
+
                 // get opponent stats
                 fetch.getDepthChartByTeam(playerObj.opponent.opponent).then(function (data){
                     if (data[playerPosition][playerObj.rank]){
-                        playerObj.matchup = data[playerPosition][playerObj.rank].player;
+                        var oppData = _.find(finalData.players,
+                            {
+                                'basic_info': {
+                                    'name': data[playerPosition][playerObj.rank].player
+                                }
+                            }
+                        );
+                        playerObj.matchup = {
+                            player: data[playerPosition][playerObj.rank].player,
+                            data: oppData
+                        }
                     }
                 });
-                var playerPosition = data.basic_info.position;
-                fetch.getDefenseVsPositionStats(opponent[data.basic_info.team].opponent).then(function (data){
-                    playerObj.dvp.last_5 = data[playerPosition]['Last 5'];
-                    playerObj.dvp.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-                    playerObj.dvp.season = data[playerPosition]['Season'];
-                    playerObj.dvp.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-                });
 
-                playerObj.usage = parseInt(advData[player]['USG%']);
                 playerObj.bpm = {
                     dbpm: parseFloat(advData[player]['DBPM']),
                     obpm: parseFloat(advData[player]['OBPM']),
@@ -325,10 +325,12 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                 playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
                 playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
+
                 playerObj.minuteIncrease = minuteIncrease(data);
                 playerObj.usageIncrease = usageIncrease(data);
                 playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                 playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
+                playerObj.usage = parseInt(advData[player]['USG%']);
 
                 if (finalData.maxVAL[player]) {
                     playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.maxVAL[player].salary) * 1000).toFixed(2);
@@ -338,6 +340,51 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 fetch.getTeamNews(data.basic_info.team).then(function (data) {
                     playerObj.news = _.find(data, { 'player': player});
                 });
+
+                var playerPosition = data.basic_info.position;
+                fetch.getDefenseVsPositionStats(opponent[data.basic_info.team].opponent).then(function (data){
+                    playerObj.dvp.last_5 = data[playerPosition]['Last 5'];
+                    playerObj.dvp.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
+                    playerObj.dvp.season = data[playerPosition]['Season'];
+                    playerObj.dvp.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
+
+                    playerObj.tempWeightedNet;
+                    if (playerObj.opportunityScore && playerObj.val && playerObj.salary) {
+                        playerObj.tempWeightedNet = parseFloat(0.35*playerObj.opportunityScore + 0.1*playerObj.dvp.last_5 + 0.1*playerObj.last_3_games.playtime
+                            + 0.2*playerObj.val + 0.1*playerObj.stats.dk_points + 0.15*playerObj.usage);
+
+                        if (playerObj.lastGameBetterThanAverage.last_1_games == 'up') {
+                            playerObj.tempWeightedNet += 0.5;
+                        } else if (playerObj.lastGameBetterThanAverage.last_1_games == 'down') {
+                            playerObj.tempWeightedNet -= 0.5;
+                        }
+
+                        if (playerObj.lastGameBetterThanAverage.last_3_games == 'up') {
+                            playerObj.tempWeightedNet += 0.5;
+                        } else if (playerObj.lastGameBetterThanAverage.last_3_games == 'down') {
+                            playerObj.tempWeightedNet -= 0.5;
+                        }
+
+                        if (playerObj.minuteIncrease.last_1_games == 'up') {
+                            playerObj.tempWeightedNet += 0.5;
+                        } else if (playerObj.minuteIncrease.last_1_games == 'down') {
+                            playerObj.tempWeightedNet -= 0.5;
+                        }
+
+                        if (playerObj.minuteIncrease.last_3_games == 'up') {
+                            playerObj.tempWeightedNet += 0.5;
+                        } else if (playerObj.minuteIncrease.last_3_games == 'down') {
+                            playerObj.tempWeightedNet -= 0.5;
+                        }
+                        playerObj.tempWeightedNet = playerObj.tempWeightedNet.toFixed(2);
+                    } else {
+                        playerObj.tempWeightedNet = 0;
+                    }
+
+                });
+
+                console.log(playerObj.dvp.last_5);
+
                 finalData.players.push(playerObj);
 
             });

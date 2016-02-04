@@ -30,7 +30,7 @@
             <span class="sortorder" ng-show="predicate === 'last_3_games.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('stats.playtime')">Min (Avg)</a>
+            <a href="" ng-click="order('stats.playtime')">Min</a>
             <span class="sortorder" ng-show="predicate === 'stats.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
@@ -42,16 +42,20 @@
             <span class="sortorder" ng-show="predicate === 'last_3_games.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('stats.dk_points')">FP (Avg)</a>
+            <a href="" ng-click="order('stats.dk_points')">FP</a>
             <span class="sortorder" ng-show="predicate === 'stats.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
-            <a href="" ng-click="order('fppPerMinute')">FP/M (Avg)</a>
+            <a href="" ng-click="order('fppPerMinute')">FP/M</a>
             <span class="sortorder" ng-show="predicate === 'fppPerMinute'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
             <a href="" ng-click="order('opportunityScore')">OpS (3)</a>
             <span class="sortorder" ng-show="predicate === 'opportunityScore'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('tempWeightedNet')">tW</a>
+            <span class="sortorder" ng-show="predicate === 'tempWeightedNet'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
             <a href="" ng-click="order('val')">VAL (3)</a>
@@ -108,7 +112,7 @@
           </td>
           <td>{{player.basic_info.position}}</td>
           <td>{{player.opponent.location}} {{player.opponent.opponent}} 
-            <div>({{player.matchup}})</div></td>
+            <div>({{player.matchup.player}} - ({{player.matchup.data.bpm.dbpm}})</div></td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.bestAt.diff > 0 && 
               ((player.bestAt.location == 'Away' && player.opponent.location == '@') || 
@@ -144,7 +148,11 @@
           <td>{{player.stats.dk_points}}</td>
           <td>{{player.fppPerMinute}}</td>
           <td>{{player.opportunityScore}}</td>
-          <td>{{player.val}}</td>
+          <td>{{player.tempWeightedNet}}</td>
+          <td ng-class="{'good-pick': player.val >= 5,
+            'bad-pick': player.val <= 4 && player.stats.dk_points <= 35}">
+            {{player.val}}
+          </td>
           <td>{{player.salary}}</td>
           <td ng-if="player.teams_against[player.opponent.opponent]"
               ng-class="{'good-pick': player.teams_against[player.opponent.opponent].stats.dk_points > player.stats.dk_points}">

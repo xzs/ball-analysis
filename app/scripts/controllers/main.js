@@ -28,7 +28,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2016-02-03").format("YYYY-MM-DD");
+    $scope.today = moment("2016-02-04").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -318,7 +318,7 @@ app.controller('MainCtrl',
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
 
             $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
-                return (game.time == "10:00p EST" || game.time == "10:30p EST");
+                return (game.time == "10:00p EST" || game.time == "9:30p EST");
             });
             console.log($scope.todaySchedule);
 
@@ -339,9 +339,6 @@ app.controller('MainCtrl',
     }
 
     $scope.getCombinations = function(type) {
-        // sort players into buckets
-        // var positions = ['PG', 'SG', 'SF', 'PF', 'C'];
-        // var buckets = {};
         var tempList = [];
         var playersLength = $scope.summaryUsage.players.length;
         var position, player;
@@ -359,12 +356,6 @@ app.controller('MainCtrl',
                     )
                 ) {
                     tempList.push($scope.summaryUsage.players[i]);
-                    // if (!buckets[position]) {
-                    //     buckets[position] = [];
-                    //     buckets[position].push($scope.summaryUsage.players[i]);
-                    // } else {
-                    //     buckets[position].push($scope.summaryUsage.players[i]);
-                    // }
                 }
             }
         } else if (type == 'fourFive') {
