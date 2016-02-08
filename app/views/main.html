@@ -12,48 +12,53 @@
   <h2 class="panel-heading">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
-      <div ng-click="getTeamStats(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}} ({{game.location}})</div>
+      <div ng-click="getLineUps(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}} ({{game.location}})</div>
       <div>{{game.time}}</div>
     </div>
   </slick>
 </div>
 
 <div ng-if="csvComplete">
+
   <div class="row padding-bottom-20">
-    <div class="col-lg-12 col-md-12 col-sm-12">
-      <div ng-class="{'col-lg-8 col-md-8 col-sm-12': maxVAL}">
+    <div class="col-lg-6 col-md-6 col-sm-6">
         <stats-table
             data='summaryUsage.dvpRank.positions'
             type='worst-positions'>
         </stats-table>
-      </div>
-      <div class="col-lg-4 col-md-4 col-sm-12"
-            ng-class="{'info-panel': maxVAL}"
-            ng-if"maxVAL">
-        <stats-table
-            data='maxVAL.maxVAL'
-            type='max-val'>
-        </stats-table>
-      </div>
     </div>
-  </div>
-
-  <div class="row padding-bottom-20">
-    <div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="col-lg-6 col-md-6 col-sm-6">
       <stats-table
             data='summaryUsage.dvpRank.categories'
             type='worst-categories'>
       </stats-table>
     </div>
   </div>
-  <div style="padding-bottom:5px;">
-    <button ng-click="getCombinations('modified')" class="btn btn-success btn-sm">Get Modified Lineup</button>
-    <button ng-click="getCombinations('fourFive')" class="btn btn-success btn-sm">4.5k Under Club</button>
-    <button ng-click="findBestPack(summaryUsage.tempPlayers)" class="btn btn-info btn-sm">Optimize</button>
-    <button ng-click="getSummaryStats(allTeams, todaySchedule)" class="btn btn-danger btn-sm">Reset</button>
+
+  <div class="row padding-bottom-20">
+    <!-- advanced team stats table -->
+    <div class="col-lg-12 col-md-12 col-sm-12">
+      <stats-table
+            data='teamAdvancedStats'
+            type='advanced'>
+      </stats-table>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-6"
+        ng-repeat="(teamName, team) in teamLineups">
+        <stats-table data="team"
+          heading="teamName"
+          type="lineup">
+        </stats-table>
+    </div>
   </div>
 
   <div class="row padding-bottom-20">
+    <div class="col-lg-12 col-md-12 col-sm-12" style="padding-bottom:5px;">
+      <button ng-click="getCombinations('modified')" class="btn btn-success btn-sm">Get Modified Lineup</button>
+      <button ng-click="getCombinations('fourFive')" class="btn btn-warning btn-sm">4.5k Under Club</button>
+      <!-- <button ng-click="findBestPack(summaryUsage.tempPlayers)" class="btn btn-info btn-sm">Optimize</button> -->
+      <button ng-click="getSummaryStats(allTeams, todaySchedule)" class="btn btn-danger btn-sm">Reset</button>
+    </div>
     <div class="col-lg-12 col-md-12 col-sm-12">
       <stats-table
             data='summaryUsage.players'
@@ -110,14 +115,7 @@
   </div>
 </div> -->
 
-<stats-table data="teamLineups"
-  type="lineup">
-</stats-table>
-<!-- advanced team stats table -->
-<stats-table
-      data='teamAdvancedStats'
-      type='advanced'>
-</stats-table>
+
 <stats-table
       data='teamDepthChart'
       fantasy='teamFantasyStats'

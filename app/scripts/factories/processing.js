@@ -319,8 +319,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                             player: data[playerPosition][playerObj.rank].player,
                             data: oppData
                         }
-                    } else {
-                        console.log("bye");
                     }
                 });
 

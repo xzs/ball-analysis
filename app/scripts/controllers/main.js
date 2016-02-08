@@ -215,6 +215,16 @@ app.controller('MainCtrl',
 
     }
 
+    $scope.getLineUps = function(teams) {
+        $scope.teamLineups = {};
+        $scope.teamAdvancedStats = {};
+        
+        getLineupsByTeam(teams.team);
+        getLineupsByTeam(teams.opp);
+        getTeamAdvancedStats(teams.opp);
+        getTeamAdvancedStats(teams.team);
+    }
+
     $scope.getPlayers = function(team) {
         $scope.teamPlayers = local.allPlayers[team];
         getTeamSchedule($scope.year, $scope.team);

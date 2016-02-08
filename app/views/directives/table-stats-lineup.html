@@ -1,5 +1,5 @@
-<div class="panel panel-default" style="margin-top: 50px;" ng-if="data">
-  <div class="panel-heading"><b>Top Lineups</b></div>
+<div class="panel panel-default" ng-if="data">
+  <div class="panel-heading"><b>{{heading}}</b></div>
   <table class="table table-striped">
     <thead>
       <!-- we could loop these but for the sake of order we manually put them here-->
@@ -16,9 +16,8 @@
         <th>PTS</th>
       </tr>
     </thead>
-    <tbody ng-repeat="(key, value) in data">
-      <tr><td>{{key}}</td></tr>
-      <tr ng-repeat="category in value">
+    <tbody>
+      <tr ng-repeat="category in data">
           <td>
             {{category['Rk']}}
           </td>
@@ -34,10 +33,12 @@
           <td>
             {{category['Pace']}}
           </td>
-          <td>
+          <td ng-class="{'good-pick': category['FG'] >= 10,
+              'bad-pick': category['FG'] <= -10}">
             {{category['FG']}}
           </td>
-          <td>
+          <td ng-class="{'good-pick': category['FGA'] >= 10,
+              'bad-pick': category['FGA'] <= -10}">
             {{category['FGA']}}
           </td>
           <td>
