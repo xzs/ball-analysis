@@ -515,6 +515,18 @@ def top_n_lineups(n):
         else:
             team_url = team
 
+        # reverse read the csv
+        with open('team_schedules/'+YEAR+'/'+team+'.csv', 'r') as outfile:
+            for row in reversed(list(csv.reader(outfile))):
+                if row[7]:
+                    last_3_game = int(row[0])-3
+                    break
+
+        LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.cgi?'\
+            'request=1&player_id=&match=single&lineup_type=5-man&output=total&year_id='+YEAR+'&is_playoffs=N&'\
+            'opp_id=&game_num_min='+str(last_3_game)+'&game_num_max=99&game_month=&game_location=&game_result=&'\
+            'c1stat=&c1comp=ge&c1val=&c2stat=&c2comp=ge&c2val=&c3stat=&c3comp=ge&c3val=&c4stat=&c4comp=ge&c4val=&order_by=mp&team_id='
+
         url = urllib2.urlopen(LINEUP_URL+team_url)
         soup = BeautifulSoup(url, 'html5lib')
 
@@ -551,16 +563,19 @@ def top_n_lineups(n):
             json.dump(lineup, outfile)
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-# get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-# get_player_log(PLAYERS_DICT)
+# teams_dict = get_active_teams()
+# # get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# # get_player_log(PLAYERS_DICT)
 
-get_player_log(PLAYERS_DICT['LAC'])
-get_player_log(PLAYERS_DICT['MIN'])
 
-get_depth_chart()
-get_fantasy_news()
-get_team_against_position()
+# # get_player_log(PLAYERS_DICT['TOR'])
+# # get_player_log(PLAYERS_DICT['DET'])
+# # get_player_log(PLAYERS_DICT['DEN'])
+# get_player_log(PLAYERS_DICT['BRK'])
+
+# get_depth_chart()
+# get_fantasy_news()
+# get_team_against_position()
 
 top_n_lineups(5)

@@ -112,7 +112,7 @@
           </td>
           <td>{{player.basic_info.position}}</td>
           <td>{{player.opponent.location}} {{player.opponent.opponent}} 
-            <div>({{player.matchup.player}} - ({{player.matchup.data.bpm.dbpm}})</div></td>
+            <div>({{player.matchup.player}})</div></td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.bestAt.diff > 0 && 
               ((player.bestAt.location == 'Away' && player.opponent.location == '@') || 
@@ -148,7 +148,7 @@
           <td>{{player.stats.dk_points}}</td>
           <td>{{player.fppPerMinute}}</td>
           <td>{{player.opportunityScore}}</td>
-          <td>{{player.tempWeightedNet}}</td>
+          <td>{{player.tempWeightedNet}} ({{player.weightedRatio}})</td>
           <td ng-class="{'good-pick': player.val >= 5,
             'bad-pick': player.val <= 4 && player.stats.dk_points <= 35}">
             {{player.val}}
