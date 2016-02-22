@@ -28,7 +28,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2016-02-08").format("YYYY-MM-DD");
+    $scope.today = moment("2016-02-21").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -145,7 +145,7 @@ app.controller('MainCtrl',
 
 
     function getTeamAdvancedStats(team) {
-        var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'PTS'];
+        var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS'];
         // ORtg DRtg Pace MOV FGA TRB AST STL BLK PTS
         $scope.teamAdvancedStats[team] = {};
         $scope.teamAdvancedStats['header'] = [];
@@ -160,6 +160,7 @@ app.controller('MainCtrl',
 
     function getDefenseVsPositionStats(team) {
         $scope.teamFantasyStats[team] = {};
+        console.log('here');
         fetch.getDefenseVsPositionStats(team).then(function (data){
             $scope.teamFantasyStats[team] = data;
             _.forEach(data, function(stats, position){
@@ -218,7 +219,7 @@ app.controller('MainCtrl',
     $scope.getLineUps = function(teams) {
         $scope.teamLineups = {};
         $scope.teamAdvancedStats = {};
-        
+
         getLineupsByTeam(teams.team);
         getLineupsByTeam(teams.opp);
         getTeamAdvancedStats(teams.opp);
@@ -328,9 +329,8 @@ app.controller('MainCtrl',
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
 
             $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
-                return (game.time == "7:30p EST" || game.time == "9:30p EST");
+                return (game.time == "7:00p EST" || game.time == "8:00p EST" || game.time == "9:00p EST");
             });
-            console.log($scope.todaySchedule);
 
             $scope.allTeams = [];
             _.forEach($scope.todaySchedule, function(game, key) {

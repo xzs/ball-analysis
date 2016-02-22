@@ -159,7 +159,7 @@
               {{player.teams_against[player.opponent.opponent].stats.dk_points}}
           </td>
           <td ng-if="!player.teams_against[player.opponent.opponent]">N/A</td>
-          <td ng-class="{'good-pick': player.dvp['last_5_ratio'] >= 1.15, 
+          <td ng-class="{'good-pick': player.dvp['last_5_ratio'] >= 1.15,
             'bad-pick': player.dvp['last_5_ratio'] <= 0.90}">
             {{player.dvp['last_5']}} ({{player.dvp['last_5_ratio']}})
           </td>

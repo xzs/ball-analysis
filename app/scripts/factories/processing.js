@@ -6,10 +6,14 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.tempPlayers = [];
     finalData.permArr = [];
     finalData.usedChars = [];
+    // rank
     finalData.dvpRank = {
         positions: {},
         categories: {}
     };
+    // by team
+    finalData.dvpStats = {};
+    finalData.news = {};
     finalData.activeTeams = {};
 
     var calcPlayerCostToPoints = function(player) {
@@ -235,11 +239,13 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.getAllCurrentPlayers = function(teams, games) {
         // get league average
         finalData.players = [];
-        getLeagueAverageDefenseVsPositionStats();
+        // getLeagueAverageDefenseVsPositionStats();
+        getDefenseVsPositionStats('league');
         var opponents = {};
         for (var i=0; i<teams.length; i++) {
-            getDefenseVsPositionStats(team);
             var team = teams[i];
+            getDefenseVsPositionStats(team);
+            getTeamNews(team);
             // get opponents
             if (!opponents[team]) {
                 opponents[team] = {};
@@ -262,14 +268,14 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                 });
             }
             finalData.activeTeams[team] = {};
-            getTeamDepthChart(team, opponents);
+            getTeamDepthChart(team, opponents[team]);
         }
 
         console.log(finalData);
         return finalData;
     }
 
-    function getTeamDepthChart(team, opponents){
+    function getTeamDepthChart(team, opponent){
         fetch.getDepthChartByTeam(team).then(function (data){
             finalData.activeTeams[team] = data;
             _.forEach(data, function(players, position) {
@@ -277,147 +283,157 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     var player = players[i].player;
                     var status = players[i].status;
                     var rank = i;
-                    getPlayerStats(player, position, opponents, status, rank);
+                    getPlayerStats(player, position, opponent, status, rank);
                 }
             })
         });
     }
 
-    function getLeagueAverageDefenseVsPositionStats() {
-        fetch.getDefenseVsPositionStats('league').then(function (data){
-            finalData['leagueAverageDvP'] = data;
+
+    function getDefenseVsPositionStats(team) {
+        fetch.getDefenseVsPositionStats(team).then(function (data){
+            finalData.dvpStats[team] = data;
+            // rank the stats
+            if (team != 'league') {
+                getDefenseVsPositionStatsRank(team, data);
+            }
+        });
+    }
+
+    function getTeamNews(team) {
+        fetch.getTeamNews(team).then(function (data) {
+            finalData.news[team] = data;
         });
     }
 
     function getPlayerStats(player, position, opponent, status, rank) {
         var playerObj;
-        fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
-            // grab the name of the current player since the player variable has moved on
-            fetch.getPlayer('2016', player).then(function (data) {
-                playerObj = data;
-                playerObj.status = status;
-                playerObj.rank = rank;
-                // use DK position
-                playerObj.basic_info.position = finalData.dkPlayers[player].position;
+        // if the player is even in the csv
+        if (finalData.dkPlayers[player]) {
+            fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
+                // grab the name of the current player since the player variable has moved on
+                fetch.getPlayer('2016', player).then(function (data) {
+                    playerObj = data;
+                    playerObj.status = status;
+                    playerObj.rank = rank;
+                    // use DK position
+                    playerObj.basic_info.position = finalData.dkPlayers[player].position;
 
-                playerObj.dvp = {};
-                playerObj.opponent = opponent[data.basic_info.team];
-                playerObj.stats.fouls = parseFloat(playerObj.stats.fouls / playerObj.stats.playtime * 36).toFixed(2);
+                    playerObj.dvp = {};
+                    playerObj.opponent = opponent;
+                    playerObj.stats.fouls = parseFloat(playerObj.stats.fouls / playerObj.stats.playtime * 36).toFixed(2);
 
-                var playerPosition = finalData.dkPlayers[player].position;
-                // this needs to be refactored outside
-                fetch.getDepthChartByTeam(playerObj.opponent.opponent).then(function (data){
-                    if (data[playerPosition][playerObj.rank]){
-                        var oppData = _.find(finalData.players,
-                            {
-                                'basic_info': {
-                                    'name': data[playerPosition][playerObj.rank].player
+                    var playerPosition = playerObj.basic_info.position;
+                    var playerOpponent = playerObj.opponent['opponent'];
+                    // this needs to be refactored outside
+                    if (playerOpponent) {
+                        var opponentData = finalData.activeTeams[playerOpponent];
+                        // Get the opponent data
+                        if (opponentData && opponentData[playerPosition][playerObj.rank]) {
+                            var oppData = _.find(finalData.players,
+                                {
+                                    'basic_info': {
+                                        'name': opponentData[playerPosition][playerObj.rank].player
+                                    }
                                 }
+                            );
+                            playerObj.matchup = {
+                                player: opponentData[playerPosition][playerObj.rank].player,
+                                data: oppData
                             }
-                        );
-                        playerObj.matchup = {
-                            player: data[playerPosition][playerObj.rank].player,
-                            data: oppData
                         }
                     }
-                });
 
-                playerObj.bpm = {
-                    dbpm: parseFloat(advData[player]['DBPM']),
-                    obpm: parseFloat(advData[player]['OBPM']),
-                    net: parseFloat(parseFloat(advData[player]['OBPM']) + parseFloat(advData[player]['DBPM'])).toFixed(2)
-                }
-                playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
-                playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
-                playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
-
-                playerObj.minuteIncrease = minuteIncrease(data);
-                playerObj.usageIncrease = usageIncrease(data);
-                playerObj.bestAt = getPlayerBestAt(data, player, opponent);
-                playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
-                playerObj.usage = parseInt(advData[player]['USG%']);
-
-                if (finalData.dkPlayers[player]) {
-                    playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.dkPlayers[player].salary) * 1000).toFixed(2);
-                    playerObj.salary = finalData.dkPlayers[player].salary;
-                }
-
-                fetch.getTeamNews(data.basic_info.team).then(function (data) {
-                    playerObj.news = _.find(data, { 'player': player});
-                });
-
-                // use DK position
-                fetch.getDefenseVsPositionStats(opponent[data.basic_info.team].opponent).then(function (data){
-                    playerObj.dvp.last_5 = data[playerPosition]['Last 5'];
-                    playerObj.dvp.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-                    playerObj.dvp.season = data[playerPosition]['Season'];
-                    playerObj.dvp.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-
-
-                    playerObj.simpleProjection = parseFloat(playerObj.last_3_games.dk_points * playerObj.dvp.last_5_ratio);
-                    var tempWeightedNet, avgWeightedNet;
-                    if (playerObj.opportunityScore && playerObj.val && playerObj.salary) {
-                        tempWeightedNet = parseFloat(0.35*playerObj.opportunityScore + 0.1*playerObj.dvp.last_5 + 0.1*playerObj.last_3_games.playtime
-                            + 0.2*playerObj.val + 0.1*playerObj.last_3_games.dk_points + 0.15*playerObj.last_3_games.usage);
-
-                        avgWeightedNet = parseFloat(0.35*playerObj.fppPerMinute + 0.1*playerObj.dvp.season + 0.1*playerObj.stats.playtime
-                            + 0.2*playerObj.val + 0.1*playerObj.stats.dk_points + 0.15*playerObj.usage);
-
-                        if (playerObj.lastGameBetterThanAverage.last_1_games == 'up') {
-                            tempWeightedNet += 0.5;
-                        } else if (playerObj.lastGameBetterThanAverage.last_1_games == 'down') {
-                            tempWeightedNet -= 0.5;
-                        }
-
-                        if (playerObj.lastGameBetterThanAverage.last_3_games == 'up') {
-                            tempWeightedNet += 0.5;
-                        } else if (playerObj.lastGameBetterThanAverage.last_3_games == 'down') {
-                            tempWeightedNet -= 0.5;
-                        }
-
-                        if (playerObj.minuteIncrease.last_1_games == 'up') {
-                            tempWeightedNet += 0.5;
-                        } else if (playerObj.minuteIncrease.last_1_games == 'down') {
-                            tempWeightedNet -= 0.5;
-                        }
-
-                        if (playerObj.minuteIncrease.last_3_games == 'up') {
-                            tempWeightedNet += 0.5;
-                        } else if (playerObj.minuteIncrease.last_3_games == 'down') {
-                            tempWeightedNet -= 0.5;
-                        }
-                        tempWeightedNet = tempWeightedNet.toFixed(2);
-                        avgWeightedNet = avgWeightedNet.toFixed(2);
-                    } else {
-                        tempWeightedNet = 0;
+                    playerObj.bpm = {
+                        dbpm: parseFloat(advData[player]['DBPM']),
+                        obpm: parseFloat(advData[player]['OBPM']),
+                        net: parseFloat(parseFloat(advData[player]['OBPM']) + parseFloat(advData[player]['DBPM'])).toFixed(2)
                     }
-                    playerObj.tempWeightedNet = tempWeightedNet;
-                    playerObj.avgWeightedNet = avgWeightedNet;
-                    playerObj.weightedRatio = (tempWeightedNet / avgWeightedNet).toFixed(2);
-                    // finalData.tempPlayers.push({
-                    //     'name': player,
-                    //     'weight': playerObj.salary,
-                    //     'value': playerObj.simpleProjection,
-                    //     'pieces': 1
-                    // })
-                    if (tempWeightedNet > 10) {
-                        finalData.players.push(playerObj);
+                    playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
+                    playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
+                    playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
+
+                    playerObj.minuteIncrease = minuteIncrease(data);
+                    playerObj.usageIncrease = usageIncrease(data);
+                    playerObj.bestAt = getPlayerBestAt(data, player, opponent);
+                    playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
+                    playerObj.usage = parseInt(advData[player]['USG%']);
+
+                    if (finalData.dkPlayers[player]) {
+                        playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.dkPlayers[player].salary) * 1000).toFixed(2);
+                        playerObj.salary = finalData.dkPlayers[player].salary;
+                    }
+
+                    playerObj.news = _.find(finalData.news[data.basic_info.team], { 'player': player});
+
+                    // use DK position
+                    if (playerOpponent) {
+                        var dvpStats = finalData.dvpStats[playerOpponent];
+                        // fetch.getDefenseVsPositionStats(playerOpponent).then(function (dvpStats){
+                            playerObj.dvp.last_5 = dvpStats[playerPosition]['Last 5'];
+                            playerObj.dvp.last_5_ratio = parseFloat(dvpStats[playerPosition]['Last 5']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
+                            playerObj.dvp.season = dvpStats[playerPosition]['Season'];
+                            playerObj.dvp.season_ratio = parseFloat(dvpStats[playerPosition]['Season']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
+
+
+                            playerObj.simpleProjection = parseFloat(playerObj.last_3_games.dk_points * playerObj.dvp.last_5_ratio);
+                            var tempWeightedNet, avgWeightedNet;
+                            if (playerObj.opportunityScore && playerObj.val && playerObj.salary) {
+                                tempWeightedNet = parseFloat(0.35*playerObj.opportunityScore + 0.1*playerObj.dvp.last_5 + 0.1*playerObj.last_3_games.playtime
+                                    + 0.2*playerObj.val + 0.1*playerObj.last_3_games.dk_points + 0.15*playerObj.last_3_games.usage);
+
+                                avgWeightedNet = parseFloat(0.35*playerObj.fppPerMinute + 0.1*playerObj.dvp.season + 0.1*playerObj.stats.playtime
+                                    + 0.2*playerObj.val + 0.1*playerObj.stats.dk_points + 0.15*playerObj.usage);
+
+                                if (playerObj.lastGameBetterThanAverage.last_1_games == 'up') {
+                                    tempWeightedNet += 0.5;
+                                } else if (playerObj.lastGameBetterThanAverage.last_1_games == 'down') {
+                                    tempWeightedNet -= 0.5;
+                                }
+
+                                if (playerObj.lastGameBetterThanAverage.last_3_games == 'up') {
+                                    tempWeightedNet += 0.5;
+                                } else if (playerObj.lastGameBetterThanAverage.last_3_games == 'down') {
+                                    tempWeightedNet -= 0.5;
+                                }
+
+                                if (playerObj.minuteIncrease.last_1_games == 'up') {
+                                    tempWeightedNet += 0.5;
+                                } else if (playerObj.minuteIncrease.last_1_games == 'down') {
+                                    tempWeightedNet -= 0.5;
+                                }
+
+                                if (playerObj.minuteIncrease.last_3_games == 'up') {
+                                    tempWeightedNet += 0.5;
+                                } else if (playerObj.minuteIncrease.last_3_games == 'down') {
+                                    tempWeightedNet -= 0.5;
+                                }
+                                tempWeightedNet = tempWeightedNet.toFixed(2);
+                                avgWeightedNet = avgWeightedNet.toFixed(2);
+                            } else {
+                                tempWeightedNet = 0;
+                            }
+                            playerObj.tempWeightedNet = tempWeightedNet;
+                            playerObj.avgWeightedNet = avgWeightedNet;
+                            playerObj.weightedRatio = (tempWeightedNet / avgWeightedNet).toFixed(2);
+                            // finalData.tempPlayers.push({
+                            //     'name': player,
+                            //     'weight': playerObj.salary,
+                            //     'value': playerObj.simpleProjection,
+                            //     'pieces': 1
+                            // })
+                            if (tempWeightedNet > 10) {
+                                finalData.players.push(playerObj);
+                            }
+
+                        // });
                     }
 
                 });
             });
-        });
+        }
     };
 
-    function getDefenseVsPositionByTeam(player, team, playerPosition) {
-        fetch.getDefenseVsPositionStats(team).then(function (data){
-            player.last_5 = data[playerPosition]['Last 5'];
-            player.last_5_ratio = parseFloat(data[playerPosition]['Last 5']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-            player.season = data[playerPosition]['Season'];
-            player.season_ratio = parseFloat(data[playerPosition]['Season']/ finalData.leagueAverageDvP['position'][playerPosition].average).toFixed(2);
-            return player;
-        });
-    };
 
     function getMaxUsage(advData, data, player) {
         if (parseInt(advData[player]['USG%']) > 20 && parseInt(data.stats.playtime) > 20) {
@@ -533,7 +549,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return finalData.dkPoints;
     };
 
-    function getDefenseVsPositionStats(team) {
+    function getDefenseVsPositionStatsRank(team, data) {
         var validList = ['3PM', 'AST', 'BLK', 'FG%', 'PTS', 'REB', 'STL'];
 
         // set categories
@@ -542,27 +558,30 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             var category = validList[i];
             finalData.dvpRank['categories'][category] = {};
         }
-
+        // need to remove this extra call
         fetch.getDefenseVsPositionStats(team).then(function (data){
+            // console.log(data);
             _.forEach(data, function(stats, position){
                 // determine the rank of tonight's matchups for each position
-                if (finalData.dvpRank['positions'] && finalData.dvpRank['positions'][position]) {
-                    if (finalData.dvpRank['positions'][position]['max']['rank'] > stats.rank) {
-                        finalData.dvpRank['positions'][position]['max'] = stats;
-                        calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['max'], stats, position);
-                    } else if (finalData.dvpRank['positions'][position]['min']['rank'] < stats.rank) {
-                        finalData.dvpRank['positions'][position]['min'] = stats;
-                        calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['min'], stats, position);
+                var dvpPosition = finalData.dvpRank['positions'];
+                if (dvpPosition && dvpPosition[position]) {
+                    if (dvpPosition[position]['max']['rank'] > stats.rank) {
+                        dvpPosition[position]['max'] = stats;
+                        calcMatchupStrengthByPosition(dvpPosition[position]['max'], stats, position);
+                    } else if (dvpPosition[position]['min']['rank'] < stats.rank) {
+                        dvpPosition[position]['min'] = stats;
+                        calcMatchupStrengthByPosition(dvpPosition[position]['min'], stats, position);
                     }
                 } else {
-                    finalData.dvpRank['positions'][position] = {
+                    dvpPosition[position] = {
                         max: stats,
                         min: stats,
-                        average: finalData.leagueAverageDvP['position'][position].average.toFixed(2)
+                        average: finalData.dvpStats['league']['position'][position].average.toFixed(2)
                     };
+
                     // set initial matchup strength
-                    calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['max'], stats, position);
-                    calcMatchupStrengthByPosition(finalData.dvpRank['positions'][position]['min'], stats, position);
+                    calcMatchupStrengthByPosition(dvpPosition[position]['max'], stats, position);
+                    calcMatchupStrengthByPosition(dvpPosition[position]['min'], stats, position);
                 }
 
                 for (var i=0; i<validList.length; i++) {
@@ -573,25 +592,27 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         stat: category,
                         num: stats[category],
                         position: stats['Vs. Pos'],
-                        average: finalData.leagueAverageDvP['category'][position][category].toFixed(2)
+                        average: finalData.dvpStats['league']['category'][position][category].toFixed(2)
                     };
+                    // console.log(statObj);
+                    // console.log(finalData.dvpStats['league']);
                     // calc categories for each position
-                    if (finalData.dvpRank['categories'][category] && finalData.dvpRank['categories'][category][position]) {
-                        if (finalData.dvpRank['categories'][category][position]['max']['num'] < stats[category]) {
-                            finalData.dvpRank['categories'][category][position]['max'] = statObj;
-                            calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['max'], statObj, position, category);
-                        } else if (finalData.dvpRank['categories'][category][position]['min']['num'] > stats[category]) {
-                            finalData.dvpRank['categories'][category][position]['min'] = statObj;
-                            calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['min'], statObj, position, category);
+                    var dvpCategory = finalData.dvpRank['categories'][category];
+                    if (dvpCategory && dvpCategory[position]) {
+                        if (dvpCategory[position]['max']['num'] < stats[category]) {
+                            dvpCategory[position]['max'] = statObj;
+                            calcMatchupStrengthByCategory(dvpCategory[position]['max'], statObj, position, category);
+                        } else if (dvpCategory[position]['min']['num'] > stats[category]) {
+                            dvpCategory[position]['min'] = statObj;
+                            calcMatchupStrengthByCategory(dvpCategory[position]['min'], statObj, position, category);
                         }
                     } else {
-                        finalData.dvpRank['categories'][category][position] = {
+                        dvpCategory[position] = {
                             max: statObj,
                             min: statObj
                         };
-
-                        calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['max'], statObj, position, category);
-                        calcMatchupStrengthByCategory(finalData.dvpRank['categories'][category][position]['min'], statObj, position, category);
+                        calcMatchupStrengthByCategory(dvpCategory[position]['max'], statObj, position, category);
+                        calcMatchupStrengthByCategory(dvpCategory[position]['min'], statObj, position, category);
                     }
 
                 }
@@ -601,13 +622,13 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     }
 
     function calcMatchupStrengthByPosition(dataObj, stats, position) {
-        dataObj['matchup'] = parseFloat(stats.Season / finalData.leagueAverageDvP['position'][position].average).toFixed(2);
-        dataObj['matchup5'] = parseFloat(stats['Last 5'] / finalData.leagueAverageDvP['position'][position].average).toFixed(2);
-        dataObj['matchup10'] = parseFloat(stats['Last 10'] / finalData.leagueAverageDvP['position'][position].average).toFixed(2);
+        dataObj['matchup'] = parseFloat(stats.Season / finalData.dvpStats['league']['position'][position].average).toFixed(2);
+        dataObj['matchup5'] = parseFloat(stats['Last 5'] / finalData.dvpStats['league']['position'][position].average).toFixed(2);
+        dataObj['matchup10'] = parseFloat(stats['Last 10'] / finalData.dvpStats['league']['position'][position].average).toFixed(2);
     }
 
     function calcMatchupStrengthByCategory(dataObj, stats, position, category) {
-        dataObj['matchup'] = parseFloat(stats.num / finalData.leagueAverageDvP['category'][position][category]).toFixed(2);
+        dataObj['matchup'] = parseFloat(stats.num / finalData.dvpStats['league']['category'][position][category]).toFixed(2);
     }
 
     return finalData

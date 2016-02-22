@@ -14,53 +14,65 @@
         <th>AST</th>
         <th>STL</th>
         <th>BLK</th>
+        <th>TOV</th>
+        <th>PF</th>
         <th>PTS</th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="(team, stats) in data" ng-if="team != 'header'">
         <td>{{team}}</td>
-        <td>
+        <td ng-class="{'good-pick': stats.ORtg.rank <= 5, 'bad-pick': stats.ORtg.rank >= 20}">
           {{stats.ORtg.stat}}
           <br>
           ({{stats.ORtg.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.DRtg.rank <= 5, 'bad-pick': stats.DRtg.rank >= 20}">
           {{stats.DRtg.stat}}
           <br>
           ({{stats.DRtg.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.Pace.rank <= 5, 'bad-pick': stats.Pace.rank >= 20}">
           {{stats.Pace.stat}}
           <br>
           ({{stats.Pace.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.FGA.rank <= 5, 'bad-pick': stats.FGA.rank >= 20}">
           {{stats.FGA.stat}}
           <br>
           ({{stats.FGA.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.TRB.rank <= 5, 'bad-pick': stats.TRB.rank >= 20}">
           {{stats.TRB.stat}}
           <br>
           ({{stats.TRB.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.AST.rank <= 5, 'bad-pick': stats.AST.rank >= 20}">
           {{stats.AST.stat}}
           <br>
           ({{stats.AST.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.STL.rank <= 5, 'bad-pick': stats.STL.rank >= 20}">
           {{stats.STL.stat}}
           <br>
           ({{stats.STL.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.BLK.rank <= 5, 'bad-pick': stats.BLK.rank >= 20}">
           {{stats.BLK.stat}}
           <br>
           ({{stats.BLK.rank}})
         </td>
-        <td>
+        <td ng-class="{'good-pick': stats.TOV.rank <= 5, 'bad-pick': stats.TOV.rank >= 20}">
+          {{stats.TOV.stat}}
+          <br>
+          ({{stats.TOV.rank}})
+        </td>
+        <td ng-class="{'good-pick': stats.PF.rank <= 5, 'bad-pick': stats.PF.rank >= 20}">
+          {{stats.PF.stat}}
+          <br>
+          ({{stats.PF.rank}})
+        </td>
+        <td ng-class="{'good-pick': stats.PTS.rank <= 5, 'bad-pick': stats.PTS.rank >= 20}">
           {{stats.PTS.stat}}
           <br>
           ({{stats.PTS.rank}})
