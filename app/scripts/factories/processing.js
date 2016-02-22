@@ -349,6 +349,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         obpm: parseFloat(advData[player]['OBPM']),
                         net: parseFloat(parseFloat(advData[player]['OBPM']) + parseFloat(advData[player]['DBPM'])).toFixed(2)
                     }
+                    playerObj.ftr = parseFloat(advData[player]['FTr']);
                     playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                     playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
                     playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
@@ -504,16 +505,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         return tempObj;
     };
 
-
-    function getPlayerConsistency(data, player) {
-        if (parseFloat(data.stats.playtime) > 20) {
-            finalData.playerCov.push({
-                player : player,
-                cov : parseFloat(data.cov).toFixed(2)
-            })
-        }
-        return finalData.playerCov;
-    };
 
     function getPlayerBestAt(data, player, opponent) {
         var tempObj = {};

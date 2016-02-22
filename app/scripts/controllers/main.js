@@ -302,6 +302,7 @@ app.controller('MainCtrl',
             'DWS': data[name]['DWS'],
             'OBPM': data[name]['OBPM'],
             'DBPM': data[name]['DBPM'],
+            'FTr': data[name]['FTr'],
             'TS': data[name]['TS%'],
             'PER': data[name]['PER'],
             'USG': data[name]['USG%']
