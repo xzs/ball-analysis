@@ -364,10 +364,10 @@ def get_current_roster(teams_dict):
 # Get the game logs for each player
 def get_player_log(players_dict):
 
-    for team in players_dict:
+    # for team in players_dict:
         # loop through the array of players
-        for player in players_dict[team]:
-        # for player in players_dict:
+        # for player in players_dict[team]:
+        for player in players_dict:
             for name in player:
                 logger.debug('open url for: '+name)
                 url = urllib2.urlopen(BASE_URL+player[name]['log'])
@@ -566,7 +566,13 @@ pp = pprint.PrettyPrinter(indent=4)
 teams_dict = get_active_teams()
 # get_team_schedule(teams_dict)
 PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# get_player_log(PLAYERS_DICT)
+# get_player_log(PLAYERS_DICT['PHO'])
+# get_player_log(PLAYERS_DICT['HOU'])
+# get_player_log(PLAYERS_DICT['POR'])
+# get_player_log(PLAYERS_DICT['SAS'])
+# get_player_log(PLAYERS_DICT['UTA'])
+get_player_log(PLAYERS_DICT['BRK'])
 
 get_depth_chart()
 get_fantasy_news()

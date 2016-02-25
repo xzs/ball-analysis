@@ -115,9 +115,6 @@ EASTERN_CONF = {
     'WAS':'Washington Wizards'
 }
 
-AMB_PLAYERS = {
-    'Patrick Mills': 'Patty Mills'
-}
 
 '''
     Point = +1 PT

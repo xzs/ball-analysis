@@ -16,19 +16,16 @@ app.controller('MainCtrl',
 
     // Set salary
     var local = this;
-    local.salary = 50000;
     local.allPlayers = {};
     local.dkPlayers = {};
     $scope.year = 2016;
-    $scope.team = 'GSW';
-    $scope.player = 'Stephen Curry';
     $scope.teamnews = {};
     $scope.alerts = {
         message: null,
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2016-02-21").format("YYYY-MM-DD");
+    $scope.today = moment("2016-02-25").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -330,7 +327,7 @@ app.controller('MainCtrl',
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
 
             $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
-                return (game.time == "7:00p EST" || game.time == "8:00p EST" || game.time == "9:00p EST");
+                return (game.time == "9:00p EST" || game.time == "10:30p EST");
             });
 
             $scope.allTeams = [];
@@ -339,24 +336,24 @@ app.controller('MainCtrl',
                 $scope.allTeams.push(game.team);
                 $scope.allTeams.push(game.opp);
             })
-            $scope.getSummaryStats($scope.allTeams, $scope.todaySchedule, csvData)
+            $scope.getAllStats($scope.allTeams, $scope.todaySchedule, csvData)
         });
 
 
     }
 
-    $scope.getSummaryStats = function(teams, games) {
-        $scope.summaryUsage = processing.getAllCurrentPlayers(teams, games);
+    $scope.getAllStats = function(teams, games) {
+        $scope.dfsStats = processing.getAllCurrentPlayers(teams, games);
     }
 
     $scope.getCombinations = function(type) {
         var tempList = [];
-        var playersLength = $scope.summaryUsage.players.length;
+        var playersLength = $scope.dfsStats.players.length;
         var position, player;
 
         if (type == 'modified') {
             for (var i=0; i<playersLength; i++) {
-                player = $scope.summaryUsage.players[i];
+                player = $scope.dfsStats.players[i];
                 position = player.basic_info.position;
                 if (player.last_3_games.playtime > 10 && player.status == 'Available' && player.opportunityScore > 0.5 &&
                     !(
@@ -366,23 +363,23 @@ app.controller('MainCtrl',
                         && player.minuteIncrease.last_3_games == 'down'
                     )
                 ) {
-                    tempList.push($scope.summaryUsage.players[i]);
+                    tempList.push($scope.dfsStats.players[i]);
                 }
             }
         } else if (type == 'fourFive') {
             for (var i=0; i<playersLength; i++) {
-                player = $scope.summaryUsage.players[i];
+                player = $scope.dfsStats.players[i];
                 if (player.salary <= 4500) {
-                    tempList.push($scope.summaryUsage.players[i]);
+                    tempList.push($scope.dfsStats.players[i]);
                 }
             }
         }
 
-        $scope.summaryUsage.players = tempList;
+        $scope.dfsStats.players = tempList;
 
     }
 
-    $scope.getCSV = function(csv){
+    $scope.$watch('file.csv', function(csv) {
         Papa.parse(csv, {
             complete: function(results) {
                 var finalResults = _.dropRight(_.drop(results.data));
@@ -392,36 +389,9 @@ app.controller('MainCtrl',
                 $scope.csvComplete = true;
             }
         });
-    }
-
-    function processCSV(data) {
-        // process the data into readable JSON format
-        local.dkPlayers = processing.setAllPlayersByTeam(data);
-
-        // force apply as the file reader API will work asynchronously, outside of the angularjs "flow".
-        // Therefore, you have to make apply int he end of the onload function
-        // http://stackoverflow.com/a/33038028
-
-    };
-
-
-    // function init(year) {
-    //     fetch.getAllPlayers(year).then(function (data) {
-    //         local.allPlayers = data;
-    //         $scope.teams = Object.keys(data).sort();
-    //         $scope.getPlayers($scope.team);
-    //         $scope.getPlayerData(year, $scope.player);
-    //     });
-    // }
-
-    // $scope.changeYear = function(year) {
-    //     init(year);
-    // }
-
-
+    });
 
     $scope.findBestPack = function(data) {
-        console.log(data);
         var m= [[0]]; // maximum pack value found so far
         var b= [[0]]; // best combination found so far
         var opts= [0]; // item index for 0 of item 0

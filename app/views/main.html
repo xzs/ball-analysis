@@ -3,12 +3,14 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
-<div ng-hide="csvComplete">
-  <input type="file" ng-model="file.csv" fileread="file.csv" />
-  <button ng-click="getCSV(file.csv)" class="btn btn-default btn-sm">Go</button>
+<div ng-hide="csvComplete" style="text-align: center;">
+  <!-- <div ng-show="!file.csv"> -->
+    <input type="file" name="file" id="file" ng-model="file.csv" fileread="file.csv" class="inputfile inputfile-2"/>
+    <label for="file"><i class="fa fa-upload" style="margin-right: 10px;"></i><span>Upload CSV&hellip;</span></label>
+  <!-- </div> -->
 </div>
 
-<div class="padding-bottom-20">
+<div class="padding-bottom-20" ng-if="csvComplete">
   <h2 class="panel-heading">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
@@ -23,13 +25,13 @@
   <div class="row padding-bottom-20">
     <div class="col-lg-6 col-md-6 col-sm-6">
         <stats-table
-            data='summaryUsage.dvpRank.positions'
+            data='dfsStats.dvpRank.positions'
             type='worst-positions'>
         </stats-table>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-6">
       <stats-table
-            data='summaryUsage.dvpRank.categories'
+            data='dfsStats.dvpRank.categories'
             type='worst-categories'>
       </stats-table>
     </div>
@@ -56,12 +58,12 @@
     <div class="col-lg-12 col-md-12 col-sm-12" style="padding-bottom:5px;">
       <button ng-click="getCombinations('modified')" class="btn btn-success btn-sm">Get Modified Lineup</button>
       <button ng-click="getCombinations('fourFive')" class="btn btn-warning btn-sm">4.5k Under Club</button>
-      <!-- <button ng-click="findBestPack(summaryUsage.tempPlayers)" class="btn btn-info btn-sm">Optimize</button> -->
+      <!-- <button ng-click="findBestPack(dfsStats.tempPlayers)" class="btn btn-info btn-sm">Optimize</button> -->
       <button ng-click="getSummaryStats(allTeams, todaySchedule)" class="btn btn-danger btn-sm">Reset</button>
     </div>
     <div class="col-lg-12 col-md-12 col-sm-12">
       <stats-table
-            data='summaryUsage.players'
+            data='dfsStats.players'
             news='teamnews'
             type='players'>
       </stats-table>
@@ -69,60 +71,13 @@
   </div>
 </div>
 
-<!-- <div class="row padding-bottom-20">
-  <div class="col-lg-12 col-md-12 col-sm-12">
-    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-      <stats-table
-          data='summaryUsage.increaseInMinutes'
-          type='minutes-increase'>
-      </stats-table>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-      <stats-table
-            data='summaryUsage.maxUsage'
-            type='max-usage'>
-      </stats-table>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-      <stats-table
-            data='summaryUsage.lastPerformer'
-            type='last-performance'>
-      </stats-table>
-    </div>
-  </div>
-</div>
-
-<div class="row padding-bottom-20">
-  <div class="col-lg-12 col-md-12 col-sm-12">
-    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-      <stats-table
-          data='summaryUsage.playerCov'
-          type='player-cov'>
-      </stats-table>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-      <stats-table
-          data='summaryUsage.bestAt'
-          type='gmsc-diff'>
-      </stats-table>
-    </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 info-panel">
-      <stats-table
-          data='summaryUsage.dkPoints'
-          type='dk-points'>
-      </stats-table>
-    </div>
-  </div>
-</div> -->
-
-
 <stats-table
       data='teamDepthChart'
       fantasy='teamFantasyStats'
       type='depthchart'>
 </stats-table>
 
-<!-- 
+<!--
 <div class="page-header">
   <select ng-model="year"
           ng-change="changeYear(year)">

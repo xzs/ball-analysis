@@ -6,7 +6,11 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.tempPlayers = [];
     finalData.permArr = [];
     finalData.usedChars = [];
-    // rank
+    finalData.AMB_PLAYERS = {
+        'Patty Mills': 'Patrick Mills',
+        'Moe Harkless': 'Maurice Harkless',
+        'Wes Johnson': 'Wesley Harkless',
+    };
     finalData.dvpRank = {
         positions: {},
         categories: {}
@@ -283,6 +287,9 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     var player = players[i].player;
                     var status = players[i].status;
                     var rank = i;
+                    if (finalData.AMB_PLAYERS[player]) {
+                        player = finalData.AMB_PLAYERS[player];
+                    }
                     getPlayerStats(player, position, opponent, status, rank);
                 }
             })
@@ -352,13 +359,14 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     playerObj.ftr = parseFloat(advData[player]['FTr']);
                     playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                     playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
-                    playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
+                    playerObj.usage = parseInt(advData[player]['USG%']);
 
+                    playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
                     playerObj.minuteIncrease = minuteIncrease(data);
                     playerObj.usageIncrease = usageIncrease(data);
+
                     playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                     playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
-                    playerObj.usage = parseInt(advData[player]['USG%']);
 
                     if (finalData.dkPlayers[player]) {
                         playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.dkPlayers[player].salary) * 1000).toFixed(2);
@@ -551,15 +559,15 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         }
         // need to remove this extra call
         fetch.getDefenseVsPositionStats(team).then(function (data){
-            // console.log(data);
+
             _.forEach(data, function(stats, position){
                 // determine the rank of tonight's matchups for each position
                 var dvpPosition = finalData.dvpRank['positions'];
                 if (dvpPosition && dvpPosition[position]) {
-                    if (dvpPosition[position]['max']['rank'] > stats.rank) {
+                    if (dvpPosition[position]['max']['Last 5'] < stats['Last 5']) {
                         dvpPosition[position]['max'] = stats;
                         calcMatchupStrengthByPosition(dvpPosition[position]['max'], stats, position);
-                    } else if (dvpPosition[position]['min']['rank'] < stats.rank) {
+                    } else if (dvpPosition[position]['min']['Last 5'] > stats['Last 5']) {
                         dvpPosition[position]['min'] = stats;
                         calcMatchupStrengthByPosition(dvpPosition[position]['min'], stats, position);
                     }
@@ -585,8 +593,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         position: stats['Vs. Pos'],
                         average: finalData.dvpStats['league']['category'][position][category].toFixed(2)
                     };
-                    // console.log(statObj);
-                    // console.log(finalData.dvpStats['league']);
+
                     // calc categories for each position
                     var dvpCategory = finalData.dvpRank['categories'][category];
                     if (dvpCategory && dvpCategory[position]) {
