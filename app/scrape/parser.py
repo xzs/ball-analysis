@@ -688,6 +688,7 @@ def last_n_games(csv_f, num_games):
     steals = 0
     blocks = 0
     turnovers = 0
+    record_margin = ''
 
     for record in reversed(list(csv.reader(csv_f))):
         # If he played
@@ -702,6 +703,8 @@ def last_n_games(csv_f, num_games):
             turnovers += float(record[25])
             threes += float(record[13])
             fouls += float(record[26])
+            if num_games == 1:
+                record_margin = record[7] + ' ' + record[2]
             count +=1
 
     PLAYER_DICT['last_'+str(num_games)+'_games']['playtime'] = two_decimals((playtime / num_games)/60)
@@ -715,6 +718,9 @@ def last_n_games(csv_f, num_games):
     PLAYER_DICT['last_'+str(num_games)+'_games']['threes'] = two_decimals(threes / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['fouls'] = two_decimals(fouls / num_games)
     PLAYER_DICT['last_'+str(num_games)+'_games']['dk_points'] = calc_dk_points(PLAYER_DICT['last_'+str(num_games)+'_games'])
+    if num_games == 1 and record_margin:
+        PLAYER_DICT['last_'+str(num_games)+'_games']['record_margin'] = record_margin
+
 
 
 def calc_dk_points(stats):

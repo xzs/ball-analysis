@@ -42,11 +42,11 @@ app.directive('statsTable', function() {
               if (
                   player.minuteIncrease.last_1_games == 'none' && player.minuteIncrease.last_3_games == 'none'
                   && player.lastGameBetterThanAverage.last_1_games == 'none' && player.lastGameBetterThanAverage.last_3_games == 'none'
-                  && player.val < 4.5
+                  && player.val < 4.0
                 ) {
                 classes += ' warning'
               }
-              if (player.last_3_games.dk_points < 20 && player.last_1_games.dk_points < 20 && player.val < 4.5 && player.dvp['last_5_ratio'] < 1) {
+              if (player.last_3_games.dk_points < 20 && player.last_1_games.dk_points < 20 && player.val < 4.0 && player.dvp['last_5_ratio'] < 1) {
                 classes += ' endangered'
               }
               return classes;

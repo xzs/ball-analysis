@@ -3,15 +3,27 @@
   <strong>Warning!</strong> {{alerts.message}}
 </div>
 
-<div ng-hide="csvComplete" style="text-align: center;">
+  <div class="advice" ng-hide="csvComplete">
+    <!-- <ol> -->
+      <li>This is a game of opportunity.</li>
+      <li>Possessions increase when playing at a faster pace.</li>
+      <li>More shot attempts = potential for rebounds.</li>
+      <li>Be mindful about the odds and the potential outcomes.</li>
+      <li>Evaluate based on how players on the same floor are correlated with each other.</li>
+      <li>Teams foul. Some players are better at getting to the line than others.</li>
+      <li>Don't get caught up in the commonalities. You don't want to be part of the common spread.</li>
+      <li>Gems come from opportunity and lopsided outcomes.</li>
+    <!-- </ol> -->
+  </div>
+  <div ng-hide="csvComplete" style="text-align: center;">
   <!-- <div ng-show="!file.csv"> -->
     <input type="file" name="file" id="file" ng-model="file.csv" fileread="file.csv" class="inputfile inputfile-2"/>
     <label for="file"><i class="fa fa-upload" style="margin-right: 10px;"></i><span>Upload CSV&hellip;</span></label>
   <!-- </div> -->
-</div>
 
+</div>
 <div class="padding-bottom-20" ng-if="csvComplete">
-  <h2 class="panel-heading">Today's Games</h2>
+  <h2 class="panel-heading" style="color:#d3394c;">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
       <div ng-click="getLineUps(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}} ({{game.location}})</div>

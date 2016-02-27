@@ -9,7 +9,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.AMB_PLAYERS = {
         'Patty Mills': 'Patrick Mills',
         'Moe Harkless': 'Maurice Harkless',
-        'Wes Johnson': 'Wesley Harkless',
+        'Wes Johnson': 'Wesley Johnson',
     };
     finalData.dvpRank = {
         positions: {},
@@ -431,9 +431,9 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                             //     'value': playerObj.simpleProjection,
                             //     'pieces': 1
                             // })
-                            if (tempWeightedNet > 10) {
+                            // if (tempWeightedNet > 10) {
                                 finalData.players.push(playerObj);
-                            }
+                            // }
 
                         // });
                     }

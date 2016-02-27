@@ -7,10 +7,23 @@
 
 body {
   padding: 0;
+  font-family: "HelveticaNeue", "Helvetica Neue", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+}
+
+th {
+  font-weight: normal !important;
+}
+
+.advice {
+  margin: 50px auto;
+  width: 650px;
+  color: #d3394c;
+  font-size: 1.1em;
+  line-height: 2;
 }
 
 .container-padding {
-  padding: 20px 80px 20px 80px;
+  padding: 10px 60px 10px 60px;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -200,7 +213,7 @@ body {
     max-width: 80%;
     font-size: 1.25rem;
     /* 20px */
-    font-weight: 700;
+    font-weight: normal;
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
@@ -238,7 +251,7 @@ body {
 
 .inputfile-2 + label {
     color: #d3394c;
-    border: 2px solid currentColor;
+    border: 1px solid currentColor;
 }
 
 .inputfile-2:focus + label,
