@@ -2,15 +2,18 @@
 <div class="panel panel-default" ng-if="data">
   <div class="panel-heading">
     <b>Players</b>
-    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
-      data-target="#players"
-      class="cursor-pointer"></span>
+    <button ng-click="removeSelectedPlayers(selectedPlayers)" ng-if="selectedPlayers.length > 0"
+      class="btn btn-warning btn-sm">Remove Selected Players</button>
+    <button ng-click="sortByPosition(data)"
+      class="btn btn-primary btn-sm">position</button>
+    <input type="text" ng-model="searchPlayers" placeholder="Steph Curry" class="pull-right"/>
   </div>
   <div id="players" class="panel-collapse collapse in">
     <table class="table table-hover" table-height="550px" fixed-header>
       <thead>
         <!-- we could loop these but for the sake of order we manually put them here-->
         <tr>
+          <th></th>
           <th>Name</th>
           <th>
             <a href="" ng-click="order('basic_info.position')">Pos</a>
@@ -86,6 +89,10 @@
             <span class="sortorder" ng-show="predicate === 'ftr'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
+            <a href="" ng-click="order('trb')">TRb</a>
+            <span class="sortorder" ng-show="predicate === 'trb'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
             <a href="" ng-click="order('stats.fouls')">F36</a>
             <span class="sortorder" ng-show="predicate === 'stats.fouls'" ng-class="{reverse:reverse}"></span>
           </th>
@@ -104,8 +111,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="player in data | orderBy:predicate:reverse"
+        <tr ng-repeat="player in data | orderBy:predicate:reverse | filter:searchPlayers"
             ng-class="playerStatus(player)">
+          <td><input type="checkbox" ng-click="toggleSelectedPlayer(player)"></td>
           <td>
             {{player.basic_info.name}}
             <div>
@@ -182,6 +190,7 @@
           </td>
           <td>{{player.cov}}</td> -->
           <td>{{player.ftr}}</td>
+          <td>{{player.trb}}</td>
           <td ng-class="{'warning': player.stats.fouls >= 4.5}">{{player.stats.fouls}}</td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.usageIncrease.last_1_games == 'up',

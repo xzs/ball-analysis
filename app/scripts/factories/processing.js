@@ -10,6 +10,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         'Patty Mills': 'Patrick Mills',
         'Moe Harkless': 'Maurice Harkless',
         'Wes Johnson': 'Wesley Johnson',
+        'Amare Stoudemire': "Amar'e Stoudemire"
     };
     finalData.dvpRank = {
         positions: {},
@@ -357,14 +358,15 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         net: parseFloat(parseFloat(advData[player]['OBPM']) + parseFloat(advData[player]['DBPM'])).toFixed(2)
                     }
                     playerObj.ftr = parseFloat(advData[player]['FTr']);
+                    playerObj.trb = parseFloat(advData[player]['TRB%']);
+                    playerObj.usage = parseInt(advData[player]['USG%']);
+
                     playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                     playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
-                    playerObj.usage = parseInt(advData[player]['USG%']);
 
                     playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
                     playerObj.minuteIncrease = minuteIncrease(data);
                     playerObj.usageIncrease = usageIncrease(data);
-
                     playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                     playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
 

@@ -259,3 +259,6 @@ th {
 .inputfile-2 + label:hover {
     color: #722040;
 }
+.foobar {
+    color: white;
+  }

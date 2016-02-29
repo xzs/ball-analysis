@@ -16,7 +16,6 @@ app.directive('statsTable', function() {
                 $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
                 $scope.predicate = predicate;
             }
-
             $scope.showMin = false;
             $scope.showMax = true;
             $scope.toggleCategories = function(category) {
@@ -52,6 +51,59 @@ app.directive('statsTable', function() {
               return classes;
             }
 
+            $scope.selectedPlayers = [];
+            $scope.toggleSelectedPlayer = function(player) {
+              var playerIndex = _.indexOf($scope.selectedPlayers, player);
+              if (playerIndex == -1){
+                $scope.selectedPlayers.push(player);
+              } else {
+                $scope.selectedPlayers.splice(playerIndex, 1);
+              }
+            }
+
+            $scope.removeSelectedPlayers = function(players) {
+              $scope.removedPlayers = players;
+              $scope.data = _.difference($scope.data, players)
+              $scope.selectedPlayers = [];
+            }
+
+            $scope.sortByPosition = function(players) {
+              var playersLength = players.length;
+              var playersByPosition = {
+                'G': [],
+                'F': [],
+                'All': [],
+              };
+              for (var i=0; i<playersLength; i++) {
+                player = players[i];
+                position = player.basic_info.position;
+                // categorize them by position
+                if (!playersByPosition[position]) {
+                    playersByPosition[position] = [];
+                    // If G
+                    if (position == 'PG' || position == 'SG') {
+                        playersByPosition['G'].push(player);
+                    }
+                    // If F
+                    if (position == 'SF' || position == 'PF') {
+                        playersByPosition['F'].push(player);
+                    }
+                    playersByPosition[position].push(player);
+                } else {
+                    // If G
+                    if (position == 'PG' || position == 'SG') {
+                        playersByPosition['G'].push(player);
+                    }
+                    // If F
+                    if (position == 'SF' || position == 'PF') {
+                        playersByPosition['F'].push(player);
+                    }
+                    playersByPosition[position].push(player);
+                }
+                playersByPosition['All'].push(player);
+              }
+              console.log(playersByPosition)
+            }
 
         },
         templateUrl: function(elem, attr) {
