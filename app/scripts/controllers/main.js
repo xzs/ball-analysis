@@ -157,7 +157,6 @@ app.controller('MainCtrl',
 
     function getDefenseVsPositionStats(team) {
         $scope.teamFantasyStats[team] = {};
-        console.log('here');
         fetch.getDefenseVsPositionStats(team).then(function (data){
             $scope.teamFantasyStats[team] = data;
             _.forEach(data, function(stats, position){

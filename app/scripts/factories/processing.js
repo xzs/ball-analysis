@@ -20,6 +20,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.dvpStats = {};
     finalData.news = {};
     finalData.activeTeams = {};
+    finalData.teamAdvancedStats = {};
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -244,13 +245,18 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.getAllCurrentPlayers = function(teams, games) {
         // get league average
         finalData.players = [];
-        // getLeagueAverageDefenseVsPositionStats();
+        // get the stats for the league
         getDefenseVsPositionStats('league');
+
         var opponents = {};
         for (var i=0; i<teams.length; i++) {
             var team = teams[i];
+
+            // get all team related stats
             getDefenseVsPositionStats(team);
             getTeamNews(team);
+            getTeamAdvancedStats(team);
+
             // get opponents
             if (!opponents[team]) {
                 opponents[team] = {};
@@ -297,6 +303,17 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         });
     }
 
+    function getTeamAdvancedStats(team) {
+        var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS'];
+        // ORtg DRtg Pace MOV FGA TRB AST STL BLK PTS
+        finalData.teamAdvancedStats[team] = {};
+        fetch.getTeamAdvancedStats(team).then(function (data) {
+            for (var i=0; i<validList.length; i++) {
+                var stat = validList[i];
+                finalData.teamAdvancedStats[team][stat] = data[stat];
+            }
+        });
+    }
 
     function getDefenseVsPositionStats(team) {
         fetch.getDefenseVsPositionStats(team).then(function (data){
@@ -316,6 +333,8 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
     function getPlayerStats(player, position, opponent, status, rank) {
         var playerObj;
+        // we need to get the advanced stats to determine the opportunities (such as the possiblility with rebounds as well as the pace adjusted stats)
+
         // if the player is even in the csv
         if (finalData.dkPlayers[player]) {
             fetch.getPlayerAdvancedStats('2016', player).then(function (advData) {
@@ -363,6 +382,10 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
                     playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                     playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
+
+                    playerObj.rebPerMinute = parseFloat(data.stats.rebounds / data.stats.playtime).toFixed(2);
+                    playerObj.rebPerMinute3 = parseFloat(data.last_3_games.rebounds / data.last_3_games.playtime).toFixed(2);
+
 
                     playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
                     playerObj.minuteIncrease = minuteIncrease(data);

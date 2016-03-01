@@ -108,11 +108,10 @@ app.directive('statsTable', function() {
             $scope.getPermutations = function(players) {
 
                 var sets = permutate(players, 8);
-                // console.log(sets);
                 var finalList = [];
                 for (var i=0; i<sets.length; i++){
                     var gCount = 0, fCount=0, cCount=0, sgCount=0, pgCount=0, sfCount=0, pfCount=0;
-                    var fppPerMinute=0, opportunityScore=0;
+                    var fppPerMinute=0, opportunityScore=0, dkPoints=0;
                     _.forEach(sets[i], function(player, set) {
                         if (player.basic_info.position == 'PG') {
                             gCount += 1;
@@ -131,7 +130,7 @@ app.directive('statsTable', function() {
                         }
                         fppPerMinute += parseFloat(player.fppPerMinute)
                         opportunityScore += parseFloat(player.opportunityScore)
-                        opportunityScore += parseFloat(player.opportunityScore)
+                        dkPoints += parseFloat(player.stats.dk_points)
                     });
                     // console.log('PG: '+pgCount+', SG: '+sgCount+', SF: '+sfCount+', PF: '+pfCount+', C: '+cCount);
                     // lineup criteria
@@ -146,14 +145,17 @@ app.directive('statsTable', function() {
                         // calc the total salary
                         var salary = _.sumBy(sets[i], 'salary');
                         var usage = _.sumBy(sets[i], 'usage');
+                        var tempWeightedNet = _.sumBy(sets[i], 'tempWeightedNet');
                         if (salary <= 50000 && salary >= 49300){
-                            if (!_.find(finalList, { 'salary': salary, 'fppPerMinute': fppPerMinute, 'opportunityScore':opportunityScore, 'usage':usage })) {
+                            if (!_.find(finalList, { 'salary': salary, 'fppPerMinute': fppPerMinute, 'opportunityScore':opportunityScore, 'usage':usage, 'tempWeightedNet':tempWeightedNet })) {
                                 finalList.push({
                                     'players': sets[i],
                                     'salary': salary,
                                     'fppPerMinute': fppPerMinute,
                                     'opportunityScore': opportunityScore,
-                                    'usage': usage
+                                    'usage': usage,
+                                    'dk_points': dkPoints,
+                                    'tempWeightedNet': tempWeightedNet,
                                 });
                             }
                         }
