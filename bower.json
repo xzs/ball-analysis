@@ -10,7 +10,7 @@
     "angular-route": "^1.3.0",
     "angular-sanitize": "^1.3.0",
     "angular-touch": "^1.3.0",
-    "lodash": "*",
+    "lodash": "^4.5.1",
     "papaparse": "*",
     "fontawesome": "~4.4.0",
     "moment": "*",

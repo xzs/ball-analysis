@@ -372,7 +372,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
                     if (finalData.dkPlayers[player]) {
                         playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.dkPlayers[player].salary) * 1000).toFixed(2);
-                        playerObj.salary = finalData.dkPlayers[player].salary;
+                        playerObj.salary = parseFloat(finalData.dkPlayers[player].salary);
                     }
 
                     playerObj.news = _.find(finalData.news[data.basic_info.team], { 'player': player});

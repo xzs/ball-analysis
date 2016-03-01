@@ -105,6 +105,70 @@ app.directive('statsTable', function() {
               console.log(playersByPosition)
             }
 
+            $scope.getPermutations = function(players) {
+
+                var sets = permutate(players, 8);
+                // console.log(sets);
+                var finalList = [];
+                for (var i=0; i<sets.length; i++){
+                    var gCount = 0, fCount=0, cCount=0, sgCount=0, pgCount=0, sfCount=0, pfCount=0;
+                    _.forEach(sets[i], function(player, set) {
+                        if (player.basic_info.position == 'PG') {
+                            gCount += 1;
+                            pgCount += 1;
+                        } else if (player.basic_info.position == 'SG') {
+                            gCount += 1;
+                            sgCount += 1;
+                        } else if (player.basic_info.position == 'SF') {
+                            fCount += 1;
+                            sfCount += 1;
+                        } else if (player.basic_info.position == 'PF') {
+                            fCount += 1;
+                            pfCount += 1;
+                        } else if (player.basic_info.position == 'C'){
+                            cCount += 1;
+                        }
+                    });
+                    // console.log('PG: '+pgCount+', SG: '+sgCount+', SF: '+sfCount+', PF: '+pfCount+', C: '+cCount);
+                    // lineup criteria
+                    if  (    cCount >= 1
+                            && sgCount >= 1
+                            && pgCount >= 1
+                            && sfCount >= 1
+                            && pfCount >= 1
+                            && gCount >= 2 && fCount >= 2 && cCount < 3
+                        )
+                    {
+                        // calc the total salary
+                        if (_.sumBy(sets[i], 'salary') <= 50000 && _.sumBy(sets[i], 'salary') >= 49300){
+                            finalList.push(sets[i]);
+                        }
+                    }
+                }
+                console.log(finalList);
+
+            }
+
+            // http://stackoverflow.com/questions/18201617/generate-all-subsets-of-a-set-in-javascript
+            // http://stackoverflow.com/a/18201618
+            var permutate = function(input, size){
+                var results = [], result, mask, total = Math.pow(2, input.length);
+                for(mask = 0; mask < total; mask++){
+                    result = [];
+                    i = input.length - 1;
+                    do{
+                        if( (mask & (1 << i)) !== 0){
+                            result.push(input[i]);
+                        }
+                    }while(i--);
+                    if( result.length == size){
+                        results.push(result);
+                    }
+                }
+                return results;
+            }
+
+
         },
         templateUrl: function(elem, attr) {
             return 'views/directives/table-stats-'+attr.type+'.html'
