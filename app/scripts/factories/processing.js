@@ -424,7 +424,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                             } else {
                                 tempWeightedNet = 0;
                             }
-                            playerObj.tempWeightedNet = tempWeightedNet;
+                            playerObj.tempWeightedNet = parseFloat(tempWeightedNet);
                             playerObj.avgWeightedNet = avgWeightedNet;
                             playerObj.weightedRatio = (tempWeightedNet / avgWeightedNet).toFixed(2);
                             // finalData.tempPlayers.push({
