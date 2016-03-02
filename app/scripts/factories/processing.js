@@ -398,7 +398,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     playerObj.rebPerMinute = parseFloat(data.stats.rebounds / data.stats.playtime).toFixed(2);
                     playerObj.rebPerMinute3 = parseFloat(data.last_3_games.rebounds / data.last_3_games.playtime).toFixed(2);
 
-
                     playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
                     playerObj.minuteIncrease = minuteIncrease(data);
                     playerObj.usageIncrease = usageIncrease(data);

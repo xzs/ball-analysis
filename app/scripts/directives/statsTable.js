@@ -111,7 +111,7 @@ app.directive('statsTable', function() {
                 var finalList = [];
                 for (var i=0; i<sets.length; i++){
                     var gCount = 0, fCount=0, cCount=0, sgCount=0, pgCount=0, sfCount=0, pfCount=0;
-                    var fppPerMinute=0, opportunityScore=0, dkPoints=0;
+                    var fppPerMinute=0, opportunityScore=0, dkPoints=0, last3=0;
                     _.forEach(sets[i], function(player, set) {
                         if (player.basic_info.position == 'PG') {
                             gCount += 1;
@@ -131,6 +131,7 @@ app.directive('statsTable', function() {
                         fppPerMinute += parseFloat(player.fppPerMinute)
                         opportunityScore += parseFloat(player.opportunityScore)
                         dkPoints += parseFloat(player.stats.dk_points)
+                        last3 += parseFloat(player.last_3_games.dk_points)
                     });
                     // console.log('PG: '+pgCount+', SG: '+sgCount+', SF: '+sfCount+', PF: '+pfCount+', C: '+cCount);
                     // lineup criteria
@@ -155,12 +156,14 @@ app.directive('statsTable', function() {
                                     'opportunityScore': opportunityScore,
                                     'usage': usage,
                                     'dk_points': dkPoints,
+                                    'last3': last3,
                                     'tempWeightedNet': tempWeightedNet,
                                 });
                             }
                         }
                     }
                 }
+                finalList = sortKey('last3', finalList);
                 console.log(finalList);
 
             }
@@ -184,7 +187,27 @@ app.directive('statsTable', function() {
                 return results;
             }
 
+            var sortKey = function (prop, arr) {
+                prop = prop.split('.');
+                var len = prop.length;
 
+                arr.sort(function (a, b) {
+                    var i = 0;
+                    while( i < len ) {
+                        a = a[prop[i]];
+                        b = b[prop[i]];
+                        i++;
+                    }
+                    if (a < b) {
+                        return -1;
+                    } else if (a > b) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+                return arr;
+            };
         },
         templateUrl: function(elem, attr) {
             return 'views/directives/table-stats-'+attr.type+'.html'
