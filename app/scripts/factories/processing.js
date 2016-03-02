@@ -21,6 +21,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     finalData.news = {};
     finalData.activeTeams = {};
     finalData.teamAdvancedStats = {};
+    finalData.teamLineups = {};
 
     var calcPlayerCostToPoints = function(player) {
         // round to 4 decimals while maintaining as an integer
@@ -255,7 +256,9 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             // get all team related stats
             getDefenseVsPositionStats(team);
             getTeamNews(team);
-            getTeamAdvancedStats(team);
+
+            finalData.getTeamAdvancedStats(team);
+            finalData.getLineupsByTeam(team);
 
             // get opponents
             if (!opponents[team]) {
@@ -303,15 +306,24 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         });
     }
 
-    function getTeamAdvancedStats(team) {
+    finalData.getTeamAdvancedStats = function(team) {
         var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS'];
         // ORtg DRtg Pace MOV FGA TRB AST STL BLK PTS
         finalData.teamAdvancedStats[team] = {};
+        finalData.teamAdvancedStats['header'] = [];
         fetch.getTeamAdvancedStats(team).then(function (data) {
             for (var i=0; i<validList.length; i++) {
                 var stat = validList[i];
                 finalData.teamAdvancedStats[team][stat] = data[stat];
             }
+            finalData.teamAdvancedStats['header'] = validList;
+        });
+    }
+
+    finalData.getLineupsByTeam = function(team) {
+        finalData.teamLineups[team] = {};
+        fetch.getTopLineupsByTeam(team).then(function (data){
+            finalData.teamLineups[team] = data;
         });
     }
 

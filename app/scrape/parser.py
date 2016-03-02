@@ -302,6 +302,7 @@ def read_player_csv(csv_f, schedule, player_name):
 
     started_gmsc = 0
     non_started_gmsc = 0
+    all_dfs_points = {}
 
     started_playtime_seconds = 0
     non_started_playtime_seconds = 0
@@ -386,6 +387,14 @@ def read_player_csv(csv_f, schedule, player_name):
 
             if record[30]:
                 dfs_points = float(record[30])
+
+                all_dfs_points[record[1]] = {
+                    'opponent' : record[6],
+                    'margin' : record[7],
+                    'playtime' : record[9],
+                    'dk_points' : dfs_points
+                }
+
                 if 'max' not in player_dict['dfs_stats']:
                     player_dict['dfs_stats']['max'] = dfs_points
                 else:
@@ -397,7 +406,7 @@ def read_player_csv(csv_f, schedule, player_name):
                     if player_dict['dfs_stats']['min'] > dfs_points:
                         player_dict['dfs_stats']['min'] = dfs_points
 
-    #  For now we only consider players who have played both a home and away game
+    #  For now we only consider players who have played both a home or away game
     if home_games > 0 or away_games > 0:
         logger.debug('First level dictionary values processing')
         # calc home and away playtime + gmsc
@@ -472,8 +481,11 @@ def read_player_csv(csv_f, schedule, player_name):
         average_stats(player_dict['post_all_star'])
         # Process the stats for each team
         average_stats(player_dict['teams_against'])
+        # dfs points
+        all_dfs_points = sorted(all_dfs_points.items(), key=lambda x: (x[1]["dk_points"]))
 
     return player_dict
+
 
 def process_basic_stats(dict_obj, record):
     dict_obj['points'] += float(record[27])

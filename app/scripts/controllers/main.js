@@ -144,6 +144,7 @@ app.controller('MainCtrl',
     function getTeamAdvancedStats(team) {
         var validList = ['ORtg', 'DRtg', 'Pace', 'MOV', 'FGA', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS'];
         // ORtg DRtg Pace MOV FGA TRB AST STL BLK PTS
+        // This needs to be removed with because we already do this call in the processing.js factory
         $scope.teamAdvancedStats[team] = {};
         $scope.teamAdvancedStats['header'] = [];
         fetch.getTeamAdvancedStats(team).then(function (data) {
@@ -166,13 +167,6 @@ app.controller('MainCtrl',
         });
     }
 
-    function getLineupsByTeam(team) {
-        $scope.teamLineups[team] = {};
-        fetch.getTopLineupsByTeam(team).then(function (data){
-            $scope.teamLineups[team] = data;
-        });
-    }
-
     $scope.getTeamStats = function(teams) {
         $scope.teamAdvancedStats = {};
         $scope.teamDepthChart = {};
@@ -183,19 +177,18 @@ app.controller('MainCtrl',
         local.teamOne = teams.opp;
         local.teamTwo = teams.team;
 
-        // maybe this should be in $q 
         // get advanced stats and depth chart for each team
-        getTeamAdvancedStats(teams.opp);
         processDepthChart(teams.opp);
-
-        getTeamAdvancedStats(teams.team);
         processDepthChart(teams.team);
+
+        $scope.teamAdvancedStats[teams.team] = $scope.dfsStats.teamAdvancedStats[teams.team];
+        $scope.teamAdvancedStats[teams.opp] = $scope.dfsStats.teamAdvancedStats[teams.opp];
 
         getDefenseVsPositionStats(teams.team);
         getDefenseVsPositionStats(teams.opp);
 
-        getLineupsByTeam(teams.team);
-        getLineupsByTeam(teams.opp);
+        $scope.teamLineups[teams.team] = $scope.dfsStats.teamLineups[teams.team]
+        $scope.teamLineups[teams.opp] = $scope.dfsStats.teamLineups[teams.opp]
 
         getTeamNews(teams.team);
         getTeamNews(teams.opp);
@@ -212,14 +205,15 @@ app.controller('MainCtrl',
 
     }
 
-    $scope.getLineUps = function(teams) {
+    $scope.getGameStats = function(teams) {
         $scope.teamLineups = {};
         $scope.teamAdvancedStats = {};
 
-        getLineupsByTeam(teams.team);
-        getLineupsByTeam(teams.opp);
-        getTeamAdvancedStats(teams.opp);
-        getTeamAdvancedStats(teams.team);
+        $scope.teamLineups[teams.team] = $scope.dfsStats.teamLineups[teams.team]
+        $scope.teamLineups[teams.opp] = $scope.dfsStats.teamLineups[teams.opp]
+
+        $scope.teamAdvancedStats[teams.team] = $scope.dfsStats.teamAdvancedStats[teams.team];
+        $scope.teamAdvancedStats[teams.opp] = $scope.dfsStats.teamAdvancedStats[teams.opp];
     }
 
     $scope.getPlayers = function(team) {
@@ -392,55 +386,5 @@ app.controller('MainCtrl',
         }
 
     });
-
-    $scope.findBestPack = function(data) {
-        var m= [[0]]; // maximum pack value found so far
-        var b= [[0]]; // best combination found so far
-        var opts= [0]; // item index for 0 of item 0
-        var P= [1]; // item encoding for 0 of item 0
-        var choose= 0;
-        for (var j= 0; j<data.length; j++) {
-            opts[j+1]= opts[j]+data[j].pieces; // item index for 0 of item j+1
-            P[j+1]= P[j]*(1+data[j].pieces); // item encoding for 0 of item j+1
-        }
-        for (var j= 0; j<opts[data.length]; j++) {
-            m[0][j+1]= b[0][j+1]= 0; // best values and combos for empty pack: nothing
-        }
-        for (var w=1; w<=50000; w++) {
-            m[w]= [0];
-            b[w]= [0];
-            for (var j=0; j<data.length; j++) {
-                var N= data[j].pieces; // how many of these can we have?
-                var base= opts[j]; // what is the item index for 0 of these?
-                for (var n= 1; n<=N; n++) {
-                    var W= n*data[j].weight; // how much do these items weigh?
-                    var s= w>=W ?1 :0; // can we carry this many?
-                    var v= s*n*data[j].value; // how much are they worth?
-                    var I= base+n; // what is the item number for this many?
-                    var wN= w-s*W; // how much other stuff can we be carrying?
-                    var C= n*P[j] + b[wN][base]; // encoded combination
-                    m[w][I]= Math.max(m[w][I-1], v+m[wN][base]); // best value
-                    choose= b[w][I]= m[w][I]>m[w][I-1] ?C :b[w][I-1];
-                }
-            }
-        }
-        var best= [];
-        for (var j= data.length-1; j>=0; j--) {
-            best[j]= Math.floor(choose/P[j]);
-            choose-= best[j]*P[j];
-        }
-        var out='<table><tr><td><b>Count</b></td><td><b>Item</b></td><th>unit weight</th><th>unit value</th>';
-        var wgt= 0;
-        var val= 0;
-        for (var i= 0; i<best.length; i++) {
-            if (0==best[i]) continue;
-            out+='</tr><tr><td>'+best[i]+'</td><td>'+data[i].name+'</td><td>'+data[i].weight+'</td><td>'+data[i].value+'</td>'
-            wgt+= best[i]*data[i].weight;
-            val+= best[i]*data[i].value;
-        }
-        out+= '</tr></table><br/>Total weight: '+wgt;
-        out+= '<br/>Total value: '+val;
-        document.body.innerHTML= out;
-    }
 
 }]);

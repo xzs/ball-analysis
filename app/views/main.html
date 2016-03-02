@@ -26,7 +26,7 @@
   <h2 class="panel-heading" style="color:#d3394c;">Today's Games</h2>
   <slick dots="true" arrows="true" infinite="true" data="todaySchedule" init-onload="true" slides-to-show="3" slides-to-scroll="3">
     <div ng-repeat="game in todaySchedule" style="text-align: center;">
-      <div ng-click="getLineUps(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}} ({{game.location}})</div>
+      <div ng-click="getGameStats(game)" class="cursor-pointer" style="color: blue;">{{game.opp}} vs {{game.team}} ({{game.location}})</div>
       <div>{{game.time}}</div>
     </div>
   </slick>
