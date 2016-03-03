@@ -258,6 +258,7 @@ def get_active_teams():
 def get_current_roster(teams_dict):
 
     players_dict = {}
+    team_dict = {}
 
     for team in teams_dict:
         logger.debug('Getting players information for: '+ team)
@@ -271,7 +272,7 @@ def get_current_roster(teams_dict):
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
 
-        team_dict = {}
+        team_dict[team] = {}
 
         # find the team stats id=team_stats
         team_stats_table = soup.find('table', attrs={'id':'team_stats'})
@@ -295,21 +296,22 @@ def get_current_roster(teams_dict):
         for header_row, stat_row, rank_row in zip(team_misc_header_rows, team_misc_rows, team_misc_rank_rows):
             stat = str(header_row.text)
             if header_row.text != '':
-                team_dict[stat] = {}
-                team_dict[stat]['stat'] = str(stat_row.text)
-                team_dict[stat]['rank'] = str(rank_row.text)
+                team_dict[team][stat] = {}
+                team_dict[team][stat]['stat'] = str(stat_row.text)
+                team_dict[team][stat]['rank'] = str(rank_row.text)
 
         # loop through the rows in parallel
         for header_row, stat_row, rank_row in zip(team_stats_header_rows, team_stats_rows, team_rank_rows):
             stat = str(header_row.text)
             if header_row.text != '':
-                team_dict[stat] = {}
-                team_dict[stat]['stat'] = str(stat_row.text)
-                team_dict[stat]['rank'] = str(rank_row.text)
+                team_dict[team][stat] = {}
+                team_dict[team][stat]['stat'] = str(stat_row.text)
+                team_dict[team][stat]['rank'] = str(rank_row.text)
 
+        # i need to store one for league (for all the teams info for pace, pts etc.)
         with open('misc/team_stats/'+team+'.json', 'w') as outfile:
             logger.info('Writing news to json file: '+ team)
-            json.dump(team_dict, outfile)
+            json.dump(team_dict[team], outfile)
 
         # find the advanced stats id=advanced
         advanced_table = soup.find('table', attrs={'id':'advanced'})
@@ -358,6 +360,11 @@ def get_current_roster(teams_dict):
             logger.info('Finished getting player information for: '+ player_name)
 
         logger.info('Finished getting players information for: '+ team)
+
+    # store json dump for league (all teams)
+    with open('misc/team_stats/league.json', 'w') as outfile:
+        logger.info('Writing news to json file: league')
+        json.dump(team_dict, outfile)
 
     return players_dict
 
@@ -564,13 +571,9 @@ def top_n_lineups(n):
 
 pp = pprint.PrettyPrinter(indent=4)
 teams_dict = get_active_teams()
-# get_team_schedule(teams_dict)
+get_team_schedule(teams_dict)
 PLAYERS_DICT = get_current_roster(teams_dict)
-# get_player_log(PLAYERS_DICT)
-get_player_log(PLAYERS_DICT['MIN'])
-get_player_log(PLAYERS_DICT['DAL'])
-get_player_log(PLAYERS_DICT['MIA'])
-get_player_log(PLAYERS_DICT['NYK'])
+get_player_log(PLAYERS_DICT)
 
 
 get_depth_chart()

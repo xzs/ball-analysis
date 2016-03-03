@@ -482,6 +482,7 @@ def read_player_csv(csv_f, schedule, player_name):
         # Process the stats for each team
         average_stats(player_dict['teams_against'])
         # dfs points
+        # http://stackoverflow.com/a/4110705
         all_dfs_points = sorted(all_dfs_points.items(), key=lambda x: (x[1]["dk_points"]))
 
     return player_dict

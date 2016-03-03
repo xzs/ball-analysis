@@ -186,7 +186,7 @@ app.directive('statsTable', function() {
                 }
                 return results;
             }
-
+            // http://stackoverflow.com/a/5073866
             var sortKey = function (prop, arr) {
                 prop = prop.split('.');
                 var len = prop.length;
