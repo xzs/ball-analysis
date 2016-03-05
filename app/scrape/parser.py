@@ -5,6 +5,7 @@ import json
 import glob
 import sys
 import logging
+import numpy
 from datetime import datetime as dt
 
 logging.basicConfig(level=logging.INFO)
@@ -494,28 +495,31 @@ def read_player_csv(csv_f, schedule, player_name):
 def process_best_dfs_points(num_best, dfs_points, position, player_dict):
 
     player_dict['fantasy_best'] = {
-        'log': [],
-        'avg_pace': 0,
-        'avg_pace_rank': 0,
-        'avg_playtime': 0,
-        'med_pace': 0,
-        'med_pace_rank': 0,
-        'med_playtime': 0,
+        'log': []
     }
+    pace = []
+    pace_rank = []
+    playtime = 0
+
     for record in list(reversed(dfs_points))[:num_best]:
         team = record[1]['opponent']
         if position in TEAM_DVP_STATS[team]:
-            player_dict['fantasy_best']['avg_pace'] += float(LEAGUE_ADV_STATS[team]['Pace']['stat'])
-            player_dict['fantasy_best']['avg_pace_rank'] += float(LEAGUE_ADV_STATS[team]['Pace']['rank'])
+            pace.append(float(LEAGUE_ADV_STATS[team]['Pace']['stat']))
+            pace_rank.append(float(LEAGUE_ADV_STATS[team]['Pace']['rank']))
+            playtime = process_playtime(playtime, record[1]['playtime'])
+
             player_dict['fantasy_best']['log'].append({
                 'team': team,
                 'game': record[1],
                 'pace': LEAGUE_ADV_STATS[team]['Pace'],
                 'dvp': TEAM_DVP_STATS[team][position]
             })
-    # avg
-    player_dict['fantasy_best']['avg_pace'] = player_dict['fantasy_best']['avg_pace']/num_best
-    player_dict['fantasy_best']['avg_pace_rank'] = player_dict['fantasy_best']['avg_pace_rank']/num_best
+
+    player_dict['fantasy_best']['med_pace'] = numpy.median(pace)
+    player_dict['fantasy_best']['med_pace_rank'] = numpy.median(pace_rank)
+    player_dict['fantasy_best']['avg_pace'] = numpy.average(pace)
+    player_dict['fantasy_best']['avg_pace_rank'] = numpy.average(pace_rank)
+    player_dict['fantasy_best']['avg_playtime'] = float(playtime/num_best)/60
 
 def process_basic_stats(dict_obj, record):
     dict_obj['points'] += float(record[27])
