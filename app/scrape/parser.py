@@ -392,6 +392,7 @@ def read_player_csv(csv_f, schedule, player_name):
                     'opponent' : record[6],
                     'margin' : record[7],
                     'playtime' : record[9],
+                    'date' : record[2],
                     'dk_points' : dfs_points
                 }
 
@@ -481,12 +482,40 @@ def read_player_csv(csv_f, schedule, player_name):
         average_stats(player_dict['post_all_star'])
         # Process the stats for each team
         average_stats(player_dict['teams_against'])
-        # dfs points
+
         # http://stackoverflow.com/a/4110705
         all_dfs_points = sorted(all_dfs_points.items(), key=lambda x: (x[1]["dk_points"]))
+        process_best_dfs_points(10, all_dfs_points, player_dict['basic_info']['position'], player_dict)
+
 
     return player_dict
 
+
+def process_best_dfs_points(num_best, dfs_points, position, player_dict):
+
+    player_dict['fantasy_best'] = {
+        'log': [],
+        'avg_pace': 0,
+        'avg_pace_rank': 0,
+        'avg_playtime': 0,
+        'med_pace': 0,
+        'med_pace_rank': 0,
+        'med_playtime': 0,
+    }
+    for record in list(reversed(dfs_points))[:num_best]:
+        team = record[1]['opponent']
+        if position in TEAM_DVP_STATS[team]:
+            player_dict['fantasy_best']['avg_pace'] += float(LEAGUE_ADV_STATS[team]['Pace']['stat'])
+            player_dict['fantasy_best']['avg_pace_rank'] += float(LEAGUE_ADV_STATS[team]['Pace']['rank'])
+            player_dict['fantasy_best']['log'].append({
+                'team': team,
+                'game': record[1],
+                'pace': LEAGUE_ADV_STATS[team]['Pace'],
+                'dvp': TEAM_DVP_STATS[team][position]
+            })
+    # avg
+    player_dict['fantasy_best']['avg_pace'] = player_dict['fantasy_best']['avg_pace']/num_best
+    player_dict['fantasy_best']['avg_pace_rank'] = player_dict['fantasy_best']['avg_pace_rank']/num_best
 
 def process_basic_stats(dict_obj, record):
     dict_obj['points'] += float(record[27])
@@ -783,6 +812,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # Open all team schedules for processing
 SCHEDULE_DICT = {}
+TEAM_DVP_STATS = {}
 SCHEDULE_DICT['league_schedule'] = {}
 for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
     team_name = files.split('/')[2].split('.c')[0]
@@ -792,13 +822,23 @@ for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
             read_team_schedule_csv(f, team_name)
             logger.info('Dumping json for: '+team_name)
 
+            # open team dvp stats
+            with open('misc/fantasy_stats/'+team_name+'.json') as data_file:
+                TEAM_DVP_STATS[team_name] = json.load(data_file)
+
             with open('json_files/team_schedules/'+YEAR+'/'+team_name+'.json', 'w') as outfile:
                 json.dump(SCHEDULE_DICT[team_name], outfile)
+
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
 
 with open('json_files/team_schedules/'+YEAR+'/league_schedule.json', 'w') as outfile:
     json.dump(SCHEDULE_DICT['league_schedule'], outfile)
+
+
+with open('misc/team_stats/league.json') as data_file:
+    LEAGUE_ADV_STATS = json.load(data_file)
+
 
 ALL_PLAYERS = {}
 # Open all player files for data parsing
