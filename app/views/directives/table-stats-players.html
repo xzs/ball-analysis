@@ -176,8 +176,8 @@
             'bad-pick': player.dvp['last_5_ratio'] <= 0.90}">
             {{player.dvp['last_5']}} ({{player.dvp['last_5_ratio']}})
           </td>
-          <td>{{player.ftr}}</td>
-          <td>{{player.trb}}</td>
+          <td ng-class="{'good-pick': player.ftrVsOppFoul == 'up'}">{{player.ftr}}</td>
+          <td ng-class="{'good-pick': player.trbVsOppFGA == 'up'}">{{player.trb}}</td>
           <td ng-class="{'warning': player.stats.fouls >= 4.5}">{{player.stats.fouls}}</td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.usageIncrease.last_1_games == 'up',

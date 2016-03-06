@@ -137,9 +137,13 @@ app.directive('statsTable', function() {
                     // lineup criteria
                     if  (    cCount >= 1
                             && sgCount >= 1
+                            && sgCount < 3
                             && pgCount >= 1
+                            && pgCount < 3
                             && sfCount >= 1
+                            && sfCount < 3
                             && pfCount >= 1
+                            && pfCount < 3
                             && gCount >= 2 && fCount >= 2 && cCount < 3
                         )
                     {

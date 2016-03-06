@@ -248,6 +248,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         finalData.players = [];
         // get the stats for the league
         getDefenseVsPositionStats('league');
+        finalData.getTeamAdvancedStats('league');
 
         var opponents = {};
         for (var i=0; i<teams.length; i++) {
@@ -392,6 +393,9 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     playerObj.trb = parseFloat(advData[player]['TRB%']);
                     playerObj.usage = parseInt(advData[player]['USG%']);
 
+                    playerObj.ftrVsOppFoul = ftrVsOppFoul(playerObj.ftr, finalData.teamAdvancedStats[playerOpponent]['PF'])
+                    playerObj.trbVsOppFGA = trbVsOppFGA(playerObj.trb, finalData.teamAdvancedStats[playerOpponent]['FGA'])
+
                     playerObj.fppPerMinute = parseFloat(data.stats.dk_points / data.stats.playtime).toFixed(2);
                     playerObj.fppPerMinute3 = parseFloat(data.last_3_games.dk_points / data.last_3_games.playtime).toFixed(2);
 
@@ -414,71 +418,59 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     // use DK position
                     if (playerOpponent) {
                         var dvpStats = finalData.dvpStats[playerOpponent];
-                        // fetch.getDefenseVsPositionStats(playerOpponent).then(function (dvpStats){
-                            playerObj.dvp.last_5 = dvpStats[playerPosition]['Last 5'];
-                            playerObj.dvp.last_5_ratio = parseFloat(dvpStats[playerPosition]['Last 5']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
-                            playerObj.dvp.season = dvpStats[playerPosition]['Season'];
-                            playerObj.dvp.season_ratio = parseFloat(dvpStats[playerPosition]['Season']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
+                        playerObj.dvp.last_5 = dvpStats[playerPosition]['Last 5'];
+                        playerObj.dvp.last_5_ratio = parseFloat(dvpStats[playerPosition]['Last 5']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
+                        playerObj.dvp.season = dvpStats[playerPosition]['Season'];
+                        playerObj.dvp.season_ratio = parseFloat(dvpStats[playerPosition]['Season']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
 
 
-                            playerObj.simpleProjection = parseFloat(playerObj.last_3_games.dk_points * playerObj.dvp.last_5_ratio);
-                            var tempWeightedNet, avgWeightedNet;
-                            if (playerObj.opportunityScore && playerObj.val && playerObj.salary) {
-                                tempWeightedNet = parseFloat(0.35*playerObj.opportunityScore + 0.1*playerObj.dvp.last_5 + 0.1*playerObj.last_3_games.playtime
-                                    + 0.2*playerObj.val + 0.1*playerObj.last_3_games.dk_points + 0.15*playerObj.last_3_games.usage);
+                        playerObj.simpleProjection = parseFloat(playerObj.last_3_games.dk_points * playerObj.dvp.last_5_ratio);
+                        var tempWeightedNet, avgWeightedNet;
+                        if (playerObj.opportunityScore && playerObj.val && playerObj.salary) {
+                            tempWeightedNet = parseFloat(0.35*playerObj.opportunityScore + 0.1*playerObj.dvp.last_5 + 0.1*playerObj.last_3_games.playtime
+                                + 0.2*playerObj.val + 0.1*playerObj.last_3_games.dk_points + 0.15*playerObj.last_3_games.usage);
 
-                                avgWeightedNet = parseFloat(0.35*playerObj.fppPerMinute + 0.1*playerObj.dvp.season + 0.1*playerObj.stats.playtime
-                                    + 0.2*playerObj.val + 0.1*playerObj.stats.dk_points + 0.15*playerObj.usage);
+                            avgWeightedNet = parseFloat(0.35*playerObj.fppPerMinute + 0.1*playerObj.dvp.season + 0.1*playerObj.stats.playtime
+                                + 0.2*playerObj.val + 0.1*playerObj.stats.dk_points + 0.15*playerObj.usage);
 
-                                if (playerObj.lastGameBetterThanAverage.last_1_games == 'up') {
-                                    tempWeightedNet += 0.5;
-                                } else if (playerObj.lastGameBetterThanAverage.last_1_games == 'down') {
-                                    tempWeightedNet -= 0.5;
-                                }
-
-                                if (playerObj.lastGameBetterThanAverage.last_3_games == 'up') {
-                                    tempWeightedNet += 0.5;
-                                } else if (playerObj.lastGameBetterThanAverage.last_3_games == 'down') {
-                                    tempWeightedNet -= 0.5;
-                                }
-
-                                if (playerObj.minuteIncrease.last_1_games == 'up') {
-                                    tempWeightedNet += 0.5;
-                                } else if (playerObj.minuteIncrease.last_1_games == 'down') {
-                                    tempWeightedNet -= 0.5;
-                                }
-
-                                if (playerObj.minuteIncrease.last_3_games == 'up') {
-                                    tempWeightedNet += 0.5;
-                                } else if (playerObj.minuteIncrease.last_3_games == 'down') {
-                                    tempWeightedNet -= 0.5;
-                                }
-                                tempWeightedNet = tempWeightedNet.toFixed(2);
-                                avgWeightedNet = avgWeightedNet.toFixed(2);
-                            } else {
-                                tempWeightedNet = 0;
+                            if (playerObj.lastGameBetterThanAverage.last_1_games == 'up') {
+                                tempWeightedNet += 0.5;
+                            } else if (playerObj.lastGameBetterThanAverage.last_1_games == 'down') {
+                                tempWeightedNet -= 0.5;
                             }
-                            playerObj.tempWeightedNet = parseFloat(tempWeightedNet);
-                            playerObj.avgWeightedNet = avgWeightedNet;
-                            playerObj.weightedRatio = (tempWeightedNet / avgWeightedNet).toFixed(2);
-                            // finalData.tempPlayers.push({
-                            //     'name': player,
-                            //     'weight': playerObj.salary,
-                            //     'value': playerObj.simpleProjection,
-                            //     'pieces': 1
-                            // })
-                            // if (tempWeightedNet > 10) {
-                                finalData.players.push(playerObj);
-                            // }
 
-                        // });
+                            if (playerObj.lastGameBetterThanAverage.last_3_games == 'up') {
+                                tempWeightedNet += 0.5;
+                            } else if (playerObj.lastGameBetterThanAverage.last_3_games == 'down') {
+                                tempWeightedNet -= 0.5;
+                            }
+
+                            if (playerObj.minuteIncrease.last_1_games == 'up') {
+                                tempWeightedNet += 0.5;
+                            } else if (playerObj.minuteIncrease.last_1_games == 'down') {
+                                tempWeightedNet -= 0.5;
+                            }
+
+                            if (playerObj.minuteIncrease.last_3_games == 'up') {
+                                tempWeightedNet += 0.5;
+                            } else if (playerObj.minuteIncrease.last_3_games == 'down') {
+                                tempWeightedNet -= 0.5;
+                            }
+                            tempWeightedNet = tempWeightedNet.toFixed(2);
+                            avgWeightedNet = avgWeightedNet.toFixed(2);
+                        } else {
+                            tempWeightedNet = 0;
+                        }
+                        playerObj.tempWeightedNet = parseFloat(tempWeightedNet);
+                        playerObj.avgWeightedNet = avgWeightedNet;
+                        playerObj.weightedRatio = (tempWeightedNet / avgWeightedNet).toFixed(2);
+                        finalData.players.push(playerObj);
                     }
 
                 });
             });
         }
     };
-
 
     function getMaxUsage(advData, data, player) {
         if (parseInt(advData[player]['USG%']) > 20 && parseInt(data.stats.playtime) > 20) {
@@ -488,6 +480,20 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             })
         }
         return finalData.maxUsage;
+    };
+
+    function ftrVsOppFoul(ftr, oppPF) {
+        if (ftr > 0.28 && oppPF.stat > 21) {
+            return 'up';
+        }
+        return '';
+    };
+
+    function trbVsOppFGA(trb, oppFGA) {
+        if (trb > 10 && oppFGA.stat > 85) {
+            return 'up';
+        }
+        return '';
     };
 
     function lastGameVsAverage(data) {
