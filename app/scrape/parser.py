@@ -6,6 +6,8 @@ import glob
 import sys
 import logging
 import numpy
+import re
+
 from datetime import datetime as dt
 
 logging.basicConfig(level=logging.INFO)
@@ -488,7 +490,7 @@ def read_player_csv(csv_f, schedule, player_name):
         all_dfs_points = sorted(all_dfs_points.items(), key=lambda x: (x[1]["dk_points"]))
         process_best_dfs_points(10, all_dfs_points, player_dict['basic_info']['position'], player_dict)
 
-
+        # pp.pprint(player_dict['fantasy_best'])
     return player_dict
 
 
@@ -500,13 +502,22 @@ def process_best_dfs_points(num_best, dfs_points, position, player_dict):
     pace = []
     pace_rank = []
     playtime = 0
-
+    result_bucket = {
+        'result': {
+            'W': 0,
+            'L': 0
+        },
+        'win_margin': [],
+        'loss_margin': []
+    }
     for record in list(reversed(dfs_points))[:num_best]:
         team = record[1]['opponent']
         if position in TEAM_DVP_STATS[team]:
             pace.append(float(LEAGUE_ADV_STATS[team]['Pace']['stat']))
             pace_rank.append(float(LEAGUE_ADV_STATS[team]['Pace']['rank']))
             playtime = process_playtime(playtime, record[1]['playtime'])
+            points = re.findall("(\d+)", record[1]['margin'])[0]
+            result_bucket = process_margin(record[1]['margin'][0], record[1]['margin'][3], points, result_bucket)
 
             player_dict['fantasy_best']['log'].append({
                 'team': team,
@@ -515,11 +526,62 @@ def process_best_dfs_points(num_best, dfs_points, position, player_dict):
                 'dvp': TEAM_DVP_STATS[team][position]
             })
 
-    player_dict['fantasy_best']['med_pace'] = numpy.median(pace)
-    player_dict['fantasy_best']['med_pace_rank'] = numpy.median(pace_rank)
-    player_dict['fantasy_best']['avg_pace'] = numpy.average(pace)
-    player_dict['fantasy_best']['avg_pace_rank'] = numpy.average(pace_rank)
+    player_dict['fantasy_best']['pace'] = {
+        'pace': numpy_metrics({}, pace),
+        'rank': numpy_metrics({}, pace_rank)
+    }
+
+    player_dict['fantasy_best']['margin'] = {
+        'win': numpy_metrics({}, result_bucket['win_margin']),
+        'loss': numpy_metrics({}, result_bucket['loss_margin'])
+    }
+
+    player_dict['fantasy_best']['results'] = {
+        'win': result_bucket['result']['W'],
+        'loss': result_bucket['result']['L']
+    }
+
     player_dict['fantasy_best']['avg_playtime'] = float(playtime/num_best)/60
+
+
+def numpy_metrics(dict_obj, result_bucket):
+    try:
+        dict_obj['avg'] = numpy.average(result_bucket)
+    except ValueError:  #raised if `y` is empty.
+        pass
+
+    try:
+        dict_obj['med'] = numpy.median(result_bucket)
+    except ValueError:  #raised if `y` is empty.
+        pass
+
+    try:
+        dict_obj['min'] = numpy.min(result_bucket)
+    except ValueError:  #raised if `y` is empty.
+        pass
+
+    try:
+        dict_obj['max'] = numpy.max(result_bucket)
+    except ValueError:  #raised if `y` is empty.
+        pass
+
+    return dict_obj
+
+def process_margin(result, plus_minus, points, result_bucket):
+    # results
+    if result == 'W':
+        result_bucket['result']['W'] += 1
+    else:
+        result_bucket['result']['L'] += 1
+
+    # margin
+    if plus_minus == '+':
+        result_bucket['win_margin'].append(float(points))
+    else:
+        result_bucket['loss_margin'].append(float(points))
+
+    return result_bucket
+
 
 def process_basic_stats(dict_obj, record):
     dict_obj['points'] += float(record[27])
