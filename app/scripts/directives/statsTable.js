@@ -28,6 +28,21 @@ app.directive('statsTable', function() {
               }
             }
 
+            $scope.showThree = false;
+            $scope.showOne = true;
+            $scope.numLineups = 1;
+            $scope.toggleLineup = function(num) {
+              if (num == '1') {
+                $scope.showThree = false;
+                $scope.showOne = true;
+                $scope.numLineups = 1;
+              } else {
+                $scope.showThree = true;
+                $scope.showOne = false;
+                $scope.numLineups = 3;
+              }
+            }
+
             $scope.playerStatus = function(player){
               var classes = '';
               if (player.status == 'Sidelined') {

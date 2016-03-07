@@ -541,27 +541,27 @@ def process_best_dfs_points(num_best, dfs_points, position, player_dict):
         'loss': result_bucket['result']['L']
     }
 
-    player_dict['fantasy_best']['avg_playtime'] = float(playtime/num_best)/60
+    player_dict['fantasy_best']['avg_playtime'] = two_decimals(float(playtime/num_best)/60)
 
 
 def numpy_metrics(dict_obj, result_bucket):
     try:
-        dict_obj['avg'] = numpy.average(result_bucket)
+        dict_obj['avg'] = two_decimals(numpy.average(result_bucket))
     except ValueError:  #raised if `y` is empty.
         pass
 
     try:
-        dict_obj['med'] = numpy.median(result_bucket)
+        dict_obj['med'] = two_decimals(numpy.median(result_bucket))
     except ValueError:  #raised if `y` is empty.
         pass
 
     try:
-        dict_obj['min'] = numpy.min(result_bucket)
+        dict_obj['min'] = two_decimals(numpy.min(result_bucket))
     except ValueError:  #raised if `y` is empty.
         pass
 
     try:
-        dict_obj['max'] = numpy.max(result_bucket)
+        dict_obj['max'] = two_decimals(numpy.max(result_bucket))
     except ValueError:  #raised if `y` is empty.
         pass
 

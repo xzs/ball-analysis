@@ -1,5 +1,19 @@
 <div class="panel panel-default" ng-if="data">
-  <div class="panel-heading"><b>{{heading}}</b></div>
+  <div class="panel-heading">
+    <a ng-show="showThree"
+      class="cursor-pointer"
+      ng-click="toggleLineup('1')">
+        <b>{{heading}} (Last 3)</b>
+    </a>
+    <a ng-show="showOne"
+      class="cursor-pointer"
+      ng-click="toggleLineup('3')">
+        <b>{{heading}} (Last 1)</b>
+    </a>
+    <span class="fa fa-gg pull-right cursor-pointer" data-toggle="collapse"
+      data-target="#categories"
+      class="cursor-pointer"></span>
+  </div>
   <table class="table table-striped">
     <thead>
       <!-- we could loop these but for the sake of order we manually put them here-->
@@ -17,7 +31,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="category in data">
+      <tr ng-repeat="category in data[numLineups]">
           <td>
             {{category['Rk']}}
           </td>

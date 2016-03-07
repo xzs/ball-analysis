@@ -259,7 +259,9 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             getTeamNews(team);
 
             finalData.getTeamAdvancedStats(team);
-            finalData.getLineupsByTeam(team);
+            finalData.teamLineups[team] = {};
+            finalData.getLineupsByTeam(team, 1);
+            finalData.getLineupsByTeam(team, 3);
 
             // get opponents
             if (!opponents[team]) {
@@ -321,10 +323,10 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
         });
     }
 
-    finalData.getLineupsByTeam = function(team) {
-        finalData.teamLineups[team] = {};
-        fetch.getTopLineupsByTeam(team).then(function (data){
-            finalData.teamLineups[team] = data;
+    finalData.getLineupsByTeam = function(team, n) {
+        finalData.teamLineups[team][n] = {};
+        fetch.getTopLineupsByTeam(team, n).then(function (data){
+            finalData.teamLineups[team][n] = data;
         });
     }
 
@@ -401,6 +403,11 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
 
                     playerObj.rebPerMinute = parseFloat(data.stats.rebounds / data.stats.playtime).toFixed(2);
                     playerObj.rebPerMinute3 = parseFloat(data.last_3_games.rebounds / data.last_3_games.playtime).toFixed(2);
+
+                    playerObj.opace = data.fantasy_best.pace;
+                    playerObj.omargin = data.fantasy_best.margin;
+                    playerObj.oresults = data.fantasy_best.results;
+                    playerObj.oplaytime = data.fantasy_best.avg_playtime;
 
                     playerObj.lastGameBetterThanAverage = lastGameVsAverage(data);
                     playerObj.minuteIncrease = minuteIncrease(data);
@@ -483,14 +490,14 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
     };
 
     function ftrVsOppFoul(ftr, oppPF) {
-        if (ftr > 0.28 && oppPF.stat > 21) {
+        if (ftr > 0.25 && oppPF.stat > 21) {
             return 'up';
         }
         return '';
     };
 
     function trbVsOppFGA(trb, oppFGA) {
-        if (trb > 10 && oppFGA.stat > 85) {
+        if (trb > 10 && oppFGA.stat > 84.5) {
             return 'up';
         }
         return '';

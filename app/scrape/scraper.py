@@ -513,7 +513,7 @@ def get_team_against_position():
     return matchup_data
 
 
-def top_n_lineups(n):
+def top_n_lineups(n, num_lineups):
     for team in TEAMS_DICT:
         if team == 'BRK':
             team_url = 'NJN'
@@ -526,12 +526,12 @@ def top_n_lineups(n):
         with open('team_schedules/'+YEAR+'/'+team+'.csv', 'r') as outfile:
             for row in reversed(list(csv.reader(outfile))):
                 if row[7]:
-                    last_3_game = int(row[0])-3
+                    last_n_game = int(row[0])-n
                     break
 
         LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.cgi?'\
             'request=1&player_id=&match=single&lineup_type=5-man&output=total&year_id='+YEAR+'&is_playoffs=N&'\
-            'opp_id=&game_num_min='+str(last_3_game)+'&game_num_max=99&game_month=&game_location=&game_result=&'\
+            'opp_id=&game_num_min='+str(last_n_game)+'&game_num_max=99&game_month=&game_location=&game_result=&'\
             'c1stat=&c1comp=ge&c1val=&c2stat=&c2comp=ge&c2val=&c3stat=&c3comp=ge&c3val=&c4stat=&c4comp=ge&c4val=&order_by=mp&team_id='
 
         url = urllib2.urlopen(LINEUP_URL+team_url)
@@ -549,7 +549,8 @@ def top_n_lineups(n):
             rows = table_body.find_all('tr')
 
             lineup = []
-            for row in rows[0:n]:
+            # get top 5 lineups
+            for row in rows[0:num_lineups]:
                 data = row.find_all('td')
                 dataset = {}
                  # each row is a lineup
@@ -565,19 +566,20 @@ def top_n_lineups(n):
 
                 lineup.append(dataset)
 
-        with open('misc/lineups/'+team+'.json', 'w') as outfile:
+        with open('misc/lineups/'+team+'-'+str(n+1)+'.json', 'w') as outfile:
             logger.info('Writing to lineups file:' +team)
             json.dump(lineup, outfile)
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# teams_dict = get_active_teams()
+# get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
 
-get_depth_chart()
-get_fantasy_news()
-get_team_against_position()
+# get_depth_chart()
+# get_fantasy_news()
+# get_team_against_position()
 
-top_n_lineups(5)
+top_n_lineups(0, 5)
+top_n_lineups(2, 5)

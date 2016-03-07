@@ -39,6 +39,10 @@
             <span class="sortorder" ng-show="predicate === 'stats.playtime'" ng-class="{reverse:reverse}"></span>
           </th>
           <th>
+            <a href="" ng-click="order('oplaytime')">OMin</a>
+            <span class="sortorder" ng-show="predicate === 'oplaytime'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
             <a href="" ng-click="order('last_1_games.dk_points')">FP1</a>
             <span class="sortorder" ng-show="predicate === 'last_1_games.dk_points'" ng-class="{reverse:reverse}"></span>
           </th>
@@ -102,6 +106,22 @@
             <a href="" ng-click="order('usage')">USG</a>
             <span class="sortorder" ng-show="predicate === 'usage'" ng-class="{reverse:reverse}"></span>
           </th>
+          <th>
+            <a href="" ng-click="order('opace.rank.avg')">OPACE(A/M)</a>
+            <span class="sortorder" ng-show="predicate === 'opace.rank.avg'" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('')">OWL(W/L)</a>
+            <span class="sortorder" ng-show="predicate === ''" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('')">OMGN(W/L A)</a>
+            <span class="sortorder" ng-show="predicate === ''" ng-class="{reverse:reverse}"></span>
+          </th>
+          <th>
+            <a href="" ng-click="order('')">OMGN(W/L M)</a>
+            <span class="sortorder" ng-show="predicate === ''" ng-class="{reverse:reverse}"></span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -148,6 +168,7 @@
             {{player.last_3_games.playtime}}
           </td>
           <td>{{player.stats.playtime}}</td>
+          <td>{{player.oplaytime}}</td>
           <td>
             <i ng-class="{'fa fa-arrow-up status-green': player.lastGameBetterThanAverage.last_1_games == 'up', 
               'fa fa-arrow-down status-red': player.lastGameBetterThanAverage.last_1_games == 'down'}"></i>
@@ -190,6 +211,10 @@
             {{player.last_3_games.usage}}
           </td>
           <td ng-class="{'good-pick': player.usage >= 20}">{{player.usage}}</td>
+          <td>{{player.opace.rank.avg}}/{{player.opace.rank.med}}</td>
+          <td>{{player.oresults.win}}/{{player.oresults.loss}}</td>
+          <td>{{player.omargin.win.avg}}/{{player.omargin.loss.avg}}</td>
+          <td>{{player.omargin.win.med}}/{{player.omargin.loss.med}}</td>
         </tr>
       </tbody>
     </table>
