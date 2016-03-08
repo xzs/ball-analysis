@@ -298,6 +298,7 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             _.forEach(data, function(players, position) {
                 for (var i=0; i<players.length; i++) {
                     var player = players[i].player;
+                    console.log(player);
                     var status = players[i].status;
                     var rank = i;
                     if (finalData.AMB_PLAYERS[player]) {

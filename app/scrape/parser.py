@@ -546,22 +546,35 @@ def process_best_dfs_points(num_best, dfs_points, position, player_dict):
 
 def numpy_metrics(dict_obj, result_bucket):
     try:
-        dict_obj['avg'] = two_decimals(numpy.average(result_bucket))
+        if len(result_bucket) > 0:
+            dict_obj['avg'] = two_decimals(numpy.average(result_bucket))
+        else:
+            dict_obj['avg'] = 0
     except ValueError:  #raised if `y` is empty.
         pass
 
     try:
-        dict_obj['med'] = two_decimals(numpy.median(result_bucket))
+        if len(result_bucket) > 0:
+            dict_obj['med'] = two_decimals(numpy.median(result_bucket))
+        else:
+            dict_obj['med'] = 0
     except ValueError:  #raised if `y` is empty.
         pass
 
     try:
-        dict_obj['min'] = two_decimals(numpy.min(result_bucket))
+        if len(result_bucket) > 0:
+            dict_obj['min'] = two_decimals(numpy.min(result_bucket))
+        else:
+            dict_obj['min'] = 0
     except ValueError:  #raised if `y` is empty.
         pass
 
     try:
-        dict_obj['max'] = two_decimals(numpy.max(result_bucket))
+        if len(result_bucket) > 0:
+            dict_obj['max'] = two_decimals(numpy.max(result_bucket))
+        else:
+            dict_obj['max'] = 0
+        # dict_obj['max'] = two_decimals(numpy.max(result_bucket))
     except ValueError:  #raised if `y` is empty.
         pass
 

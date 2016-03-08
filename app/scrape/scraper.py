@@ -283,7 +283,7 @@ def get_current_roster(teams_dict):
         team_stats_rows = team_stats_table_body.find_all('tr')[1].find_all('td')
         team_rank_rows = team_stats_table_body.find_all('tr')[2].find_all('td')
 
-        # find the team stats id=team_stats
+        # find the team stats id=team_misc
         team_misc_table = soup.find('table', attrs={'id':'team_misc'})
         team_misc_table_header = team_misc_table.find('thead')
         team_misc_header_rows = team_misc_table_header.find_all('tr')[1].find_all('th')
@@ -293,12 +293,19 @@ def get_current_roster(teams_dict):
         team_misc_rank_rows = team_misc_table_body.find_all('tr')[1].find_all('td')
 
         # misc
+        print team_misc_header_rows
         for header_row, stat_row, rank_row in zip(team_misc_header_rows, team_misc_rows, team_misc_rank_rows):
             stat = str(header_row.text)
             if header_row.text != '':
-                team_dict[team][stat] = {}
-                team_dict[team][stat]['stat'] = str(stat_row.text)
-                team_dict[team][stat]['rank'] = str(rank_row.text)
+                # from bballref formatting if already there it will be a defensive factor
+                if stat in team_dict[team]:
+                    team_dict[team]['d'+stat] = {}
+                    team_dict[team]['d'+stat]['stat'] = str(stat_row.text)
+                    team_dict[team]['d'+stat]['rank'] = str(rank_row.text)
+                else:
+                    team_dict[team][stat] = {}
+                    team_dict[team][stat]['stat'] = str(stat_row.text)
+                    team_dict[team][stat]['rank'] = str(rank_row.text)
 
         # loop through the rows in parallel
         for header_row, stat_row, rank_row in zip(team_stats_header_rows, team_stats_rows, team_rank_rows):
@@ -571,15 +578,15 @@ def top_n_lineups(n, num_lineups):
             json.dump(lineup, outfile)
 
 pp = pprint.PrettyPrinter(indent=4)
-# teams_dict = get_active_teams()
+teams_dict = get_active_teams()
 # get_team_schedule(teams_dict)
-# PLAYERS_DICT = get_current_roster(teams_dict)
-# get_player_log(PLAYERS_DICT)
+PLAYERS_DICT = get_current_roster(teams_dict)
+get_player_log(PLAYERS_DICT)
 
 
-# get_depth_chart()
-# get_fantasy_news()
-# get_team_against_position()
+get_depth_chart()
+get_fantasy_news()
+get_team_against_position()
 
 top_n_lineups(0, 5)
 top_n_lineups(2, 5)
