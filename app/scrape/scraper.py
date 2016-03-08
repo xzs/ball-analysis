@@ -254,6 +254,8 @@ def get_active_teams():
 
     return teams_dict
 
+
+
 # Get all players
 def get_current_roster(teams_dict):
 
@@ -577,16 +579,53 @@ def top_n_lineups(n, num_lineups):
             logger.info('Writing to lineups file:' +team)
             json.dump(lineup, outfile)
 
+
+def get_team_stats():
+
+    url = urllib2.urlopen('http://www.basketball-reference.com/leagues/NBA_2016.html')
+    soup = BeautifulSoup(url, 'html5lib')
+
+    # find the team stats id=team
+    team_stats_table = soup.find('table', attrs={'id':'team'})
+    team_stats_table_header = team_stats_table.find('thead')
+    team_stats_header_rows = team_stats_table_header.find('tr').find_all('th')
+
+    stat_data = []
+    for header_row in team_stats_header_rows:
+        stat = str(header_row.text)
+        stat_data.append(stat)
+
+    pp.pprint(stat_data)
+    team_data = {}
+    team_stats_table_body = team_stats_table.find('tbody')
+    team_stats_rows = team_stats_table_body.find_all('tr')
+    for team in team_stats_rows[:len(team_stats_rows)-1]:
+        team_stats = team.find_all('td')
+        # http://stackoverflow.com/a/23159277
+        for i, (stat, category) in enumerate(zip(team_stats, stat_data)[1:]):
+            if i == 0:
+                team_name = stat.text
+                team_data[stat.text] = []
+            else:
+                team_data[team_name].append(float(stat.text))
+
+    pp.pprint(team_data)
+
+
+
+
+
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-# get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+get_team_stats()
+# teams_dict = get_active_teams()
+# # get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
 
-get_depth_chart()
-get_fantasy_news()
-get_team_against_position()
+# get_depth_chart()
+# get_fantasy_news()
+# get_team_against_position()
 
-top_n_lineups(0, 5)
-top_n_lineups(2, 5)
+# top_n_lineups(0, 5)
+# top_n_lineups(2, 5)
