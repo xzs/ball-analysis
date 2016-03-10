@@ -4,9 +4,12 @@ import pprint
 import csv
 import logging
 import json
+import numpy
+from scipy import stats
 
 from bs4 import BeautifulSoup
 
+numpy.set_printoptions(precision=4, suppress=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # we need to put this in
@@ -295,7 +298,6 @@ def get_current_roster(teams_dict):
         team_misc_rank_rows = team_misc_table_body.find_all('tr')[1].find_all('td')
 
         # misc
-        print team_misc_header_rows
         for header_row, stat_row, rank_row in zip(team_misc_header_rows, team_misc_rows, team_misc_rank_rows):
             stat = str(header_row.text)
             if header_row.text != '':
@@ -591,14 +593,14 @@ def get_team_stats():
     team_stats_header_rows = team_stats_table_header.find('tr').find_all('th')
 
     stat_data = []
-    for header_row in team_stats_header_rows:
+    for header_row in team_stats_header_rows[2:]:
         stat = str(header_row.text)
         stat_data.append(stat)
 
-    pp.pprint(stat_data)
     team_data = {}
     team_stats_table_body = team_stats_table.find('tbody')
     team_stats_rows = team_stats_table_body.find_all('tr')
+
     for team in team_stats_rows[:len(team_stats_rows)-1]:
         team_stats = team.find_all('td')
         # http://stackoverflow.com/a/23159277
@@ -609,23 +611,39 @@ def get_team_stats():
             else:
                 team_data[team_name].append(float(stat.text))
 
-    pp.pprint(team_data)
+    temp_list = []
+    for team in team_data:
+        temp_list.append(team_data[team])
 
+    # calc zscore
+    np_list = numpy.array(temp_list)
+    team_stats_zscore = stats.zscore(np_list)
+
+    # push back to teams
+    zscore_data = {}
+    for team, zscore in zip(team_data, team_stats_zscore):
+        zscore_data[team] = {}
+        for score, stat in zip(zscore, stat_data):
+            zscore_data[team][stat] = score
+
+    with open('json_files/stats/league.json', 'w') as outfile:
+        logger.info('Writing team statistics zscores')
+        json.dump(zscore_data, outfile)
 
 
 
 
 pp = pprint.PrettyPrinter(indent=4)
+teams_dict = get_active_teams()
+# get_team_schedule(teams_dict)
+PLAYERS_DICT = get_current_roster(teams_dict)
+get_player_log(PLAYERS_DICT)
+
+
+get_depth_chart()
+get_fantasy_news()
+get_team_against_position()
 get_team_stats()
-# teams_dict = get_active_teams()
-# # get_team_schedule(teams_dict)
-# PLAYERS_DICT = get_current_roster(teams_dict)
-# get_player_log(PLAYERS_DICT)
 
-
-# get_depth_chart()
-# get_fantasy_news()
-# get_team_against_position()
-
-# top_n_lineups(0, 5)
-# top_n_lineups(2, 5)
+top_n_lineups(0, 5)
+top_n_lineups(2, 5)
