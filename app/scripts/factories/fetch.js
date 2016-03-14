@@ -67,7 +67,11 @@ app.factory('fetch', ['$http', function($http) {
             return $http.get('scrape/misc/lineups/'+team+'-'+n+'.json').then(function (response){
                 return response.data;
             })
+        },
+        getTeamZscores: function() {
+            return $http.get('scrape/json_files/stats/league.json').then(function (response){
+                return response.data;
+            })
         }
-
     }
 }]);

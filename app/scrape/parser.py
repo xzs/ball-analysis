@@ -314,6 +314,7 @@ def read_player_csv(csv_f, schedule, player_name):
     # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
     # The dictionary will also contain detailed information abou the teams the player has played agianst
     for record in player_log:
+        print record
         player_dict['basic_info']['age'] = record[3].split('-')[0]
         team = record[4]
         player_dict['basic_info']['team'] = team
@@ -491,6 +492,17 @@ def read_player_csv(csv_f, schedule, player_name):
         process_best_dfs_points(10, all_dfs_points, player_dict['basic_info']['position'], player_dict)
 
         # pp.pprint(player_dict['fantasy_best'])
+
+
+        # we need to log a csv specifically for the regression
+        # we need to compute all of the rows as numbers
+        # PACE, Time and Margin
+        # rewrite back into another csv
+        # play_time_seconds = process_playtime(0, record[9])
+        # print play_time_seconds
+        # print float(LEAGUE_ADV_STATS[record[6]]['Pace']['stat'])
+        # points = re.findall("\(([^)]+)\)", record[7])[0]
+        # print points
     return player_dict
 
 
@@ -926,6 +938,8 @@ for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
 
     with open(files, 'rb') as f:
         try:
+            # skip first line
+            next(f, None)
             PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
             categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
 

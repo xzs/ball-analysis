@@ -382,10 +382,10 @@ def get_current_roster(teams_dict):
 # Get the game logs for each player
 def get_player_log(players_dict):
 
-    for team in players_dict:
+    # for team in players_dict:
         # loop through the array of players
-        for player in players_dict[team]:
-        # for player in players_dict:
+        # for player in players_dict[team]:
+        for player in players_dict:
             for name in player:
                 logger.debug('open url for: '+name)
                 url = urllib2.urlopen(BASE_URL+player[name]['log'])
@@ -396,6 +396,16 @@ def get_player_log(players_dict):
                 if table:
                     logger.info('Getting game logs for: ' + name)
                     table_body = table.find('tbody')
+                    table_header = table.find('thead')
+                    header = table_header.find('tr')
+                    header_row = header.find_all('th')
+                    header_list = []
+                    for row in header_row:
+                        header_list.append(row.text.encode('utf8'))
+                    # append position at the end
+                    header_list.append('Pos')
+                    log_rows.append(header_list)
+
                     rows = table_body.find_all('tr')
                     for row in rows:
                         temp_row = []
@@ -622,9 +632,12 @@ def get_team_stats():
     # push back to teams
     zscore_data = {}
     for team, zscore in zip(team_data, team_stats_zscore):
+        if team.endswith('*'):
+            team = team[:-1]
+        team = REVERSE_TEAMS_DICT[team]
         zscore_data[team] = {}
         for score, stat in zip(zscore, stat_data):
-            zscore_data[team][stat] = score
+            zscore_data[team][stat] = float('{0:.4f}'.format(score))
 
     with open('json_files/stats/league.json', 'w') as outfile:
         logger.info('Writing team statistics zscores')
@@ -635,15 +648,15 @@ def get_team_stats():
 
 pp = pprint.PrettyPrinter(indent=4)
 teams_dict = get_active_teams()
-# get_team_schedule(teams_dict)
+# # get_team_schedule(teams_dict)
 PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+get_player_log(PLAYERS_DICT['OKC'])
 
 
-get_depth_chart()
-get_fantasy_news()
-get_team_against_position()
-get_team_stats()
+# get_depth_chart()
+# get_fantasy_news()
+# get_team_against_position()
+# get_team_stats()
 
-top_n_lineups(0, 5)
-top_n_lineups(2, 5)
+# top_n_lineups(0, 5)
+# top_n_lineups(2, 5)
