@@ -310,18 +310,27 @@ def read_player_csv(csv_f, schedule, player_name):
     started_playtime_seconds = 0
     non_started_playtime_seconds = 0
 
+    # for the modified log for regression testing
+    modifiled_log_rows = []
+    modified_header = ['Rk','G','Date','Age','Tm','isHome','Opp','Margin','GS','MP','FG','FGA',
+        'FG%','3P','3PA','3P%','FT','FTA','FT%','ORB','DRB','TRB','AST','STL','BLK','TOV','PF',
+        'PTS','GmSc','+/-','DFS','Pos','OppDvP','OppPace','OppPF','OppFGA','OppDRtg','OppORtg','OppTOV','OppPTS','isConference']
+    modifiled_log_rows.append(modified_header)
 
     # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
     # The dictionary will also contain detailed information abou the teams the player has played agianst
     for record in player_log:
-        print record
         player_dict['basic_info']['age'] = record[3].split('-')[0]
         team = record[4]
         player_dict['basic_info']['team'] = team
         player_dict['basic_info']['position'] = record[len(record)-1]
 
         # If he played
-        if record[1]:
+        if record[1].isdigit():
+            # returns new row of data
+            new_record = process_regression_test_data(record, player_name)
+            # append it to the new modified log
+            modifiled_log_rows.append(new_record)
 
             if record[5]:
                 logger.debug('Compling away games')
@@ -411,6 +420,12 @@ def read_player_csv(csv_f, schedule, player_name):
                     if player_dict['dfs_stats']['min'] > dfs_points:
                         player_dict['dfs_stats']['min'] = dfs_points
 
+    # write to new modified logs
+    with open('mod_player_logs/'+YEAR+'/'+player_name+'.csv', 'wb') as f:
+        writer = csv.writer(f)
+        logger.info('Writing modified log csv for: ' + player_name)
+        writer.writerows(row for row in modifiled_log_rows if row)
+
     #  For now we only consider players who have played both a home or away game
     if home_games > 0 or away_games > 0:
         logger.debug('First level dictionary values processing')
@@ -491,20 +506,45 @@ def read_player_csv(csv_f, schedule, player_name):
         all_dfs_points = sorted(all_dfs_points.items(), key=lambda x: (x[1]["dk_points"]))
         process_best_dfs_points(10, all_dfs_points, player_dict['basic_info']['position'], player_dict)
 
-        # pp.pprint(player_dict['fantasy_best'])
-
-
-        # we need to log a csv specifically for the regression
-        # we need to compute all of the rows as numbers
-        # PACE, Time and Margin
-        # rewrite back into another csv
-        # play_time_seconds = process_playtime(0, record[9])
-        # print play_time_seconds
-        # print float(LEAGUE_ADV_STATS[record[6]]['Pace']['stat'])
-        # points = re.findall("\(([^)]+)\)", record[7])[0]
-        # print points
     return player_dict
 
+
+def process_regression_test_data(record, player_name):
+    # make a copy of the record
+    new_record = record[:]
+    # append dvp
+    new_record.append(TEAM_DVP_STATS[new_record[6]][new_record[len(new_record)-1]]['Season'])
+    # append pace
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['Pace']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PF']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['FGA']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['DRtg']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['ORtg']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['TOV']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PTS']['stat']))
+
+    if new_record[5] == '@':
+        new_record[5] = 0
+    else:
+        new_record[5] = 1
+
+    # check for conference
+    if new_record[4] in EASTERN_CONF:
+        # in east
+        if new_record[6] in EASTERN_CONF:
+            new_record.append(1)
+        else:
+            new_record.append(0)
+    else:
+        if new_record[6] in WESTERN_CONF:
+            new_record.append(1)
+        else:
+            new_record.append(0)
+
+    new_record[9] = process_playtime(0, new_record[9])
+    new_record[7] = re.findall("\(([^)]+)\)", new_record[7])[0]
+
+    return new_record
 
 def process_best_dfs_points(num_best, dfs_points, position, player_dict):
 
@@ -825,7 +865,7 @@ def last_n_games(csv_f, num_games):
 
     for record in reversed(list(csv.reader(csv_f))):
         # If he played
-        if record[1] and count != num_games:
+        if record[1].isdigit() and count != num_games:
             playtime = process_playtime(playtime, record[9])
             gmsc += float(record[28])
             points += float(record[27])
@@ -880,7 +920,7 @@ def last_n_games_adv(csv_f, num_games):
 
     for record in reversed(list(csv.reader(csv_f))):
         # If he played
-        if record[1] and count != num_games:
+        if record[1].isdigit() and count != num_games:
             if record[10]:
                 ts += float(record[10])
             if record[19]:
@@ -926,12 +966,12 @@ for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
 with open('json_files/team_schedules/'+YEAR+'/league_schedule.json', 'w') as outfile:
     json.dump(SCHEDULE_DICT['league_schedule'], outfile)
 
-
 with open('misc/team_stats/league.json') as data_file:
     LEAGUE_ADV_STATS = json.load(data_file)
 
-
 ALL_PLAYERS = {}
+# guys who got waived or name conflicts
+BLACK_LIST = ['Christian Wood', 'DeJuan Blair', 'Elijah Millsap', 'Kelly Oubre', 'Kostas Papanikolaou', 'Nene Hilario', 'Patrick Mills', 'Russ Smith', 'Tony Wroten']
 # Open all player files for data parsing
 for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
     player_name = files.split('/')[2].split('.c')[0]
@@ -939,35 +979,36 @@ for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
     with open(files, 'rb') as f:
         try:
             # skip first line
-            next(f, None)
-            PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
-            categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
+            if player_name not in BLACK_LIST:
+                next(f, None)
+                PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
+                categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
 
-            # Since we need to go through the files again we seek to the beginning of the file
-            f.seek(0)
-            last_n_games(f, 1)
-            f.seek(0)
-            last_n_games(f, 3)
-            f.seek(0)
-            last_n_games(f, 5)
-            f.seek(0)
-            last_n_games(f, 10)
-            try:
-                with open('player_logs/advanced/'+YEAR+'/'+player_name+'.csv', 'rb') as adv_f:
-                    adv_f.seek(0)
-                    last_n_games_adv(adv_f, 1)
-                    adv_f.seek(0)
-                    last_n_games_adv(adv_f, 3)
-                    adv_f.seek(0)
-                    last_n_games_adv(adv_f, 5)
-                    adv_f.seek(0)
-                    last_n_games_adv(adv_f, 10)
-            except IOError as e:
-                print "Unable to open file" #Does not exist OR no read permissions
-            # Dump the json file
-            logger.debug('Dumping json for: '+player_name)
-            with open('json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
-                json.dump(PLAYER_DICT, outfile)
+                # Since we need to go through the files again we seek to the beginning of the file
+                f.seek(0)
+                last_n_games(f, 1)
+                f.seek(0)
+                last_n_games(f, 3)
+                f.seek(0)
+                last_n_games(f, 5)
+                f.seek(0)
+                last_n_games(f, 10)
+                try:
+                    with open('player_logs/advanced/'+YEAR+'/'+player_name+'.csv', 'rb') as adv_f:
+                        adv_f.seek(0)
+                        last_n_games_adv(adv_f, 1)
+                        adv_f.seek(0)
+                        last_n_games_adv(adv_f, 3)
+                        adv_f.seek(0)
+                        last_n_games_adv(adv_f, 5)
+                        adv_f.seek(0)
+                        last_n_games_adv(adv_f, 10)
+                except IOError as e:
+                    print "Unable to open file" #Does not exist OR no read permissions
+                # Dump the json file
+                logger.debug('Dumping json for: '+player_name)
+                with open('json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
+                    json.dump(PLAYER_DICT, outfile)
 
         except csv.Error as e:
             sys.exit('file %s: %s' % (files, e))
