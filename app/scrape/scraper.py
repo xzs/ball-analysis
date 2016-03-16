@@ -602,6 +602,8 @@ def get_team_stats():
     team_stats_table_header = team_stats_table.find('thead')
     team_stats_header_rows = team_stats_table_header.find('tr').find_all('th')
 
+    # opponent
+
     stat_data = []
     for header_row in team_stats_header_rows[2:]:
         stat = str(header_row.text)
@@ -643,12 +645,44 @@ def get_team_stats():
         logger.info('Writing team statistics zscores')
         json.dump(zscore_data, outfile)
 
+    # find the team stats id=opponent
+    team_opponent_stats_table = soup.find('table', attrs={'id':'opponent'})
+    team_opponent_stats_table_header = team_opponent_stats_table.find('thead')
+    team_opponent_stats_header_rows = team_opponent_stats_table_header.find('tr').find_all('th')
+
+    opponent_stat_data = []
+    for header_row in team_opponent_stats_header_rows:
+        stat = str(header_row.text)
+        opponent_stat_data.append(stat)
+
+    opponent_team_data = {}
+    team_opponent_stats_table_body = team_opponent_stats_table.find('tbody')
+    team_opponent_stats_rows = team_opponent_stats_table_body.find_all('tr')
+
+    for team in team_opponent_stats_rows:
+        team_stats = team.find_all('td')
+        for i, (stat, category) in enumerate(zip(team_stats, opponent_stat_data)[1:]):
+            if i == 0:
+                if stat.text.endswith('*'):
+                    team_name = stat.text
+                    team_name = REVERSE_TEAMS_DICT[team_name[:-1]]
+                elif stat.text in REVERSE_TEAMS_DICT:
+                    team_name = REVERSE_TEAMS_DICT[stat.text]
+                else:
+                    team_name = stat.text
+                opponent_team_data[team_name] = {}
+            else:
+                opponent_team_data[team_name][category] = float(stat.text)
+
+    with open('json_files/stats/league_opponent.json', 'w') as outfile:
+        logger.info('Writing team opponent')
+        json.dump(opponent_team_data, outfile)
 
 
 
 pp = pprint.PrettyPrinter(indent=4)
 teams_dict = get_active_teams()
-# # get_team_schedule(teams_dict)
+# get_team_schedule(teams_dict)
 PLAYERS_DICT = get_current_roster(teams_dict)
 get_player_log(PLAYERS_DICT)
 

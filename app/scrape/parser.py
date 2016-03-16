@@ -313,9 +313,24 @@ def read_player_csv(csv_f, schedule, player_name):
     # for the modified log for regression testing
     modifiled_log_rows = []
     modified_header = ['Rk','G','Date','Age','Tm','isHome','Opp','Margin','GS','MP','FG','FGA',
-        'FG%','3P','3PA','3P%','FT','FTA','FT%','ORB','DRB','TRB','AST','STL','BLK','TOV','PF',
-        'PTS','GmSc','+/-','DFS','Pos','OppDvP','OppPace','OppPF','OppFGA','OppDRtg','OppORtg','OppTOV','OppPTS','isConference']
+        'FGPercent','3P','3PA','3PPercent','FT','FTA','FTPercent','ORB','DRB','TRB','AST','STL','BLK','TOV','PF',
+        'PTS','GmSc','+/-','DFS','Pos','OppDvP','OppPace','OppPF','OppFGA','OppDRtg','OppORtg','OppTOVPercent',
+        'OppPTS','OppDefgPercent','TRBPercent','isConference']
     modifiled_log_rows.append(modified_header)
+
+    # open the adv_stats
+    try:
+        if player_name == 'Kelly Oubre Jr.':
+            player_name = 'Kelly Oubre'
+        elif player_name == 'Nene':
+            player_name = 'Nene Hilario'
+        elif player_name == 'Patty Mills':
+            player_name = 'Patrick Mills'
+
+        with open('json_files/player_stats/'+YEAR+'/'+player_name+'.json') as data_file:
+            player_adv_stats = json.load(data_file)
+    except IOError as e:
+        print "Unable to open file" #Does not exist OR no read permissions
 
     # We want to be able to create a player dictionary that will contain the statistics for the GmSc.
     # The dictionary will also contain detailed information abou the teams the player has played agianst
@@ -328,7 +343,7 @@ def read_player_csv(csv_f, schedule, player_name):
         # If he played
         if record[1].isdigit():
             # returns new row of data
-            new_record = process_regression_test_data(record, player_name)
+            new_record = process_regression_test_data(record, player_name, player_adv_stats)
             # append it to the new modified log
             modifiled_log_rows.append(new_record)
 
@@ -509,7 +524,7 @@ def read_player_csv(csv_f, schedule, player_name):
     return player_dict
 
 
-def process_regression_test_data(record, player_name):
+def process_regression_test_data(record, player_name, player_adv_stats):
     # make a copy of the record
     new_record = record[:]
     # append dvp
@@ -520,8 +535,13 @@ def process_regression_test_data(record, player_name):
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['FGA']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['DRtg']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['ORtg']['stat']))
-    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['TOV']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['TOV%']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PTS']['stat']))
+    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['deFG%']['stat']))
+
+    # adv stats
+    new_record.append(float(player_adv_stats[player_name]['TRB%']))
+    # new_record.append(float(player_adv_stats)
 
     if new_record[5] == '@':
         new_record[5] = 0
