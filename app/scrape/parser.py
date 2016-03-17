@@ -315,7 +315,7 @@ def read_player_csv(csv_f, schedule, player_name):
     modified_header = ['Rk','G','Date','Age','Tm','isHome','Opp','Margin','GS','MP','FG','FGA',
         'FGPercent','3P','3PA','3PPercent','FT','FTA','FTPercent','ORB','DRB','TRB','AST','STL','BLK','TOV','PF',
         'PTS','GmSc','+/-','DFS','Pos','OppDvP','OppPace','OppPF','OppFGA','OppDRtg','OppORtg','OppTOVPercent',
-        'OppPTS','OppDefgPercent','TRBPercent','isConference']
+        'OppDefgPercent','Opp3PPercent','OppTRB','OppAST','OppPTSPerG','OppFGPercent','OppSTL','OppFTA','OppBLK','OppTOV','TRBPercent','isConference']
     modifiled_log_rows.append(modified_header)
 
     # open the adv_stats
@@ -536,8 +536,20 @@ def process_regression_test_data(record, player_name, player_adv_stats):
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['DRtg']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['ORtg']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['TOV%']['stat']))
-    new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PTS']['stat']))
+    # new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PTS']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['deFG%']['stat']))
+    
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['3P%']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['TRB']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['AST']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['PTS/G']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['FG%']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['STL']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['FTA']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['BLK']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['TOV']))
+    # new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['PF']))
+    # new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['FGA']))
 
     # adv stats
     new_record.append(float(player_adv_stats[player_name]['TRB%']))
@@ -988,6 +1000,9 @@ with open('json_files/team_schedules/'+YEAR+'/league_schedule.json', 'w') as out
 
 with open('misc/team_stats/league.json') as data_file:
     LEAGUE_ADV_STATS = json.load(data_file)
+
+with open('misc/team_stats/league_opponent.json') as data_file:
+    LEAGUE_OPPONENT_STATS = json.load(data_file)
 
 ALL_PLAYERS = {}
 # guys who got waived or name conflicts

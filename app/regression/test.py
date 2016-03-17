@@ -7,14 +7,14 @@ from sklearn.linear_model import LinearRegression
 
 
 # read data into a DataFrame
-data = pd.read_csv('/Users/xunzhisun/Documents/Git/ball-analysis/app/scrape/mod_player_logs/2016/Stephen Curry.csv')
+data = pd.read_csv('/Users/xunzhisun/Documents/Git/ball-analysis/app/scrape/mod_player_logs/2016/Serge Ibaka.csv')
 # data.columns = ['Rk', 'G', 'Date', 'Age', 'Tm', 'Loc', 'Opp', 'Mgn', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'GmSc', '+/-', 'DFS', 'Pos']
 
 
 # # visualize the relationship between the features and the response using scatterplots
 # fig = plt.subplots(1, 3, sharey=True)
 # print axs
-data.plot(kind='scatter', x='OppFGA', y='DFS', figsize=(16, 8))
+# data.plot(kind='scatter', x='OppFGA', y='DFS', figsize=(16, 8))
 # data.plot(kind='scatter', x='MP', y='DFS', figsize=(16, 8))
 
 
@@ -26,15 +26,15 @@ data.plot(kind='scatter', x='OppFGA', y='DFS', figsize=(16, 8))
 # Whereas other players might be strongly correlated to MP
 
 # we need to get matchup strength
-lm = smf.ols(formula='DFS ~ OppPace + OppDvP + OppPF + OppFGA + OppDRtg + OppORtg + OppTOVPercent + OppDefgPercent + OppPTS', data=data).fit()
+lm = smf.ols(formula='DFS ~ OppPace + OppDvP + OppPF + OppFGA + OppDRtg + OppORtg + OppTOVPercent + OppDefgPercent + Opp3PPercent + OppTRB + OppAST + OppPTSPerG + OppFGPercent + OppSTL + OppFTA + OppBLK + OppTOV', data=data).fit()
 print lm.pvalues
 
 # olm = smf.ols(formula='DFS ~ isHome + isConference + Margin + GS', data=data).fit()
 # print olm.pvalues
 
+# scikit-learn
 # create X and y
-# feature_cols = ['isHome', 'isConference', 'Margin', 'GS']
-feature_cols = ['OppPace','OppDvP','OppPF','OppFGA','OppDRtg','OppORtg','OppTOVPercent','OppDefgPercent','OppPTS']
+feature_cols = ['OppPace','OppDvP','OppPF','OppFGA','OppDRtg','OppORtg','OppTOVPercent','OppDefgPercent','Opp3PPercent','OppTRB','OppAST','OppPTSPerG','OppFGPercent','OppSTL','OppFTA','OppBLK','OppTOV']
 X = data[feature_cols]
 y = data.DFS
 

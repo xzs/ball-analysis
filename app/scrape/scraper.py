@@ -674,7 +674,7 @@ def get_team_stats():
             else:
                 opponent_team_data[team_name][category] = float(stat.text)
 
-    with open('json_files/stats/league_opponent.json', 'w') as outfile:
+    with open('misc/team_stats/league_opponent.json', 'w') as outfile:
         logger.info('Writing team opponent')
         json.dump(opponent_team_data, outfile)
 
