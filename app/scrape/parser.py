@@ -316,6 +316,7 @@ def read_player_csv(csv_f, schedule, player_name):
         'FGPercent','3P','3PA','3PPercent','FT','FTA','FTPercent','ORB','DRB','TRB','AST','STL','BLK','TOV','PF',
         'PTS','GmSc','+/-','DFS','Pos','OppDvP','OppPace','OppPF','OppFGA','OppDRtg','OppORtg','OppTOVPercent',
         'OppDefgPercent','Opp3PPercent','OppTRB','OppAST','OppPTSPerG','OppFGPercent','OppSTL','OppFTA','OppBLK','OppTOV','TRBPercent','isConference']
+
     modifiled_log_rows.append(modified_header)
 
     # open the adv_stats
@@ -346,6 +347,7 @@ def read_player_csv(csv_f, schedule, player_name):
             new_record = process_regression_test_data(record, player_name, player_adv_stats)
             # append it to the new modified log
             modifiled_log_rows.append(new_record)
+            print len(new_record)
 
             if record[5]:
                 logger.debug('Compling away games')
@@ -523,12 +525,15 @@ def read_player_csv(csv_f, schedule, player_name):
 
     return player_dict
 
-
+PLAYER_POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
 def process_regression_test_data(record, player_name, player_adv_stats):
     # make a copy of the record
     new_record = record[:]
     # append dvp
-    new_record.append(TEAM_DVP_STATS[new_record[6]][new_record[len(new_record)-1]]['Season'])
+    if new_record[len(new_record)-1] in PLAYER_POSITIONS:
+        new_record.append(TEAM_DVP_STATS[new_record[6]][new_record[len(new_record)-1]]['Season'])
+    else:
+        new_record.append(0)
     # append pace
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['Pace']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PF']['stat']))
@@ -538,7 +543,7 @@ def process_regression_test_data(record, player_name, player_adv_stats):
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['TOV%']['stat']))
     # new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PTS']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['deFG%']['stat']))
-    
+
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['3P%']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['TRB']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['AST']))
