@@ -594,7 +594,7 @@ def top_n_lineups(n, num_lineups):
 
 def get_team_stats():
 
-    url = urllib2.urlopen('http://www.basketball-reference.com/leagues/NBA_2016.html')
+    url = urllib2.urlopen(BASE_URL+'/leagues/NBA_'+YEAR+'.html')
     soup = BeautifulSoup(url, 'html5lib')
 
     # find the team stats id=team
@@ -672,7 +672,13 @@ def get_team_stats():
                     team_name = stat.text
                 opponent_team_data[team_name] = {}
             else:
-                opponent_team_data[team_name][category] = float(stat.text)
+                # do it
+                # Rk    Team    G   MP  FG  FGA FG% 3P  3PA 3P% 2P  2PA 2P% FT  FTA FT% ORB DRB TRB AST STL BLK TOV PF  PTS PTS/G
+                if i <= 2:
+                    opponent_team_data[team_name][category] = float(stat.text)
+                else:
+                    opponent_team_data[team_name][category] = float('{0:.2f}'.format(float(stat.text) / float(opponent_team_data[team_name]['G'])))
+
 
     with open('misc/team_stats/league_opponent.json', 'w') as outfile:
         logger.info('Writing team opponent')
@@ -681,14 +687,14 @@ def get_team_stats():
 
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
-# get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# teams_dict = get_active_teams()
+# # get_team_schedule(teams_dict)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
-get_depth_chart()
-get_fantasy_news()
-get_team_against_position()
+# get_depth_chart()
+# get_fantasy_news()
+# get_team_against_position()
 get_team_stats()
 
 top_n_lineups(0, 5)

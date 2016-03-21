@@ -347,7 +347,6 @@ def read_player_csv(csv_f, schedule, player_name):
             new_record = process_regression_test_data(record, player_name, player_adv_stats)
             # append it to the new modified log
             modifiled_log_rows.append(new_record)
-            print len(new_record)
 
             if record[5]:
                 logger.debug('Compling away games')
@@ -534,7 +533,8 @@ def process_regression_test_data(record, player_name, player_adv_stats):
         new_record.append(TEAM_DVP_STATS[new_record[6]][new_record[len(new_record)-1]]['Season'])
     else:
         new_record.append(0)
-    # append pace
+
+    # opposing team's team stats
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['Pace']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PF']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['FGA']['stat']))
@@ -544,10 +544,13 @@ def process_regression_test_data(record, player_name, player_adv_stats):
     # new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['PTS']['stat']))
     new_record.append(float(LEAGUE_ADV_STATS[new_record[6]]['deFG%']['stat']))
 
+    # opposing team (defensive) stats allowed
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['3P%']))
+    # new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['ORB']))
+    # new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['DRB']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['TRB']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['AST']))
-    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['PTS/G']))
+    new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['PTS']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['FG%']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['STL']))
     new_record.append(float(LEAGUE_OPPONENT_STATS[new_record[6]]['FTA']))
