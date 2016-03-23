@@ -1,4 +1,3 @@
-
 import urllib2
 import pprint
 import csv
@@ -672,8 +671,6 @@ def get_team_stats():
                     team_name = stat.text
                 opponent_team_data[team_name] = {}
             else:
-                # do it
-                # Rk    Team    G   MP  FG  FGA FG% 3P  3PA 3P% 2P  2PA 2P% FT  FTA FT% ORB DRB TRB AST STL BLK TOV PF  PTS PTS/G
                 if i <= 2:
                     opponent_team_data[team_name][category] = float(stat.text)
                 else:
@@ -687,14 +684,14 @@ def get_team_stats():
 
 
 pp = pprint.PrettyPrinter(indent=4)
-# teams_dict = get_active_teams()
-# # get_team_schedule(teams_dict)
-# PLAYERS_DICT = get_current_roster(teams_dict)
-# get_player_log(PLAYERS_DICT)
+teams_dict = get_active_teams()
+# get_team_schedule(teams_dict)
+PLAYERS_DICT = get_current_roster(teams_dict)
+get_player_log(PLAYERS_DICT)
 
-# get_depth_chart()
-# get_fantasy_news()
-# get_team_against_position()
+get_depth_chart()
+get_fantasy_news()
+get_team_against_position()
 get_team_stats()
 
 top_n_lineups(0, 5)

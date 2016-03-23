@@ -3,21 +3,22 @@ import logging
 import pandas as pd
 import glob
 # import matplotlib.pyplot as plt
-# import numpy as np
+import numpy as np
 # this is the standard import if you're using "formula notation" (similar to R)
 import statsmodels.formula.api as smf
-# from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression
+from sklearn.cross_validation import cross_val_score
 YEAR = '2016'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-ISSUE_NAMES = ['../scrape/mod_player_logs/'+YEAR+'/Kelly Oubre Jr..csv', '../scrape/mod_player_logs/'+YEAR+'/Nene.csv', '../scrape/mod_player_logs/'+YEAR+'/Patty Mills.csv']
+ISSUE_NAMES = ['Kelly Oubre Jr.', 'Nene', 'Patty Mills', 'Xavier Munford']
 
 for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
     player_name = file.split('/')[4].split('.c')[0]
 
     # issue with names
-    if file not in ISSUE_NAMES:
+    if player_name not in ISSUE_NAMES:
     # read data into a DataFrame
         data = pd.read_csv(file)
         # python variables cannot start with a number sp 3PA -> ThreePA
@@ -33,10 +34,11 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
         # Players vary in terms of which component correlates best to FPS
         # Ex. a player like marreese speights is strongly correlated to FGA
         # Whereas other players might be strongly correlated to MP
-        # Opp3PPercent + OppTRB + OppAST + OppPTSPerG + OppFGPercent + OppSTL + OppFTA + OppBLK
+        # 'Opp3PPercent',OppTRB + OppAST + OppPTSPerG + OppFGPercent + OppSTL + OppFTA + OppBLK
         if not data.empty and len(data.index) > 1:
             try:
                 opp_bucket = {}
+                print player_name
                 opp_data = smf.ols(formula='DFS ~ OppPace + OppDvP', data=data).fit()
                 for key, value in opp_data.pvalues.iteritems():
                     if value < 0.05 and key != 'Intercept':
@@ -89,17 +91,36 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
         json.dump(PLAYER_DICT, outfile)
 
 
+    # scikit-learn
+    # create X and y
+    opp_data_feature_cols = ['OppPace', 'OppDvP']
+    opp_team_data_feature_cols = ['OppPF', 'OppFGA', 'OppDRtg', 'OppORtg', 'OppDefgPercent']
+    opp_def_data_feature_cols = ['Opp3PPercentAllowed', 'OppTRBAllowed', 'OppASTAllowed', 'OppPTSPerGAllowed', 'OppFGPercentAllowed', 'OppSTLAllowed', 'OppFTAAllowed', 'OppBLKAllowed']
+    # feature_cols = ['G', 'isHome', 'Margin', 'GS']
+    # feature_cols = ['G', 'isHome', 'Margin', 'GS']
+    opp_data_X = data[opp_data_feature_cols]
+    opp_team_data_X = data[opp_team_data_feature_cols]
+    opp_def_data_X = data[opp_def_data_feature_cols]
+    y = data.DFS
 
-# scikit-learn
-# create X and y
-# feature_cols = ['OppPace','OppDvP','OppPF','OppFGA','OppDRtg','OppORtg','OppTOVPercent','OppDefgPercent','Opp3PPercent','OppTRB','OppAST','OppPTSPerG','OppFGPercent','OppSTL','OppFTA','OppBLK','OppTOV']
-# X = data[feature_cols]
-# y = data.DFS
+    # # instantiate, fit
+    regr = LinearRegression()
 
-# # instantiate, fit
-# regr = LinearRegression()
-# regr.fit(X, y)
+    try:
+        opp_data_rmse_scores = np.sqrt(-cross_val_score(regr, opp_data_X, y, cv=10, scoring='mean_squared_error')).mean()
+        opp_team_data_rmse_scores = np.sqrt(-cross_val_score(regr, opp_team_data_X, y, cv=10, scoring='mean_squared_error')).mean()
+        opp_def_data_rmse_scores = np.sqrt(-cross_val_score(regr, opp_def_data_X, y, cv=10, scoring='mean_squared_error')).mean()
+        # opp_data_rmse_scores = np.sqrt(-cross_val_score(regr, X, y, cv=10, scoring='mean_squared_error')).mean()
 
+        print 'opp_data: %s' % opp_data_rmse_scores.mean()
+        print 'opp_team_data: %s' % opp_team_data_rmse_scores.mean()
+        print 'opp_def_data: %s' % opp_def_data_rmse_scores.mean()
+        # print 'game_data: %s' % rmse_scores.mean()
+        # print 'player_box_score: %s' % rmse_scores.mean()
+        # regr.fit(X, y)
+        # print regr.score(X, y)
+    except ValueError:  #raised if `y` is empty.
+        pass
 # # The coefficients
 # # The mean square error
 #       % np.mean((regr.predict(X) - y) ** 2))
