@@ -38,7 +38,6 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
         if not data.empty and len(data.index) > 1:
             try:
                 opp_bucket = {}
-                print player_name
                 opp_data = smf.ols(formula='DFS ~ OppPace + OppDvP', data=data).fit()
                 for key, value in opp_data.pvalues.iteritems():
                     if value < 0.05 and key != 'Intercept':
@@ -96,11 +95,12 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
     opp_data_feature_cols = ['OppPace', 'OppDvP']
     opp_team_data_feature_cols = ['OppPF', 'OppFGA', 'OppDRtg', 'OppORtg', 'OppDefgPercent']
     opp_def_data_feature_cols = ['Opp3PPercentAllowed', 'OppTRBAllowed', 'OppASTAllowed', 'OppPTSPerGAllowed', 'OppFGPercentAllowed', 'OppSTLAllowed', 'OppFTAAllowed', 'OppBLKAllowed']
-    # feature_cols = ['G', 'isHome', 'Margin', 'GS']
+    player_box_score_feature_cols = ['FTA', 'TRB', 'FGA', 'ThreePA', 'AST', 'STL', 'BLK', 'PTS', 'MP']
     # feature_cols = ['G', 'isHome', 'Margin', 'GS']
     opp_data_X = data[opp_data_feature_cols]
     opp_team_data_X = data[opp_team_data_feature_cols]
     opp_def_data_X = data[opp_def_data_feature_cols]
+    player_box_score_X = data[player_box_score_feature_cols]
     y = data.DFS
 
     # # instantiate, fit
@@ -110,11 +110,13 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
         opp_data_rmse_scores = np.sqrt(-cross_val_score(regr, opp_data_X, y, cv=10, scoring='mean_squared_error')).mean()
         opp_team_data_rmse_scores = np.sqrt(-cross_val_score(regr, opp_team_data_X, y, cv=10, scoring='mean_squared_error')).mean()
         opp_def_data_rmse_scores = np.sqrt(-cross_val_score(regr, opp_def_data_X, y, cv=10, scoring='mean_squared_error')).mean()
+        player_box_score_rmse_scores = np.sqrt(-cross_val_score(regr, player_box_score_X, y, cv=10, scoring='mean_squared_error')).mean()
         # opp_data_rmse_scores = np.sqrt(-cross_val_score(regr, X, y, cv=10, scoring='mean_squared_error')).mean()
 
         print 'opp_data: %s' % opp_data_rmse_scores.mean()
         print 'opp_team_data: %s' % opp_team_data_rmse_scores.mean()
         print 'opp_def_data: %s' % opp_def_data_rmse_scores.mean()
+        print 'player_box_score: %s' % player_box_score_rmse_scores.mean()
         # print 'game_data: %s' % rmse_scores.mean()
         # print 'player_box_score: %s' % rmse_scores.mean()
         # regr.fit(X, y)

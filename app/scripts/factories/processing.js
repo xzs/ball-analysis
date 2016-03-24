@@ -415,6 +415,44 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                     playerObj.bestAt = getPlayerBestAt(data, player, opponent);
                     playerObj.opportunityScore = parseFloat(playerObj.last_3_games.playtime / playerObj.stats.playtime * playerObj.fppPerMinute3).toFixed(2);
 
+
+                    // regression stats
+                    playerObj.regression = data.regression;
+
+                        playerObj.regressionAlert = '';
+
+                        if (data.regression.opp_team_data.OppPF
+                            && finalData.teamAdvancedStats[playerOpponent]['PF'].rank >= 20) {
+                            console.log(player + ': ' + data.regression.opp_team_data.OppPF);
+                            playerObj.regressionAlert += 'OppPF: ' + data.regression.opp_team_data.OppPF;
+                        }
+                        if (data.regression.opp_team_data.OppFGA
+                            && finalData.teamAdvancedStats[playerOpponent]['FGA'].rank >= 20) {
+                            console.log(player + ': ' + data.regression.opp_team_data.OppFGA);
+                            playerObj.regressionAlert += 'OppFGA: ' + data.regression.opp_team_data.OppFGA;
+
+                        }
+                        if (data.regression.opp_team_data.OppDRtg
+                            && finalData.teamAdvancedStats[playerOpponent]['DRtg'].rank >= 20) {
+                            console.log(player + ': ' + data.regression.opp_team_data.OppDRtg);
+                            playerObj.regressionAlert += 'OppDRtg: ' + data.regression.opp_team_data.OppDRtg;
+
+                        }
+                        if (data.regression.opp_team_data.OppORtg
+                            && finalData.teamAdvancedStats[playerOpponent]['DRtg'].rank >= 20) {
+                            console.log(player + ': ' + data.regression.opp_team_data.OppORtg);
+                            playerObj.regressionAlert += 'OppORtg: ' + data.regression.opp_team_data.OppORtg;
+
+                        }
+
+                        if (data.regression.opp_data.OppPace
+                            && finalData.teamAdvancedStats[playerOpponent]['Pace'].rank <= 10) {
+                            console.log(player + ': ' + data.regression.opp_data.OppPace);
+                            playerObj.regressionAlert += 'OppPace: ' + data.regression.opp_data.OppPace;
+
+                        }
+
+
                     if (finalData.dkPlayers[player]) {
                         playerObj.val = parseFloat(data.last_3_games.dk_points / parseFloat(finalData.dkPlayers[player].salary) * 1000).toFixed(2);
                         playerObj.salary = parseFloat(finalData.dkPlayers[player].salary);
@@ -430,6 +468,11 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
                         playerObj.dvp.season = dvpStats[playerPosition]['Season'];
                         playerObj.dvp.season_ratio = parseFloat(dvpStats[playerPosition]['Season']/ finalData.dvpStats['league']['position'][playerPosition].average).toFixed(2);
 
+                        if (data.regression.opp_data.OppDvP
+                            && playerObj.dvp.last_5_ratio >= 1.15) {
+                            console.log(player + ': ' + data.regression.opp_data.OppDvP);
+                            playerObj.regressionAlert += 'OppDvP: ' + data.regression.opp_data.OppDvP;
+                        }
 
                         playerObj.simpleProjection = parseFloat(playerObj.last_3_games.dk_points * playerObj.dvp.last_5_ratio);
                         var tempWeightedNet, avgWeightedNet;

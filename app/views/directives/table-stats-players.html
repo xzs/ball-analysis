@@ -141,6 +141,12 @@
                 data-animation="am-flip-x"
                 title="{{player.last_1_games.record_margin}}" bs-tooltip>
               </i>
+                <i class="fa fa-star"
+                ng-if="player.regressionAlert !=''"
+                data-animation="am-flip-x"
+                data-type="info"
+                data-title="{{player.regressionAlert}}" bs-tooltip>
+              </i>
             </div>
           </td>
           <td>{{player.basic_info.position}}</td>
