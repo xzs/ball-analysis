@@ -25,7 +25,7 @@ app.controller('MainCtrl',
         type: null
     };
     $scope.lineups = {};
-    $scope.today = moment("2016-03-07").format("YYYY-MM-DD");
+    $scope.today = moment("2016-03-25").format("YYYY-MM-DD");
     // $scope.csvComplete = false;
 
     function processDepthChart(team) {
@@ -319,9 +319,9 @@ app.controller('MainCtrl',
         fetch.getLeagueSchedule(year).then(function (data) {
             $scope.todaySchedule = data[$scope.today] ? data[$scope.today] : false;
 
-            // $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
-            //     return ( game.time == "5:00p EST" || game.time == "6:00p EST");
-            // });
+            $scope.todaySchedule = _.remove($scope.todaySchedule, function(game) {
+                return ( game.time == "10:00p EST" || game.time == "10:30p EST");
+            });
 
             $scope.allTeams = [];
             _.forEach($scope.todaySchedule, function(game, key) {

@@ -89,7 +89,7 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
     with open('../scrape/json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
         json.dump(PLAYER_DICT, outfile)
 
-
+'''
     # scikit-learn
     # create X and y
     opp_data_feature_cols = ['OppPace', 'OppDvP']
@@ -123,6 +123,7 @@ for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
         # print regr.score(X, y)
     except ValueError:  #raised if `y` is empty.
         pass
+'''
 # # The coefficients
 # # The mean square error
 #       % np.mean((regr.predict(X) - y) ** 2))
