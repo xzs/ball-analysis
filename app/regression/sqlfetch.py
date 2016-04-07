@@ -47,20 +47,20 @@ def synergy_queries():
     # player
     for table in PLAYER_SYNERGY_TABLES_OFFENSE:
         for position in POSITIONS:
-            process_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as PlayerName, TeamNameAbbreviation as TeamName, GP, PPP, PossG, PPG '\
+            process_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
                         'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PossG DESC' % {'position': position, 'date': DATE, 'table': table})
     # player defense
     for table in PLAYER_SYNERGY_TABLES_DEFENSE:
         for position in POSITIONS:
-            process_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as PlayerName, TeamNameAbbreviation as TeamName, GP, PPP, PossG, PPG '\
+            process_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
                         'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PPP ASC' % {'position': position, 'date': DATE, 'table': table})
 
     # team
     for table in TEAM_SYNERGY_TABLES_OFFENSE:
-        process_query('SELECT TeamName, TeamNameAbbreviation as Team, GP, PossG, PPP, FG FROM %(table)s '\
+        process_query('SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG FROM %(table)s '\
                     'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table})
     for table in TEAM_SYNERGY_TABLES_DEFENSE:
-        process_query('SELECT TeamName, TeamNameAbbreviation as Team, GP, PossG, PPP, FG FROM %(table)s '\
+        process_query('SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG FROM %(table)s '\
                     'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table})
 
 def sportvu_queries(query_type):
@@ -79,56 +79,56 @@ def sportvu_queries(query_type):
         query_dict['query_id'] = 'TEAM_ID'
         query_type = '_team'
 
-    sportvu_query = 'SELECT cs.%(query_for)s, cs.TEAM_ABBREVIATION, cs.GP, '\
+    sportvu_query = 'SELECT cs.%(query_for)s as NAME, cs.TEAM_ABBREVIATION as TEAM_NAME, cs.GP, '\
             'cs.CATCH_SHOOT_FGA/cs.GP as "FGA_PER_GAME", '\
             'cs.CATCH_SHOOT_FG_PCT, '\
             'cs.CATCH_SHOOT_FG3A/cs.GP as "FG3A_PER_GAME", '\
             'cs.CATCH_SHOOT_FG3_PCT, '\
             'cs.CATCH_SHOOT_EFG_PCT, '\
-            'def.DEF_RIM_FGM/cs.GP as "FGAllowedPerGame", '\
-            'def.DEF_RIM_FGA/cs.GP as "FGFacedPerGame", '\
+            'def.DEF_RIM_FGM/cs.GP as "FG_ALLOWED_PER_GAME", '\
+            'def.DEF_RIM_FGA/cs.GP as "FG_FACED_PER_GAME", '\
             'def.DEF_RIM_FG_PCT, '\
-            'dr.DRIVES/cs.GP as "DrivesPerGame", '\
-            'dr.DRIVE_FGA/cs.GP as "DriveFGAPerGame", '\
+            'dr.DRIVES/cs.GP as "DRIVES_PER_GAME", '\
+            'dr.DRIVE_FGA/cs.GP as "DRIVE_FGA_PER_GAME", '\
             'dr.DRIVE_FG_PCT, '\
-            'dr.DRIVE_PTS/cs.GP as "DrivePtsPerGame", '\
-            'dr.DRIVE_PF/cs.GP as "DrivePFPerGame", '\
+            'dr.DRIVE_PTS/cs.GP as "DRIVE_PTS_PER_GAME", '\
+            'dr.DRIVE_PF/cs.GP as "DRIVE_PF_PER_GAME", '\
             'dr.DRIVE_PF_PCT, '\
-            'et.ELBOW_TOUCHES/cs.GP as "ElbowTouchesPerGame", '\
-            'et.ELBOW_TOUCH_FGA/cs.GP as "ElbowTouchesFGAPerGame", '\
+            'et.ELBOW_TOUCHES/cs.GP as "ELBOW_TOUCHES_PER_GAME", '\
+            'et.ELBOW_TOUCH_FGA/cs.GP as "ELBOW_TOUCH_FGA_PER_GAME", '\
             'et.ELBOW_TOUCH_FG_PCT, '\
-            'et.ELBOW_TOUCH_PASSES/cs.GP as "ElbowTouchesPassesPerGame", '\
-            'pt.PAINT_TOUCHES/cs.GP as "PaintTouchesPerGame", '\
-            'pt.PAINT_TOUCH_FGA/cs.GP as "PaintTouchesFGAPerGame", '\
+            'et.ELBOW_TOUCH_PASSES/cs.GP as "ELBOW_TOUCH_PASSES_PER_GAME", '\
+            'pt.PAINT_TOUCHES/cs.GP as "PAINT_TOUCHES_PER_GAME", '\
+            'pt.PAINT_TOUCH_FGA/cs.GP as "PAINT_TOUCH_FGA_PER_GAME", '\
             'pt.PAINT_TOUCH_FG_PCT, '\
-            'pt.PAINT_TOUCH_PASSES/cs.GP as "PaintTouchesPassesPerGame", '\
-            'pass.PASSES_MADE/cs.GP as "PassesMadePerGame", '\
-            'pass.PASSES_RECEIVED/cs.GP as "PassesRecPerGame", '\
-            'pass.AST_PTS_CREATED/cs.GP as "PtsCreatedPerGame", '\
-            'poss.TOUCHES/cs.GP as "TouchesPerGame", '\
-            'poss.TIME_OF_POSS/cs.GP AS "PossTimePerGame", '\
+            'pt.PAINT_TOUCH_PASSES/cs.GP as "PAINT_TOUCH_PASSES_PER_GAME", '\
+            'pass.PASSES_MADE/cs.GP as "PASSES_MADE_PER_GAME", '\
+            'pass.PASSES_RECEIVED/cs.GP as "PASSES_RECEIVED_PER_GAME", '\
+            'pass.AST_PTS_CREATED/cs.GP as "AST_PTS_CREATED_PER_GAME", '\
+            'poss.TOUCHES/cs.GP as "TOUCHES_PER_GAME", '\
+            'poss.TIME_OF_POSS/cs.GP AS "TIME_OF_POSS_PER_GAME", '\
             'poss.AVG_SEC_PER_TOUCH, '\
             'poss.PTS_PER_TOUCH, '\
-            'pot.POST_TOUCHES/cs.GP as "PostTouchesPerGame", '\
-            'pot.POST_TOUCH_FGA/cs.GP as "PostTouchesFGAPerGame", '\
+            'pot.POST_TOUCHES/cs.GP as "POST_TOUCHES_PER_GAME", '\
+            'pot.POST_TOUCH_FGA/cs.GP as "POST_TOUCH_FGA_PER_GAME", '\
             'pot.POST_TOUCH_FG_PCT, '\
-            'pot.POST_TOUCH_PASSES/cs.GP as "PostTouchesPassesPerGame", '\
-            'pus.PULL_UP_FGA/cs.GP as "PullUpsPerGame", '\
+            'pot.POST_TOUCH_PASSES/cs.GP as "POST_TOUCH_PASSES_PER_GAME", '\
+            'pus.PULL_UP_FGA/cs.GP as "PULL_UP_FGA_PER_GAME", '\
             'pus.PULL_UP_FG_PCT, '\
-            'pus.PULL_UP_PTS/cs.GP as "PullUpPtsPerGame", '\
-            'pus.PULL_UP_FG3A/cs.GP as "PullUpFG3APerGame", '\
+            'pus.PULL_UP_PTS/cs.GP as "PULL_UP_PTS_PER_GAME", '\
+            'pus.PULL_UP_FG3A/cs.GP as "PULL_UP_FG3A_PER_GAME", '\
             'pus.PULL_UP_FG3_PCT, '\
             'pus.PULL_UP_EFG_PCT, '\
-            'reb.OREB/cs.GP as "OREBPerGame", '\
+            'reb.OREB/cs.GP as "OREB_PER_GAME", '\
             'reb.OREB_CHANCE_PCT, '\
             'reb.AVG_OREB_DIST, '\
-            'reb.DREB/cs.GP as "DREBPerGame", '\
+            'reb.DREB/cs.GP as "DREB_PER_GAME", '\
             'reb.DREB_CHANCE_PCT, '\
             'reb.AVG_DREB_DIST, '\
-            'reb.REB/cs.GP as "REBPerGame", '\
+            'reb.REB/cs.GP as "REB_PER_GAME", '\
             'reb.REB_CHANCE_PCT, '\
             'reb.AVG_REB_DIST, '\
-            'sp.DIST_MILES/cs.GP as "MilesPerGame", '\
+            'sp.DIST_MILES/cs.GP as "DIST_MILES_PER_GAME", '\
             'sp.AVG_SPEED '\
     'FROM sportvu_catch_shoot%(query_type)s as cs '\
         'LEFT JOIN sportvu_defense%(query_type)s as def '\
@@ -169,14 +169,35 @@ def sportvu_queries(query_type):
     }
     process_query(sportvu_query)
 
+
+'''
+select ub.PLAYER_NAME, ub.TEAM_ABBREVIATION, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FGA, ub.PCT_FG3A, ub.PCT_FTA, ub.PCT_REB, ub.PCT_AST, ub.PCT_TOV, ub.PCT_STL, ub.PCT_BLK, ub.PCT_PF, ub.PCT_PTS,
+tb.FGA, tb.FG_PCT, tb.FG3A, tb.FG3_PCT, tb.FTA, tb.FT_PCT, tb.REB, tb.AST, tb.STL, tb.BLK, tb.TO, tb.PF, tb.PTS, tb.PLUS_MINUS,
+ptb.RBC as REB_CHANCES, ptb.TCHS as TOUCHES, ptb.PASS, ptb.AST/ptb.PASS as AST_PER_PASS, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ptb.FG_PCT,
+ab.OFF_RATING, ab.DEF_RATING, ab.NET_RATING, ab.AST_PCT, ab.REB_PCT, ab.EFG_PCT, ab.USG_PCT, ab.PACE,
+sb.PCT_FGA_2PT, sb.PCT_FGA_3PT, sb.PCT_PTS_2PT, sb.PCT_PTS_3PT, sb.PCT_PTS_OFF_TOV, sb.PCT_PTS_PAINT
+from usage_boxscores as ub
+left join game_summary as gs
+on gs.game_id = ub.game_id
+left join traditional_boxscores as tb
+on tb.game_id = ub.game_id  and tb.player_id = ub.player_id
+left join player_tracking_boxscores as ptb
+on ptb.game_id = ub.game_id  and ptb.player_id = ub.player_id
+left join advanced_boxscores as ab
+on ab.game_id = ub.game_id  and ab.player_id = ub.player_id
+left join scoring_boxscores as sb
+on sb.game_id = ub.game_id  and sb.player_id = ub.player_id
+where STR_TO_DATE(gs.game_date_est,'%Y-%m-%d') >= '2015-10-27' and STR_TO_DATE(gs.game_date_est,'%Y-%m-%d') <= '2015-11-10'
+order by STR_TO_DATE(ub.MIN,'%i:%s') DESC
+'''
+
 def process_query(sql_query):
     try:
         # Execute the SQL command
-        pp.pprint(sql_query)
-
         cursor.execute(sql_query)
         query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
                      row) for row in cursor.fetchall()]]
+        pp.pprint(query_result)
         # Fetch all the rows in a list of lists.
     except:
        print "Error: unable to fetch data"
@@ -184,8 +205,8 @@ def process_query(sql_query):
     return query_result
 
 FINAL_DATA = {}
-synergy_queries()
-sportvu_queries('player')
+# synergy_queries()
+# sportvu_queries('player')
 sportvu_queries('team')
 
 
