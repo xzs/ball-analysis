@@ -169,27 +169,77 @@ def sportvu_queries(query_type):
     }
     process_query(sportvu_query)
 
+def player_game_queries(date_1, date_2):
 
-'''
-select ub.PLAYER_NAME, ub.TEAM_ABBREVIATION, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FGA, ub.PCT_FG3A, ub.PCT_FTA, ub.PCT_REB, ub.PCT_AST, ub.PCT_TOV, ub.PCT_STL, ub.PCT_BLK, ub.PCT_PF, ub.PCT_PTS,
-tb.FGA, tb.FG_PCT, tb.FG3A, tb.FG3_PCT, tb.FTA, tb.FT_PCT, tb.REB, tb.AST, tb.STL, tb.BLK, tb.TO, tb.PF, tb.PTS, tb.PLUS_MINUS,
-ptb.RBC as REB_CHANCES, ptb.TCHS as TOUCHES, ptb.PASS, ptb.AST/ptb.PASS as AST_PER_PASS, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ptb.FG_PCT,
-ab.OFF_RATING, ab.DEF_RATING, ab.NET_RATING, ab.AST_PCT, ab.REB_PCT, ab.EFG_PCT, ab.USG_PCT, ab.PACE,
-sb.PCT_FGA_2PT, sb.PCT_FGA_3PT, sb.PCT_PTS_2PT, sb.PCT_PTS_3PT, sb.PCT_PTS_OFF_TOV, sb.PCT_PTS_PAINT
-from usage_boxscores as ub
-left join game_summary as gs
-on gs.game_id = ub.game_id
-left join traditional_boxscores as tb
-on tb.game_id = ub.game_id  and tb.player_id = ub.player_id
-left join player_tracking_boxscores as ptb
-on ptb.game_id = ub.game_id  and ptb.player_id = ub.player_id
-left join advanced_boxscores as ab
-on ab.game_id = ub.game_id  and ab.player_id = ub.player_id
-left join scoring_boxscores as sb
-on sb.game_id = ub.game_id  and sb.player_id = ub.player_id
-where STR_TO_DATE(gs.game_date_est,'%Y-%m-%d') >= '2015-10-27' and STR_TO_DATE(gs.game_date_est,'%Y-%m-%d') <= '2015-11-10'
-order by STR_TO_DATE(ub.MIN,'%i:%s') DESC
-'''
+    date_format_year = str("%Y-%m-%d")
+    date_format_min = str("%i:%s")
+
+    player_query = 'SELECT gs.GAME_ID, '\
+            'ub.PLAYER_NAME as NAME, '\
+            'ub.TEAM_ABBREVIATION as TEAM, '\
+            'ub.START_POSITION, '\
+            'ub.MIN, '\
+            'ub.USG_PCT, '\
+            'ub.PCT_FGA, '\
+            'ub.PCT_FG3A, '\
+            'ub.PCT_FTA, '\
+            'ub.PCT_REB, '\
+            'ub.PCT_AST, '\
+            'ub.PCT_TOV, '\
+            'ub.PCT_STL, '\
+            'ub.PCT_BLK, '\
+            'ub.PCT_PF, '\
+            'ub.PCT_PTS, '\
+            'tb.FGA, '\
+            'tb.FG_PCT, '\
+            'tb.FG3A, '\
+            'tb.FG3_PCT, '\
+            'tb.FTA, '\
+            'tb.FT_PCT, '\
+            'tb.REB, '\
+            'tb.AST, '\
+            'tb.STL, '\
+            'tb.BLK, '\
+            'tb.TO, '\
+            'tb.PF, '\
+            'tb.PTS, '\
+            'tb.PLUS_MINUS, '\
+            'ptb.RBC as REB_CHANCES, '\
+            'ptb.TCHS as TOUCHES, '\
+            'ptb.PASS, '\
+            'ptb.AST/ptb.PASS as AST_PER_PASS, '\
+            'ptb.CFGA as CONTESTED_FGA, '\
+            'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
+            'ptb.FG_PCT, '\
+            'ab.OFF_RATING, '\
+            'ab.DEF_RATING, '\
+            'ab.NET_RATING, '\
+            'ab.AST_PCT, '\
+            'ab.REB_PCT, '\
+            'ab.EFG_PCT, '\
+            'ab.USG_PCT, '\
+            'ab.PACE, '\
+            'sb.PCT_FGA_2PT, '\
+            'sb.PCT_FGA_3PT, '\
+            'sb.PCT_PTS_2PT, '\
+            'sb.PCT_PTS_3PT, '\
+            'sb.PCT_PTS_OFF_TOV, '\
+            'sb.PCT_PTS_PAINT '\
+        'FROM usage_boxscores as ub '\
+            'LEFT JOIN game_summary as gs '\
+                'ON gs.game_id = ub.game_id '\
+            'LEFT JOIN traditional_boxscores as tb '\
+                'ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
+            'LEFT JOIN player_tracking_boxscores as ptb '\
+                'ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id '\
+            'LEFT JOIN advanced_boxscores as ab '\
+                'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
+            'LEFT JOIN scoring_boxscores as sb '\
+                'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
+        'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+        'ORDER BY STR_TO_DATE(ub.MIN,"%(date_format_min)s") DESC' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
+
+    pp.pprint(player_query)
 
 def process_query(sql_query):
     try:
@@ -197,7 +247,6 @@ def process_query(sql_query):
         cursor.execute(sql_query)
         query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
                      row) for row in cursor.fetchall()]]
-        pp.pprint(query_result)
         # Fetch all the rows in a list of lists.
     except:
        print "Error: unable to fetch data"
@@ -205,9 +254,10 @@ def process_query(sql_query):
     return query_result
 
 FINAL_DATA = {}
-# synergy_queries()
-# sportvu_queries('player')
+synergy_queries()
+sportvu_queries('player')
 sportvu_queries('team')
+player_game_queries('2015-10-27', '2015-10-30')
 
 
 db.close()
