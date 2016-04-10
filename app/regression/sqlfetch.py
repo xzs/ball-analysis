@@ -47,21 +47,34 @@ def synergy_queries():
     # player
     for table in PLAYER_SYNERGY_TABLES_OFFENSE:
         for position in POSITIONS:
-            process_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
+            execute_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
                         'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PossG DESC' % {'position': position, 'date': DATE, 'table': table})
     # player defense
     for table in PLAYER_SYNERGY_TABLES_DEFENSE:
         for position in POSITIONS:
-            process_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
+            execute_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
                         'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PPP ASC' % {'position': position, 'date': DATE, 'table': table})
 
     # team
     for table in TEAM_SYNERGY_TABLES_OFFENSE:
-        process_query('SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG FROM %(table)s '\
-                    'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table})
+        # reset the session variables http://dba.stackexchange.com/a/56609
+        offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
+                        'CASE '\
+                        'WHEN @prev_value = PossG THEN @rank_count '\
+                        'WHEN @prev_value := PossG THEN @rank_count := @rank_count + 1 '\
+                        'END AS rank '\
+                        'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
+                            'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
+        execute_query(offense_query)
     for table in TEAM_SYNERGY_TABLES_DEFENSE:
-        process_query('SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG FROM %(table)s '\
-                    'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table})
+        defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
+                        'CASE '\
+                        'WHEN @prev_value = PPP THEN @rank_count '\
+                        'WHEN @prev_value := PPP THEN @rank_count := @rank_count + 1 '\
+                        'END AS rank '\
+                        'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
+                            'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table}
+        execute_query(defense_query)
 
 def sportvu_queries(query_type):
 
@@ -167,7 +180,7 @@ def sportvu_queries(query_type):
         'query_id': query_dict['query_id'],
         'query_type': query_type,
     }
-    process_query(sportvu_query)
+    execute_query(sportvu_query)
 
 def player_game_queries(date_1, date_2):
 
@@ -192,6 +205,7 @@ def player_game_queries(date_1, date_2):
             'ub.PCT_PTS, '\
             'tb.FGA, '\
             'tb.FG_PCT, '\
+            'tb.FG3M, '\
             'tb.FG3A, '\
             'tb.FG3_PCT, '\
             'tb.FTA, '\
@@ -203,6 +217,7 @@ def player_game_queries(date_1, date_2):
             'tb.TO, '\
             'tb.PF, '\
             'tb.PTS, '\
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '
             'tb.PLUS_MINUS, '\
             'ptb.RBC as REB_CHANCES, '\
             'ptb.TCHS as TOUCHES, '\
@@ -239,25 +254,49 @@ def player_game_queries(date_1, date_2):
         'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
         'ORDER BY STR_TO_DATE(ub.MIN,"%(date_format_min)s") DESC' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
 
-    pp.pprint(player_query)
+    execute_query(player_query)
 
-def process_query(sql_query):
+def execute_query(sql_query):
     try:
         # Execute the SQL command
+        # print sql_query
         cursor.execute(sql_query)
         query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
                      row) for row in cursor.fetchall()]]
         # Fetch all the rows in a list of lists.
     except:
-       print "Error: unable to fetch data"
+        print "Error: unable to fetch data"
 
     return query_result
 
-FINAL_DATA = {}
+def process_query_result(query_result):
+
+    for result in query_result:
+        if result['NAME'] in PLAYER_GAME_LOG:
+            PLAYER_GAME_LOG[result['NAME']].append({
+                'name': result['NAME'],
+                'team': result['TEAM'],
+                'starter': result['START_POSITION'],
+                'data': result
+            })
+        else:
+            PLAYER_GAME_LOG[result['NAME']] = []
+            PLAYER_GAME_LOG[result['NAME']].append({
+                'name': result['NAME'],
+                'team': result['TEAM'],
+                'starter': result['START_POSITION'],
+                'data': result
+            })
+
+PLAYER_GAME_LOG = {}
 synergy_queries()
-sportvu_queries('player')
-sportvu_queries('team')
-player_game_queries('2015-10-27', '2015-10-30')
+# sportvu_queries('player')
+# sportvu_queries('team')
+# player_game_queries('2015-10-27', '2015-10-30')
+
+
+
+# pp.pprint(PLAYER_GAME_LOG)
 
 
 db.close()
