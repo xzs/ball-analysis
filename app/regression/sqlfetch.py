@@ -2,11 +2,16 @@ import MySQLdb
 import json
 import itertools
 import pprint
+import MySQLdb.converters
 
 pp = pprint.PrettyPrinter(indent=4)
 
+conv=MySQLdb.converters.conversions.copy()
+conv[246]=float    # convert decimals to floats
+conv[10]=str       # convert dates to strings
+
 # Open database connection
-db = MySQLdb.connect("127.0.0.1","root","","nba_scrape" )
+db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
@@ -47,34 +52,38 @@ def synergy_queries():
     # player
     for table in PLAYER_SYNERGY_TABLES_OFFENSE:
         for position in POSITIONS:
-            execute_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
-                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PossG DESC' % {'position': position, 'date': DATE, 'table': table})
+            player_offense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
+                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PossG DESC' % {'position': position, 'date': DATE, 'table': table}
+            execute_query(player_offense_query)
+
     # player defense
     for table in PLAYER_SYNERGY_TABLES_DEFENSE:
         for position in POSITIONS:
-            execute_query('SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
-                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PPP ASC' % {'position': position, 'date': DATE, 'table': table})
+            player_defense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
+                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PPP ASC' % {'position': position, 'date': DATE, 'table': table}
+            execute_query(player_defense_query)
 
     # team
     for table in TEAM_SYNERGY_TABLES_OFFENSE:
         # reset the session variables http://dba.stackexchange.com/a/56609
-        offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
+        team_offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
                         'CASE '\
                         'WHEN @prev_value = PossG THEN @rank_count '\
                         'WHEN @prev_value := PossG THEN @rank_count := @rank_count + 1 '\
                         'END AS rank '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
-        execute_query(offense_query)
+        execute_query(team_offense_query)
+
     for table in TEAM_SYNERGY_TABLES_DEFENSE:
-        defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
+        team_defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
                         'CASE '\
                         'WHEN @prev_value = PPP THEN @rank_count '\
                         'WHEN @prev_value := PPP THEN @rank_count := @rank_count + 1 '\
                         'END AS rank '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table}
-        execute_query(defense_query)
+        execute_query(team_defense_query)
 
 def sportvu_queries(query_type):
 
@@ -188,6 +197,7 @@ def player_game_queries(date_1, date_2):
     date_format_min = str("%i:%s")
 
     player_query = 'SELECT gs.GAME_ID, '\
+            'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
             'ub.PLAYER_NAME as NAME, '\
             'ub.TEAM_ABBREVIATION as TEAM, '\
             'ub.START_POSITION, '\
@@ -217,7 +227,7 @@ def player_game_queries(date_1, date_2):
             'tb.TO, '\
             'tb.PF, '\
             'tb.PTS, '\
-            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
             'tb.PLUS_MINUS, '\
             'ptb.RBC as REB_CHANCES, '\
             'ptb.TCHS as TOUCHES, '\
@@ -254,49 +264,123 @@ def player_game_queries(date_1, date_2):
         'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
         'ORDER BY STR_TO_DATE(ub.MIN,"%(date_format_min)s") DESC' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
 
-    execute_query(player_query)
+    log_results = execute_query(player_query)
+
+    avg_player_query = 'SELECT gs.GAME_ID, '\
+            'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
+            'ub.PLAYER_NAME as NAME, '\
+            'ub.TEAM_ABBREVIATION as TEAM, '\
+            'ub.START_POSITION, '\
+            'ROUND(avg(ub.MIN), 4) as MIN, '\
+            'ROUND(avg(ub.USG_PCT), 4) as USG_PCT, '\
+            'ROUND(avg(ub.PCT_FGA), 4) as PCT_FGA, '\
+            'ROUND(avg(ub.PCT_FG3A), 4) as PCT_FG3A, '\
+            'ROUND(avg(ub.PCT_FTA), 4) as PCT_FTA, '\
+            'ROUND(avg(ub.PCT_REB), 4) as PCT_REB, '\
+            'ROUND(avg(ub.PCT_AST), 4) as PCT_AST, '\
+            'ROUND(avg(ub.PCT_TOV), 4) as PCT_TOV, '\
+            'ROUND(avg(ub.PCT_STL), 4) as PCT_STL, '\
+            'ROUND(avg(ub.PCT_BLK), 4) as PCT_BLK, '\
+            'ROUND(avg(ub.PCT_PF), 4) as PCT_PF, '\
+            'ROUND(avg(ub.PCT_PTS), 4) as PCT_PTS, '\
+            'ROUND(avg(tb.FGA), 4) as FGA, '\
+            'ROUND(avg(tb.FG_PCT), 4) as FG_PCT, '\
+            'ROUND(avg(tb.FG3M), 4) as FG3M, '\
+            'ROUND(avg(tb.FG3A), 4) as FG3A, '\
+            'ROUND(avg(tb.FG3_PCT), 4) as FG3_PCT, '\
+            'ROUND(avg(tb.FTA), 4) as FTA, '\
+            'ROUND(avg(tb.FT_PCT), 4) as FT_PCT, '\
+            'ROUND(avg(tb.FG3M), 4) as FG3M, '\
+            'ROUND(avg(tb.REB), 4) as REB, '\
+            'ROUND(avg(tb.AST), 4) as AST, '\
+            'ROUND(avg(tb.STL), 4) as STL, '\
+            'ROUND(avg(tb.BLK), 4) as BLK, '\
+            'ROUND(avg(tb.TO), 4) as TOV, '\
+            'ROUND(avg(tb.PF), 4) as PF, '\
+            'ROUND(avg(tb.PTS), 4) as PTS, '\
+            'ROUND(avg(tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1), 4) as DK_POINTS, '\
+            'ROUND(avg(tb.PLUS_MINUS), 4) as PLUS_MINUS, '\
+            'ROUND(avg(ptb.RBC), 4) as REB_CHANCES, '\
+            'ROUND(avg(ptb.TCHS), 4) as TOUCHES, '\
+            'ROUND(avg(ptb.PASS), 4) as PASS, '\
+            'ROUND(avg(ptb.AST) / avg(ptb.PASS), 4) as AST_PER_PASS, '\
+            'ROUND(avg(ptb.CFGA), 4) as CONTESTED_FGA, '\
+            'ROUND(avg(ptb.CFG_PCT), 4) as CONTESTED_FG_PCT, '\
+            'ROUND(avg(ptb.FG_PCT), 4) as FG_PCT, '\
+            'ROUND(avg(ab.OFF_RATING), 4) as OFF_RATING, '\
+            'ROUND(avg(ab.DEF_RATING), 4) as DEF_RATING, '\
+            'ROUND(avg(ab.NET_RATING), 4) as NET_RATING, '\
+            'ROUND(avg(ab.AST_PCT), 4) as AST_PCT, '\
+            'ROUND(avg(ab.REB_PCT), 4) as REB_PCT, '\
+            'ROUND(avg(ab.EFG_PCT), 4) as EFG_PCT, '\
+            'ROUND(avg(ab.USG_PCT), 4) as USG_PCT, '\
+            'ROUND(avg(ab.PACE), 4) as PACE, '\
+            'ROUND(avg(sb.PCT_FGA_2PT), 4) as PCT_FGA_2PT, '\
+            'ROUND(avg(sb.PCT_FGA_3PT), 4) as PCT_FGA_3PT, '\
+            'ROUND(avg(sb.PCT_PTS_2PT), 4) as PCT_PTS_2PT, '\
+            'ROUND(avg(sb.PCT_PTS_3PT), 4) as PCT_PTS_3PT, '\
+            'ROUND(avg(sb.PCT_PTS_OFF_TOV), 4) as PCT_PTS_OFF_TOV, '\
+            'ROUND(avg(sb.PCT_PTS_PAINT), 4) as PCT_PTS_PAINT, '\
+            'count(ub.PLAYER_NAME) as NUM_GAMES '\
+        'FROM usage_boxscores as ub '\
+            'LEFT JOIN game_summary as gs '\
+                'ON gs.game_id = ub.game_id '\
+            'LEFT JOIN traditional_boxscores as tb '\
+                'ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
+            'LEFT JOIN player_tracking_boxscores as ptb '\
+                'ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id '\
+            'LEFT JOIN advanced_boxscores as ab '\
+                'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
+            'LEFT JOIN scoring_boxscores as sb '\
+                'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
+        'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+        'GROUP BY NAME' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
+    avg_results = execute_query(avg_player_query)
+    process_query_result(log_results, avg_results)
+
 
 def execute_query(sql_query):
     try:
         # Execute the SQL command
-        # print sql_query
         cursor.execute(sql_query)
         query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
                      row) for row in cursor.fetchall()]]
-        # Fetch all the rows in a list of lists.
     except:
         print "Error: unable to fetch data"
 
     return query_result
 
-def process_query_result(query_result):
+def process_query_result(log_results, avg_results):
 
-    for result in query_result:
+    for result in log_results:
+        result['DATE'] = str(result['DATE'])
         if result['NAME'] in PLAYER_GAME_LOG:
-            PLAYER_GAME_LOG[result['NAME']].append({
+            PLAYER_GAME_LOG[result['NAME']]['game_log'].append({
                 'name': result['NAME'],
                 'team': result['TEAM'],
+                'date': result['DATE'],
                 'starter': result['START_POSITION'],
                 'data': result
             })
         else:
-            PLAYER_GAME_LOG[result['NAME']] = []
-            PLAYER_GAME_LOG[result['NAME']].append({
+            PLAYER_GAME_LOG[result['NAME']] = {}
+            PLAYER_GAME_LOG[result['NAME']]['game_log'] = []
+            PLAYER_GAME_LOG[result['NAME']]['game_log'].append({
                 'name': result['NAME'],
                 'team': result['TEAM'],
+                'date': result['DATE'],
                 'starter': result['START_POSITION'],
                 'data': result
             })
 
+    for avg in avg_results:
+        PLAYER_GAME_LOG[avg['NAME']]['avg'] = avg
+
 PLAYER_GAME_LOG = {}
 synergy_queries()
-# sportvu_queries('player')
-# sportvu_queries('team')
-# player_game_queries('2015-10-27', '2015-10-30')
-
-
-
-# pp.pprint(PLAYER_GAME_LOG)
+sportvu_queries('player')
+sportvu_queries('team')
+player_game_queries('2015-10-27', '2015-10-30')
 
 
 db.close()
