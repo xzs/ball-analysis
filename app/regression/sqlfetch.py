@@ -1,21 +1,19 @@
 import MySQLdb
-import json
-import itertools
 import pprint
 import MySQLdb.converters
 
 pp = pprint.PrettyPrinter(indent=4)
 
-conv=MySQLdb.converters.conversions.copy()
-conv[246]=float    # convert decimals to floats
-conv[10]=str       # convert dates to strings
+conv = MySQLdb.converters.conversions.copy()
+conv[246] = float    # convert decimals to floats
+conv[10] = str       # convert dates to strings
 
 # Open database connection
 db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
-DATE = '2016-04-01'
+DATE = '2016-04-27'
 
 POSITIONS = ['G', 'F', 'G-F', 'C']
 
@@ -83,9 +81,11 @@ def synergy_queries():
                         'END AS rank '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table}
+        print team_defense_query
+
         execute_query(team_defense_query)
 
-def sportvu_queries(query_type):
+def sportvu_queries(query_type, is_regular_season, teams):
 
     query_dict = {
         'query_for': '',
@@ -156,40 +156,59 @@ def sportvu_queries(query_type):
         'LEFT JOIN sportvu_defense%(query_type)s as def '\
             'ON def.%(query_id)s = cs.%(query_id)s '\
             'AND def.DATE = cs.DATE '\
+            'AND def.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_drives%(query_type)s as dr '\
             'ON dr.%(query_id)s = cs.%(query_id)s '\
             'AND dr.DATE = cs.DATE '\
+            'AND dr.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_elbow_touches%(query_type)s as et '\
             'ON et.%(query_id)s = cs.%(query_id)s '\
             'AND et.DATE = cs.DATE '\
+            'AND et.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_paint_touches%(query_type)s as pt '\
             'ON pt.%(query_id)s = cs.%(query_id)s '\
             'AND pt.DATE = cs.DATE '\
+            'AND pt.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_passing%(query_type)s as pass '\
             'ON pass.%(query_id)s = cs.%(query_id)s '\
             'AND pass.DATE = cs.DATE '\
+            'AND pass.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_possessions%(query_type)s as poss '\
             'ON poss.%(query_id)s = cs.%(query_id)s '\
             'AND poss.DATE = cs.DATE '\
+            'AND poss.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_post_touches%(query_type)s as pot '\
             'ON pot.%(query_id)s = cs.%(query_id)s '\
             'AND pot.DATE = cs.DATE '\
+            'AND pot.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_pull_up_shoot%(query_type)s as pus '\
             'ON pus.%(query_id)s = cs.%(query_id)s '\
             'AND pus.DATE = cs.DATE '\
+            'AND pus.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_rebounding%(query_type)s as reb '\
             'ON reb.%(query_id)s = cs.%(query_id)s '\
             'AND reb.DATE = cs.DATE '\
+            'AND reb.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
         'LEFT JOIN sportvu_speed%(query_type)s as sp '\
             'ON sp.%(query_id)s = cs.%(query_id)s '\
             'AND sp.DATE = cs.DATE '\
-    'WHERE cs.DATE = "%(date)s"' % {
+            'AND sp.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
+    'WHERE cs.DATE = "%(date)s" AND cs.IS_REGULAR_SEASON = %(is_regular_season)s ' % {
         'date': DATE,
         'query_for': query_dict['query_for'],
         'query_id': query_dict['query_id'],
         'query_type': query_type,
+        'is_regular_season': is_regular_season
     }
-    execute_query(sportvu_query)
+
+    # compare teams if passed
+    if teams:
+        sportvu_query += 'AND (cs.TEAM_ABBREVIATION = "%(team_one)s" OR cs.TEAM_ABBREVIATION = "%(team_two)s")' % {
+            'team_one': teams[0],
+            'team_two': teams[1]
+        }
+
+    return execute_query(sportvu_query)
 
 def player_game_queries(date_1, date_2):
 
@@ -335,6 +354,7 @@ def player_game_queries(date_1, date_2):
                 'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
         'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
         'GROUP BY NAME' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
+
     avg_results = execute_query(avg_player_query)
     process_query_result(log_results, avg_results)
 
@@ -376,11 +396,40 @@ def process_query_result(log_results, avg_results):
     for avg in avg_results:
         PLAYER_GAME_LOG[avg['NAME']]['avg'] = avg
 
-PLAYER_GAME_LOG = {}
-synergy_queries()
-sportvu_queries('player')
-sportvu_queries('team')
-player_game_queries('2015-10-27', '2015-10-30')
 
+def compare_team_stats(teams):
+    query_result = sportvu_queries('team', 0, teams)
+
+    diff_result = {}
+    diff = 0
+    team_one = query_result[0]
+    team_two = query_result[1]
+
+    # compare the two
+    for stat in zip(team_one, team_two):
+        stat = stat[0]
+        if type(team_one[stat]) is not str:
+
+            if team_one[stat] > team_two[stat]:
+                diff = (team_two[stat] / team_one[stat]) * 100
+            elif team_two[stat] > team_one[stat]:
+                diff = (team_one[stat] / team_two[stat]) * 100
+            else:
+                diff = 100
+
+            if diff <= 75:
+                diff_result[stat] = {
+                    team_one['TEAM_NAME']: team_one[stat],
+                    team_two['TEAM_NAME']: team_two[stat]
+                }
+
+    return diff_result
+
+PLAYER_GAME_LOG = {}
+# synergy_queries()
+# sportvu_queries('player')
+compare_team_stats(['LAC', 'POR'])
+sportvu_queries('team', 0, [])
+player_game_queries('2016-04-05', '2016-04-13')
 
 db.close()
