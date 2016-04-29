@@ -14,6 +14,7 @@ db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
 DATE = '2016-04-27'
+LAST_DATE_REG_SEASON = '2016-04-15'
 
 POSITIONS = ['G', 'F', 'G-F', 'C']
 
@@ -85,7 +86,7 @@ def synergy_queries():
 
         execute_query(team_defense_query)
 
-def sportvu_queries(query_type, is_regular_season, teams):
+def sportvu_queries(query_type, is_regular_season, teams, date):
 
     query_dict = {
         'query_for': '',
@@ -102,9 +103,9 @@ def sportvu_queries(query_type, is_regular_season, teams):
         query_type = '_team'
 
     sportvu_query = 'SELECT cs.%(query_for)s as NAME, cs.TEAM_ABBREVIATION as TEAM_NAME, cs.GP, '\
-            'cs.CATCH_SHOOT_FGA/cs.GP as "FGA_PER_GAME", '\
+            'cs.CATCH_SHOOT_FGA/cs.GP as "CS_FGA_PER_GAME", '\
             'cs.CATCH_SHOOT_FG_PCT, '\
-            'cs.CATCH_SHOOT_FG3A/cs.GP as "FG3A_PER_GAME", '\
+            'cs.CATCH_SHOOT_FG3A/cs.GP as "CS_FG3A_PER_GAME", '\
             'cs.CATCH_SHOOT_FG3_PCT, '\
             'cs.CATCH_SHOOT_EFG_PCT, '\
             'def.DEF_RIM_FGM/cs.GP as "FG_ALLOWED_PER_GAME", '\
@@ -194,7 +195,7 @@ def sportvu_queries(query_type, is_regular_season, teams):
             'AND sp.DATE = cs.DATE '\
             'AND sp.IS_REGULAR_SEASON = cs.IS_REGULAR_SEASON '\
     'WHERE cs.DATE = "%(date)s" AND cs.IS_REGULAR_SEASON = %(is_regular_season)s ' % {
-        'date': DATE,
+        'date': date,
         'query_for': query_dict['query_for'],
         'query_id': query_dict['query_id'],
         'query_type': query_type,
@@ -208,6 +209,7 @@ def sportvu_queries(query_type, is_regular_season, teams):
             'team_two': teams[1]
         }
 
+    print sportvu_query
     return execute_query(sportvu_query)
 
 def player_game_queries(date_1, date_2):
@@ -398,7 +400,7 @@ def process_query_result(log_results, avg_results):
 
 
 def compare_team_stats(teams):
-    query_result = sportvu_queries('team', 0, teams)
+    query_result = sportvu_queries('team', 0, teams, DATE)
 
     diff_result = {}
     diff = 0
@@ -425,11 +427,72 @@ def compare_team_stats(teams):
 
     return diff_result
 
+def compare_player_playoff_stats(teams):
+    # for playoffs
+    query_result_playoffs = sportvu_queries('player', 0, teams, DATE)
+    query_result_season = sportvu_queries('player', 1, teams, LAST_DATE_REG_SEASON)
+
+    diff_result = {}
+    diff = 0
+
+    temp_hash = {}
+    # put all data in a temp hash for players
+    # this is done to make sure all the names match
+    for stat in query_result_season:
+        temp_hash[stat['NAME']] = {
+            'season': stat,
+            'playoffs': {}
+        }
+
+    for stat in query_result_playoffs:
+        if stat['NAME'] in temp_hash:
+            temp_hash[stat['NAME']]['playoffs'] = stat
+        else:
+            temp_hash[stat['NAME']] = {
+                'season': {},
+                'playoffs': stat
+            }
+
+
+    for players in temp_hash:
+        for stat in zip(temp_hash[players]['playoffs'], temp_hash[players]['season']):
+            stat = stat[0]
+            # print stat
+            if type(temp_hash[players]['playoffs'][stat]) is not str:
+
+                if temp_hash[players]['playoffs'][stat] > temp_hash[players]['season'][stat]:
+                    diff = (temp_hash[players]['season'][stat] / temp_hash[players]['playoffs'][stat]) * 100
+                elif temp_hash[players]['season'][stat] > temp_hash[players]['playoffs'][stat]:
+                    diff = (temp_hash[players]['playoffs'][stat] / temp_hash[players]['season'][stat]) * 100
+                else:
+                    diff = 100
+
+                if diff <= 75:
+                    if players in diff_result:
+                        diff_result[players][stat] = {
+                            'playoffs': temp_hash[players]['playoffs'][stat],
+                            'season': temp_hash[players]['season'][stat]
+                        }
+                    else:
+                        diff_result[players] = {
+                            stat: {
+                                'playoffs': temp_hash[players]['playoffs'][stat],
+                                'season': temp_hash[players]['season'][stat]
+                            }
+                        }
+        # print players
+        # print temp_hash[players]
+
+    pp.pprint(diff_result)
+
+    return diff_result
 PLAYER_GAME_LOG = {}
 # synergy_queries()
-# sportvu_queries('player')
-compare_team_stats(['LAC', 'POR'])
-sportvu_queries('team', 0, [])
+# need to compare to regular season34
+# sportvu_queries('player', 0, ['ATL', 'BOS'])
+# pp.pprint(compare_team_stats(['ATL', 'BOS']))
+compare_player_playoff_stats(['ATL', 'BOS'])
+# sportvu_queries('team', 0, [])
 player_game_queries('2016-04-05', '2016-04-13')
 
 db.close()
