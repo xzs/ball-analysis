@@ -13,7 +13,7 @@ db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
-DATE = '2016-04-27'
+DATE = '2016-04-29'
 LAST_DATE_REG_SEASON = '2016-04-15'
 
 POSITIONS = ['G', 'F', 'G-F', 'C']
@@ -82,7 +82,6 @@ def synergy_queries():
                         'END AS rank '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table}
-        print team_defense_query
 
         execute_query(team_defense_query)
 
@@ -103,13 +102,13 @@ def sportvu_queries(query_type, is_regular_season, teams, date):
         query_type = '_team'
 
     sportvu_query = 'SELECT cs.%(query_for)s as NAME, cs.TEAM_ABBREVIATION as TEAM_NAME, cs.GP, '\
-            'cs.CATCH_SHOOT_FGA/cs.GP as "CS_FGA_PER_GAME", '\
+            'cs.CATCH_SHOOT_FGA/cs.GP as "CATCH_SHOOT_FGA_PER_GAME", '\
             'cs.CATCH_SHOOT_FG_PCT, '\
-            'cs.CATCH_SHOOT_FG3A/cs.GP as "CS_FG3A_PER_GAME", '\
+            'cs.CATCH_SHOOT_FG3A/cs.GP as "CATCH_SHOOT_3FGA_PER_GAME", '\
             'cs.CATCH_SHOOT_FG3_PCT, '\
             'cs.CATCH_SHOOT_EFG_PCT, '\
-            'def.DEF_RIM_FGM/cs.GP as "FG_ALLOWED_PER_GAME", '\
-            'def.DEF_RIM_FGA/cs.GP as "FG_FACED_PER_GAME", '\
+            'def.DEF_RIM_FGM/cs.GP as "FG_AT_RIM_ALLOWED_PER_GAME", '\
+            'def.DEF_RIM_FGA/cs.GP as "FG_AT_RIM_FACED_PER_GAME", '\
             'def.DEF_RIM_FG_PCT, '\
             'dr.DRIVES/cs.GP as "DRIVES_PER_GAME", '\
             'dr.DRIVE_FGA/cs.GP as "DRIVE_FGA_PER_GAME", '\
@@ -139,7 +138,7 @@ def sportvu_queries(query_type, is_regular_season, teams, date):
             'pus.PULL_UP_FGA/cs.GP as "PULL_UP_FGA_PER_GAME", '\
             'pus.PULL_UP_FG_PCT, '\
             'pus.PULL_UP_PTS/cs.GP as "PULL_UP_PTS_PER_GAME", '\
-            'pus.PULL_UP_FG3A/cs.GP as "PULL_UP_FG3A_PER_GAME", '\
+            'pus.PULL_UP_FG3A/cs.GP as "PULL_UP_3FGA_PER_GAME", '\
             'pus.PULL_UP_FG3_PCT, '\
             'pus.PULL_UP_EFG_PCT, '\
             'reb.OREB/cs.GP as "OREB_PER_GAME", '\
@@ -209,10 +208,9 @@ def sportvu_queries(query_type, is_regular_season, teams, date):
             'team_two': teams[1]
         }
 
-    print sportvu_query
-    return execute_query(sportvu_query)
+    return sportvu_query
 
-def player_game_queries(date_1, date_2):
+def player_game_queries(date_1, date_2, teams):
 
     date_format_year = str("%Y-%m-%d")
     date_format_min = str("%i:%s")
@@ -354,15 +352,31 @@ def player_game_queries(date_1, date_2):
                 'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
             'LEFT JOIN scoring_boxscores as sb '\
                 'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
-        'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
-        'GROUP BY NAME' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
+        'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" ' % {
+            'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2
+            }
 
+    # compare teams if passed
+    if teams:
+        avg_player_query += 'AND (ub.TEAM_ABBREVIATION = "%(team_one)s" OR ub.TEAM_ABBREVIATION = "%(team_two)s") ' % {
+            'team_one': teams[0],
+            'team_two': teams[1]
+        }
+    avg_player_query += 'GROUP BY NAME'
+
+    print avg_player_query
     avg_results = execute_query(avg_player_query)
     process_query_result(log_results, avg_results)
 
 
 def execute_query(sql_query):
+    query_result = None
+
     try:
+        db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
+
+        # prepare a cursor object using cursor() method
+        cursor = db.cursor()
         # Execute the SQL command
         cursor.execute(sql_query)
         query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
@@ -453,13 +467,10 @@ def compare_player_playoff_stats(teams):
                 'playoffs': stat
             }
 
-
     for players in temp_hash:
         for stat in zip(temp_hash[players]['playoffs'], temp_hash[players]['season']):
             stat = stat[0]
-            # print stat
             if type(temp_hash[players]['playoffs'][stat]) is not str:
-
                 if temp_hash[players]['playoffs'][stat] > temp_hash[players]['season'][stat]:
                     diff = (temp_hash[players]['season'][stat] / temp_hash[players]['playoffs'][stat]) * 100
                 elif temp_hash[players]['season'][stat] > temp_hash[players]['playoffs'][stat]:
@@ -480,19 +491,26 @@ def compare_player_playoff_stats(teams):
                                 'season': temp_hash[players]['season'][stat]
                             }
                         }
-        # print players
-        # print temp_hash[players]
-
-    pp.pprint(diff_result)
 
     return diff_result
+
+
+
+def process_team_comparison(teams):
+    diff_stats = compare_team_stats(teams)
+
+    for stat, value in diff_stats:
+        print value
+
 PLAYER_GAME_LOG = {}
 # synergy_queries()
 # need to compare to regular season34
-# sportvu_queries('player', 0, ['ATL', 'BOS'])
-# pp.pprint(compare_team_stats(['ATL', 'BOS']))
-compare_player_playoff_stats(['ATL', 'BOS'])
-# sportvu_queries('team', 0, [])
-player_game_queries('2016-04-05', '2016-04-13')
+print sportvu_queries('player', 0, ['TOR', 'IND'], DATE)
+execute_query(sportvu_queries('player', 0, ['ATL', 'BOS'], DATE))
+# pp.pprint(sportvu_queries('player', 0, ['ATL', 'BOS'], DATE))
+# pp.pprint(compare_team_stats(['TOR', 'IND']))
+# compare_player_playoff_stats(['TOR', 'IND'])
+# # sportvu_queries('team', 0, [])
+player_game_queries('2016-04-26', '2016-04-29', ['TOR', 'IND'])
 
 db.close()
