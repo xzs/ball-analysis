@@ -416,7 +416,7 @@ def process_query_result(log_results, avg_results):
         PLAYER_GAME_LOG[avg['NAME']]['avg'] = avg
 
 
-def compare_team_stats(teams):
+def compare_team_stats(teams, threshold):
     diff_result = {}
     diff = 0
     team_one = teams[0]
@@ -434,7 +434,7 @@ def compare_team_stats(teams):
             else:
                 diff = 100
 
-            if diff <= 75:
+            if diff <= threshold:
                 diff_result[stat] = {
                     team_one['TEAM_NAME']: team_one[stat],
                     team_two['TEAM_NAME']: team_two[stat]
@@ -443,7 +443,7 @@ def compare_team_stats(teams):
     return diff_result
 
 
-def compare_player_stats(result_season, result_playoffs):
+def compare_player_stats(result_season, result_playoffs, threshold):
 
     diff_result = {}
     diff = 0
@@ -477,7 +477,7 @@ def compare_player_stats(result_season, result_playoffs):
                 else:
                     diff = 100
 
-                if diff <= 75:
+                if diff <= threshold:
                     if players in diff_result:
                         diff_result[players][stat] = {
                             'playoffs': temp_hash[players]['playoffs'][stat],
@@ -505,11 +505,11 @@ regular_players = execute_query(sportvu_queries('player', 1, ['TOR', 'IND'], LAS
 playoffs_players = execute_query(sportvu_queries('player', 0, ['TOR', 'IND'], DATE))
 
 # between two teams
-compare_team_stats(regular_teams)
-compare_team_stats(playoffs_teams)
+compare_team_stats(regular_teams, 100)
+compare_team_stats(playoffs_teams, 100)
 
 # between regular season and playoffs
-compare_player_stats(regular_players, playoffs_players)
+compare_player_stats(regular_players, playoffs_players, 100)
 
 # player stats - players
 # playoffs
