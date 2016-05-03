@@ -212,82 +212,86 @@ def sportvu_queries(query_type, is_regular_season, teams, date):
 
     return sportvu_query
 
+
+def player_last_game(name):
+
+    date_format_year = str("%Y-%m-%d")
+    # # last game
+    player_query = 'SELECT gs.GAME_ID, '\
+            'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
+            'ub.PLAYER_NAME as NAME, '\
+            'ub.TEAM_ABBREVIATION as TEAM, '\
+            'ub.START_POSITION, '\
+            'ub.MIN, '\
+            'ub.USG_PCT, '\
+            'ub.PCT_FGA, '\
+            'ub.PCT_FG3A, '\
+            'ub.PCT_FTA, '\
+            'ub.PCT_REB, '\
+            'ub.PCT_AST, '\
+            'ub.PCT_TOV, '\
+            'ub.PCT_STL, '\
+            'ub.PCT_BLK, '\
+            'ub.PCT_PF, '\
+            'ub.PCT_PTS, '\
+            'tb.FGA, '\
+            'tb.FG_PCT, '\
+            'tb.FG3M, '\
+            'tb.FG3A, '\
+            'tb.FG3_PCT, '\
+            'tb.FTA, '\
+            'tb.FT_PCT, '\
+            'tb.REB, '\
+            'tb.AST, '\
+            'tb.STL, '\
+            'tb.BLK, '\
+            'tb.TO, '\
+            'tb.PF, '\
+            'tb.PTS, '\
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
+            'tb.PLUS_MINUS, '\
+            'ptb.RBC as REB_CHANCES, '\
+            'ptb.TCHS as TOUCHES, '\
+            'ptb.PASS, '\
+            'ptb.AST/ptb.PASS as AST_PER_PASS, '\
+            'ptb.CFGA as CONTESTED_FGA, '\
+            'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
+            'ptb.FG_PCT, '\
+            'ab.OFF_RATING, '\
+            'ab.DEF_RATING, '\
+            'ab.NET_RATING, '\
+            'ab.AST_PCT, '\
+            'ab.REB_PCT, '\
+            'ab.EFG_PCT, '\
+            'ab.USG_PCT, '\
+            'ab.PACE, '\
+            'sb.PCT_FGA_2PT, '\
+            'sb.PCT_FGA_3PT, '\
+            'sb.PCT_PTS_2PT, '\
+            'sb.PCT_PTS_3PT, '\
+            'sb.PCT_PTS_OFF_TOV, '\
+            'sb.PCT_PTS_PAINT '\
+        'FROM usage_boxscores as ub '\
+            'LEFT JOIN game_summary as gs '\
+                'ON gs.game_id = ub.game_id '\
+            'LEFT JOIN traditional_boxscores as tb '\
+                'ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
+            'LEFT JOIN player_tracking_boxscores as ptb '\
+                'ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id '\
+            'LEFT JOIN advanced_boxscores as ab '\
+                'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
+            'LEFT JOIN scoring_boxscores as sb '\
+                'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
+        'WHERE ub.GAME_ID = (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(name)s" ORDER BY game_id DESC LIMIT 1 ) '\
+        'AND ub.PLAYER_NAME = "%(name)s"' % {'date_format_year': date_format_year, 'name': name}
+
+    return player_query
+
+
 def player_game_queries(date_1, date_2, teams):
 
     date_format_year = str("%Y-%m-%d")
     date_format_min = str("%i:%s")
-
-    # # last game
-    # player_query = 'SELECT gs.GAME_ID, '\
-    #         'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
-    #         'ub.PLAYER_NAME as NAME, '\
-    #         'ub.TEAM_ABBREVIATION as TEAM, '\
-    #         'ub.START_POSITION, '\
-    #         'ub.MIN, '\
-    #         'ub.USG_PCT, '\
-    #         'ub.PCT_FGA, '\
-    #         'ub.PCT_FG3A, '\
-    #         'ub.PCT_FTA, '\
-    #         'ub.PCT_REB, '\
-    #         'ub.PCT_AST, '\
-    #         'ub.PCT_TOV, '\
-    #         'ub.PCT_STL, '\
-    #         'ub.PCT_BLK, '\
-    #         'ub.PCT_PF, '\
-    #         'ub.PCT_PTS, '\
-    #         'tb.FGA, '\
-    #         'tb.FG_PCT, '\
-    #         'tb.FG3M, '\
-    #         'tb.FG3A, '\
-    #         'tb.FG3_PCT, '\
-    #         'tb.FTA, '\
-    #         'tb.FT_PCT, '\
-    #         'tb.REB, '\
-    #         'tb.AST, '\
-    #         'tb.STL, '\
-    #         'tb.BLK, '\
-    #         'tb.TO, '\
-    #         'tb.PF, '\
-    #         'tb.PTS, '\
-    #         'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
-    #         'tb.PLUS_MINUS, '\
-    #         'ptb.RBC as REB_CHANCES, '\
-    #         'ptb.TCHS as TOUCHES, '\
-    #         'ptb.PASS, '\
-    #         'ptb.AST/ptb.PASS as AST_PER_PASS, '\
-    #         'ptb.CFGA as CONTESTED_FGA, '\
-    #         'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
-    #         'ptb.FG_PCT, '\
-    #         'ab.OFF_RATING, '\
-    #         'ab.DEF_RATING, '\
-    #         'ab.NET_RATING, '\
-    #         'ab.AST_PCT, '\
-    #         'ab.REB_PCT, '\
-    #         'ab.EFG_PCT, '\
-    #         'ab.USG_PCT, '\
-    #         'ab.PACE, '\
-    #         'sb.PCT_FGA_2PT, '\
-    #         'sb.PCT_FGA_3PT, '\
-    #         'sb.PCT_PTS_2PT, '\
-    #         'sb.PCT_PTS_3PT, '\
-    #         'sb.PCT_PTS_OFF_TOV, '\
-    #         'sb.PCT_PTS_PAINT '\
-    #     'FROM usage_boxscores as ub '\
-    #         'LEFT JOIN game_summary as gs '\
-    #             'ON gs.game_id = ub.game_id '\
-    #         'LEFT JOIN traditional_boxscores as tb '\
-    #             'ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
-    #         'LEFT JOIN player_tracking_boxscores as ptb '\
-    #             'ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id '\
-    #         'LEFT JOIN advanced_boxscores as ab '\
-    #             'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
-    #         'LEFT JOIN scoring_boxscores as sb '\
-    #             'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
-    #     'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
-    #     'ORDER BY STR_TO_DATE(ub.MIN,"%(date_format_min)s") DESC' % {'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2}
-
-    # print player_query
-    # log_results = execute_query(player_query)
 
     avg_player_query = 'SELECT gs.GAME_ID, '\
             'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
@@ -357,7 +361,7 @@ def player_game_queries(date_1, date_2, teams):
             'LEFT JOIN scoring_boxscores as sb '\
                 'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
         'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" ' % {
-            'date_format_year': date_format_year, 'date_format_min': date_format_min, 'date_begin': date_1, 'date_end': date_2
+            'date_format_year': date_format_year, 'date_begin': date_1, 'date_end': date_2
             }
 
     # compare teams if passed
@@ -496,7 +500,7 @@ def compare_player_stats(result_season, result_playoffs, threshold):
 
 PLAYER_GAME_LOG = {}
 # synergy_queries()
-
+player_last_game('Bruno Caboclo')
 # sportvu - team and players
 regular_teams = execute_query(sportvu_queries('team', 1, ['TOR', 'IND'], LAST_DATE_REG_SEASON))
 playoffs_teams = execute_query(sportvu_queries('team', 0, ['TOR', 'IND'], DATE))
@@ -516,6 +520,7 @@ compare_player_stats(regular_players, playoffs_players, 100)
 result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, ['TOR', 'IND']))
 # regular season
 result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, ['TOR', 'IND']))
+compare_player_stats(result_playoffs, result_season, 100)
 
 
 db.close()
