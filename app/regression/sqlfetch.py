@@ -87,7 +87,7 @@ def synergy_queries():
 
         execute_query(team_defense_query)
 
-def sportvu_queries(query_type, is_regular_season, teams, date):
+def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
 
     query_dict = {
         'query_for': '',
@@ -204,11 +204,16 @@ def sportvu_queries(query_type, is_regular_season, teams, date):
     }
 
     # compare teams if passed
-    if teams:
+    if is_player == 1:
+        sportvu_query += 'AND cs.PLAYER_NAME = "%(player)s" ' % {
+            'player': teams,
+        }
+    else:
         sportvu_query += 'AND (cs.TEAM_ABBREVIATION = "%(team_one)s" OR cs.TEAM_ABBREVIATION = "%(team_two)s")' % {
             'team_one': teams[0],
             'team_two': teams[1]
         }
+
 
     return sportvu_query
 
@@ -506,16 +511,24 @@ def compare_player_stats(result_season, result_playoffs, threshold):
 
 PLAYER_GAME_LOG = {}
 # synergy_queries()
-player_last_game('Bruno Caboclo')
-# sportvu - team and players
-regular_teams = execute_query(sportvu_queries('team', 1, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
-playoffs_teams = execute_query(sportvu_queries('team', 0, ['TOR', 'MIA'], DATE))
 
-regular_players = execute_query(sportvu_queries('player', 1, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
-playoffs_players = execute_query(sportvu_queries('player', 0, ['TOR', 'MIA'], DATE))
+player_last_game('DeMar DeRozan')
+
+
+# sportvu - team and players
+regular_teams = execute_query(sportvu_queries('team', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
+playoffs_teams = execute_query(sportvu_queries('team', 0, 0, ['TOR', 'MIA'], DATE))
+
+# all players
+regular_players = execute_query(sportvu_queries('player', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
+playoffs_players = execute_query(sportvu_queries('player', 0, 0, ['TOR', 'MIA'], DATE))
+
+# individual players
+regular_players = execute_query(sportvu_queries('player', 1, 1, 'DeMar DeRozan', LAST_DATE_REG_SEASON))
+playoffs_players = execute_query(sportvu_queries('player', 0, 1, 'DeMar DeRozan', DATE))
 
 # between two teams
-pp.pprint(compare_team_stats(regular_teams, 75))
+compare_team_stats(regular_teams, 75)
 compare_team_stats(playoffs_teams, 100)
 
 # between regular season and playoffs
