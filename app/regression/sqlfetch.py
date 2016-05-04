@@ -288,7 +288,8 @@ def player_last_game(name):
     return player_query
 
 
-def player_game_queries(date_1, date_2, teams):
+# query for either a player or team/s
+def player_game_queries(date_1, date_2, is_player, teams):
 
     date_format_year = str("%Y-%m-%d")
     date_format_min = str("%i:%s")
@@ -365,12 +366,17 @@ def player_game_queries(date_1, date_2, teams):
             }
 
     # compare teams if passed
-    if teams:
+    if is_player == 1:
+        avg_player_query += 'AND ub.PLAYER_NAME = "%(player)s" ' % {
+            'player': teams,
+        }
+    else:
         avg_player_query += 'AND (ub.TEAM_ABBREVIATION = "%(team_one)s" OR ub.TEAM_ABBREVIATION = "%(team_two)s") ' % {
             'team_one': teams[0],
             'team_two': teams[1]
         }
     avg_player_query += 'GROUP BY NAME'
+    print avg_player_query
 
     return avg_player_query
 
@@ -502,14 +508,14 @@ PLAYER_GAME_LOG = {}
 # synergy_queries()
 player_last_game('Bruno Caboclo')
 # sportvu - team and players
-regular_teams = execute_query(sportvu_queries('team', 1, ['TOR', 'IND'], LAST_DATE_REG_SEASON))
-playoffs_teams = execute_query(sportvu_queries('team', 0, ['TOR', 'IND'], DATE))
+regular_teams = execute_query(sportvu_queries('team', 1, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
+playoffs_teams = execute_query(sportvu_queries('team', 0, ['TOR', 'MIA'], DATE))
 
-regular_players = execute_query(sportvu_queries('player', 1, ['TOR', 'IND'], LAST_DATE_REG_SEASON))
-playoffs_players = execute_query(sportvu_queries('player', 0, ['TOR', 'IND'], DATE))
+regular_players = execute_query(sportvu_queries('player', 1, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
+playoffs_players = execute_query(sportvu_queries('player', 0, ['TOR', 'MIA'], DATE))
 
 # between two teams
-compare_team_stats(regular_teams, 100)
+pp.pprint(compare_team_stats(regular_teams, 75))
 compare_team_stats(playoffs_teams, 100)
 
 # between regular season and playoffs
@@ -517,10 +523,12 @@ compare_player_stats(regular_players, playoffs_players, 100)
 
 # player stats - players
 # playoffs
-result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, ['TOR', 'IND']))
+result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA']))
 # regular season
-result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, ['TOR', 'IND']))
+result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, ['TOR', 'MIA']))
 compare_player_stats(result_playoffs, result_season, 100)
+
+# compare just based on up and downs for previous game
 
 
 db.close()
