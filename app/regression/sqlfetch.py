@@ -217,6 +217,32 @@ def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
 
     return sportvu_query
 
+
+def get_game_line(team, is_last_game, date_1, date_2):
+    date_format_year = str("%Y-%m-%d")
+
+    team_query = 'SELECT * FROM line_score '\
+        'WHERE team_abbreviation = "%(team)s" ' % {
+                'team': team
+        }
+
+    # last game
+    if is_last_game == 1:
+        team_query += 'AND game_id = (SELECT game_id FROM traditional_boxscores_team '\
+        'WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id DESC LIMIT 1)' % {
+            'team': team
+        }
+
+    else:
+        team_query += 'AND STR_TO_DATE(game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+        'AND STR_TO_DATE(game_date_est,"%(date_format_year)s") <= "%(date_end)s" ' % {
+            'date_format_year': date_format_year, 'date_begin': date_1, 'date_end': date_2
+        }
+
+    return team_query
+
+
+
 def team_last_game(team):
 
     date_format_year = str("%Y-%m-%d")
@@ -438,7 +464,6 @@ def player_game_queries(date_1, date_2, is_player, teams):
             'team_two': teams[1]
         }
     avg_player_query += 'GROUP BY NAME'
-    print avg_player_query
 
     return avg_player_query
 
@@ -574,6 +599,7 @@ player_last_game('DeMar DeRozan')
 # team last game
 team_last_game('TOR')
 
+get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
 ''' sportvu - team and players '''
 regular_teams = execute_query(sportvu_queries('team', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
