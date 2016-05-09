@@ -250,6 +250,7 @@ def team_last_game(team, n):
     team_query = 'SELECT gs.GAME_ID, '\
             'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
             'ab.TEAM_ABBREVIATION as TEAM, '\
+            'tb3.TEAM_ABBREVIATION as TEAM_AGAINST, '\
             'tb.FGA, '\
             'tb.FG_PCT, '\
             'tb.FG3M, '\
@@ -297,6 +298,8 @@ def team_last_game(team, n):
                 'ON sb.game_id = ab.game_id AND sb.team_abbreviation = ab.team_abbreviation '\
             'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb2 '\
                 'ON tb2.game_id = ab.game_id '\
+            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb3 '\
+                'ON tb3.game_id = ab.game_id and tb2.game_id = tb3.game_id and tb3.TEAM_ABBREVIATION != ab.TEAM_ABBREVIATION '\
         'WHERE ab.TEAM_ABBREVIATION = "%(team)s"' % {'date_format_year': date_format_year, 'team': team, 'games': n}
 
     return team_query
@@ -309,6 +312,7 @@ def player_last_game(name, n):
             'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
             'ub.PLAYER_NAME as NAME, '\
             'ub.TEAM_ABBREVIATION as TEAM, '\
+            'tb3.TEAM_ABBREVIATION as TEAM_AGAINST, '\
             'ub.START_POSITION, '\
             'ub.MIN, '\
             'ub.USG_PCT, '\
@@ -371,7 +375,9 @@ def player_last_game(name, n):
             'LEFT JOIN scoring_boxscores as sb '\
                 'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
             'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(name)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb2 '\
-            'ON tb2.game_id = ub.game_id '\
+                'ON tb2.game_id = ub.game_id '\
+            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb3 '\
+                'ON tb3.game_id = ub.game_id and tb2.game_id = tb3.game_id and tb3.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION '\
         'WHERE ub.PLAYER_NAME = "%(name)s"' % {'date_format_year': date_format_year, 'name': name, 'games': n}
 
     return player_query
@@ -621,7 +627,7 @@ compare_team_stats(regular_teams, 75)
 # between regular season and playoffs
 compare_player_stats(regular_players, playoffs_players, 100)
 
-# player stats - players
+# player stats - players - average
 # playoffs
 result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA']))
 # regular season
