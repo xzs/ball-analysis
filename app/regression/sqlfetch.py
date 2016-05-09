@@ -14,7 +14,7 @@ db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
-DATE = date.today()
+DATE = date.today() - timedelta(1)
 LAST_DATE_REG_SEASON = '2016-04-15'
 FIRST_DATE_REG_SEASON = '2015-10-27'
 
@@ -243,7 +243,7 @@ def get_game_line(team, is_last_game, date_1, date_2):
 
 
 
-def team_last_game(team):
+def team_last_game(team, n):
 
     date_format_year = str("%Y-%m-%d")
 
@@ -279,7 +279,6 @@ def team_last_game(team):
             'ab.AST_PCT, '\
             'ab.REB_PCT, '\
             'ab.EFG_PCT, '\
-            'ab.USG_PCT, '\
             'ab.PACE, '\
             'sb.PCT_FGA_2PT, '\
             'sb.PCT_FGA_3PT, '\
@@ -296,12 +295,13 @@ def team_last_game(team):
                 'ON ptb.game_id = ab.game_id AND ptb.team_abbreviation = ab.team_abbreviation '\
             'LEFT JOIN scoring_boxscores_team as sb '\
                 'ON sb.game_id = ab.game_id AND sb.team_abbreviation = ab.team_abbreviation '\
-        'WHERE ab.GAME_ID = (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id DESC LIMIT 1 ) '\
-        'AND ab.TEAM_ABBREVIATION = "%(team)s"' % {'date_format_year': date_format_year, 'team': team}
+            'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb2 '\
+                'ON tb2.game_id = ab.game_id '\
+        'WHERE ab.TEAM_ABBREVIATION = "%(team)s"' % {'date_format_year': date_format_year, 'team': team, 'games': n}
 
     return team_query
 
-def player_last_game(name):
+def player_last_game(name, n):
 
     date_format_year = str("%Y-%m-%d")
     # # last game
@@ -370,8 +370,9 @@ def player_last_game(name):
                 'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
             'LEFT JOIN scoring_boxscores as sb '\
                 'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
-        'WHERE ub.GAME_ID = (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(name)s" ORDER BY game_id DESC LIMIT 1 ) '\
-        'AND ub.PLAYER_NAME = "%(name)s"' % {'date_format_year': date_format_year, 'name': name}
+            'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(name)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb2 '\
+            'ON tb2.game_id = ub.game_id '\
+        'WHERE ub.PLAYER_NAME = "%(name)s"' % {'date_format_year': date_format_year, 'name': name, 'games': n}
 
     return player_query
 
@@ -595,9 +596,9 @@ PLAYER_GAME_LOG = {}
 # synergy_queries()
 
 # player last game
-player_last_game('DeMar DeRozan')
+player_last_game('DeMar DeRozan', 1)
 # team last game
-team_last_game('TOR')
+team_last_game('TOR', 1)
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
@@ -615,7 +616,7 @@ playoffs_players = execute_query(sportvu_queries('player', 0, 1, 'DeMar DeRozan'
 
 # between two teams
 compare_team_stats(regular_teams, 75)
-compare_team_stats(playoffs_teams, 100)
+# compare_team_stats(playoffs_teams, 100)
 
 # between regular season and playoffs
 compare_player_stats(regular_players, playoffs_players, 100)
