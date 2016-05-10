@@ -48,8 +48,8 @@ TEAM_SYNERGY_TABLES_DEFENSE = [
     'synergy_put_back_team_defense', 'synergy_spot_up_team_defense', 'synergy_transition_team_defense'
 ]
 
-def default_player_box_query():
 
+def default_player_box_query():
     player_query = 'SELECT gs.GAME_ID, '\
         'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
         'ub.PLAYER_NAME as NAME, '\
@@ -119,6 +119,62 @@ def default_player_box_query():
             'ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION ' % {'date_format_year': DATE_FORMAT_YEAR}
 
     return player_query
+
+
+def default_team_query():
+    team_query = 'SELECT gs.GAME_ID, '\
+        'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
+        'ab.TEAM_ABBREVIATION as TEAM, '\
+        'tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
+        'tb.FGA, '\
+        'tb.FG_PCT, '\
+        'tb.FG3M, '\
+        'tb.FG3A, '\
+        'tb.FG3_PCT, '\
+        'tb.FTA, '\
+        'tb.FT_PCT, '\
+        'tb.REB, '\
+        'tb.AST, '\
+        'tb.STL, '\
+        'tb.BLK, '\
+        'tb.TO, '\
+        'tb.PF, '\
+        'tb.PTS, '\
+        'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
+        'tb.PLUS_MINUS, '\
+        'ptb.RBC as REB_CHANCES, '\
+        'ptb.TCHS as TOUCHES, '\
+        'ptb.PASS, '\
+        'ptb.AST/ptb.PASS as AST_PER_PASS, '\
+        'ptb.CFGA as CONTESTED_FGA, '\
+        'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
+        'ab.OFF_RATING, '\
+        'ab.DEF_RATING, '\
+        'ab.NET_RATING, '\
+        'ab.AST_PCT, '\
+        'ab.REB_PCT, '\
+        'ab.EFG_PCT, '\
+        'ab.PACE, '\
+        'sb.PCT_FGA_2PT, '\
+        'sb.PCT_FGA_3PT, '\
+        'sb.PCT_PTS_2PT, '\
+        'sb.PCT_PTS_3PT, '\
+        'sb.PCT_PTS_OFF_TOV, '\
+        'sb.PCT_PTS_PAINT '\
+    'FROM advanced_boxscores_team as ab '\
+        'LEFT JOIN game_summary as gs '\
+            'ON gs.game_id = ab.game_id '\
+        'LEFT JOIN traditional_boxscores_team as tb '\
+            'ON tb.game_id = ab.game_id AND tb.team_abbreviation = ab.team_abbreviation '\
+        'LEFT JOIN player_tracking_boxscores_team as ptb '\
+            'ON ptb.game_id = ab.game_id AND ptb.team_abbreviation = ab.team_abbreviation '\
+        'LEFT JOIN scoring_boxscores_team as sb '\
+            'ON sb.game_id = ab.game_id AND sb.team_abbreviation = ab.team_abbreviation '\
+        'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 '\
+            'ON tb2.game_id = ab.game_id AND tb2.TEAM_ABBREVIATION != ab.TEAM_ABBREVIATION ' % {'date_format_year': DATE_FORMAT_YEAR}
+
+    return team_query
+
 
 def synergy_queries():
 
@@ -312,64 +368,25 @@ def get_game_line(team, is_last_game, date_1, date_2):
 
     return team_query
 
-
-
+# last n games for team
 def team_last_game(team, n):
+    team_query = default_team_query()
+    team_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb3 '\
+                        'ON tb3.game_id = ab.game_id '\
+                    'WHERE ab.TEAM_ABBREVIATION = "%(team)s"' % {'team': team, 'games': n}
 
-    team_query = 'SELECT gs.GAME_ID, '\
-            'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
-            'ab.TEAM_ABBREVIATION as TEAM, '\
-            'tb3.TEAM_ABBREVIATION as TEAM_AGAINST, '\
-            'tb.FGA, '\
-            'tb.FG_PCT, '\
-            'tb.FG3M, '\
-            'tb.FG3A, '\
-            'tb.FG3_PCT, '\
-            'tb.FTA, '\
-            'tb.FT_PCT, '\
-            'tb.REB, '\
-            'tb.AST, '\
-            'tb.STL, '\
-            'tb.BLK, '\
-            'tb.TO, '\
-            'tb.PF, '\
-            'tb.PTS, '\
-            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
-            'tb.PLUS_MINUS, '\
-            'ptb.RBC as REB_CHANCES, '\
-            'ptb.TCHS as TOUCHES, '\
-            'ptb.PASS, '\
-            'ptb.AST/ptb.PASS as AST_PER_PASS, '\
-            'ptb.CFGA as CONTESTED_FGA, '\
-            'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
-            'ab.OFF_RATING, '\
-            'ab.DEF_RATING, '\
-            'ab.NET_RATING, '\
-            'ab.AST_PCT, '\
-            'ab.REB_PCT, '\
-            'ab.EFG_PCT, '\
-            'ab.PACE, '\
-            'sb.PCT_FGA_2PT, '\
-            'sb.PCT_FGA_3PT, '\
-            'sb.PCT_PTS_2PT, '\
-            'sb.PCT_PTS_3PT, '\
-            'sb.PCT_PTS_OFF_TOV, '\
-            'sb.PCT_PTS_PAINT '\
-        'FROM advanced_boxscores_team as ab '\
-            'LEFT JOIN game_summary as gs '\
-                'ON gs.game_id = ab.game_id '\
-            'LEFT JOIN traditional_boxscores_team as tb '\
-                'ON tb.game_id = ab.game_id AND tb.team_abbreviation = ab.team_abbreviation '\
-            'LEFT JOIN player_tracking_boxscores_team as ptb '\
-                'ON ptb.game_id = ab.game_id AND ptb.team_abbreviation = ab.team_abbreviation '\
-            'LEFT JOIN scoring_boxscores_team as sb '\
-                'ON sb.game_id = ab.game_id AND sb.team_abbreviation = ab.team_abbreviation '\
-            'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb2 '\
-                'ON tb2.game_id = ab.game_id '\
-            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb3 '\
-                'ON tb3.game_id = ab.game_id and tb2.game_id = tb3.game_id and tb3.TEAM_ABBREVIATION != ab.TEAM_ABBREVIATION '\
-        'WHERE ab.TEAM_ABBREVIATION = "%(team)s"' % {'date_format_year': DATE_FORMAT_YEAR, 'team': team, 'games': n}
+    return team_query
 
+# matchup results for team b/w dates
+def team_direct_matchup(team, team_matchup, date_1, date_2):
+
+    team_query = default_team_query()
+    team_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id) as tb3 '\
+                        'ON tb3.game_id = ab.game_id '\
+                    'WHERE ab.TEAM_ABBREVIATION = "%(team)s" AND tb2.TEAM_ABBREVIATION = "%(team_matchup)s" '\
+                    'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                    'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+                    'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'team': team, 'team_matchup': team_matchup}
     return team_query
 
 # last n games for player
@@ -387,9 +404,9 @@ def player_last_matchups(player, date_1, date_2):
 
     player_query = default_player_box_query()
     player_query += 'WHERE ub.game_id IN (SELECT game_id FROM usage_boxscores WHERE player_name = "%(player)s") '\
-                        'AND ub.start_position = (SELECT start_position FROM usage_boxscores WHERE player_name = "%(player)s" limit 1) '\
+                        'AND ub.start_position = (SELECT start_position FROM usage_boxscores WHERE player_name = "%(player)s" LIMIT 1) '\
                         'AND ub.player_name != "%(player)s" '\
-                        'AND ub.team_abbreviation != (SELECT TEAM_ABBREVIATION FROM usage_boxscores WHERE player_name = "%(player)s" limit 1) '\
+                        'AND ub.team_abbreviation != (SELECT TEAM_ABBREVIATION FROM usage_boxscores WHERE player_name = "%(player)s" LIMIT 1) '\
                         'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
                         'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
                         'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'player': player}
@@ -625,12 +642,13 @@ def compare_player_stats(result_season, result_playoffs, threshold):
 PLAYER_GAME_LOG = {}
 # synergy_queries()
 
-# player last game
+# player games
 player_last_game('DeMar DeRozan', 1)
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
-# team last game
+# team games
 team_last_game('TOR', 1)
+team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
@@ -661,6 +679,4 @@ result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DA
 compare_player_stats(result_playoffs, result_season, 100)
 
 # compare just based on up and downs for previous game
-
-
 db.close()
