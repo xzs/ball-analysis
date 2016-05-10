@@ -373,26 +373,38 @@ def team_last_game(team, n):
     return team_query
 
 # last n games for player
-def player_last_game(name, n):
+def player_last_game(player, n):
 
     player_query = default_player_box_query()
-    player_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(name)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb3 '\
+    player_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(player)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb3 '\
                         'ON tb3.game_id = ub.game_id '\
-                    'WHERE ub.PLAYER_NAME = "%(name)s"' % {'name': name, 'games': n}
+                    'WHERE ub.PLAYER_NAME = "%(player)s"' % {'player': player, 'games': n}
 
     return player_query
 
-# matchup results for player b/w dates
-def player_last_matchups(name, date_1, date_2):
+# matchup results for player b/w dates based on the starting position
+def player_last_matchups(player, date_1, date_2):
 
     player_query = default_player_box_query()
-    player_query += 'WHERE ub.game_id IN (SELECT game_id FROM usage_boxscores WHERE player_name = "%(name)s") '\
-                        'AND ub.start_position = (SELECT start_position FROM usage_boxscores WHERE player_name = "%(name)s" limit 1) '\
-                        'AND ub.player_name != "%(name)s" '\
-                        'AND ub.team_abbreviation != (SELECT TEAM_ABBREVIATION FROM usage_boxscores WHERE player_name = "%(name)s" limit 1) '\
+    player_query += 'WHERE ub.game_id IN (SELECT game_id FROM usage_boxscores WHERE player_name = "%(player)s") '\
+                        'AND ub.start_position = (SELECT start_position FROM usage_boxscores WHERE player_name = "%(player)s" limit 1) '\
+                        'AND ub.player_name != "%(player)s" '\
+                        'AND ub.team_abbreviation != (SELECT TEAM_ABBREVIATION FROM usage_boxscores WHERE player_name = "%(player)s" limit 1) '\
                         'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
                         'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
-                        'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'name': name}
+                        'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'player': player}
+
+    return player_query
+
+# matchup results for player vs another player b/w dates
+def player_direct_matchup(player, player_matchup, date_1, date_2):
+
+    player_query = default_player_box_query()
+    player_query += 'WHERE ub.game_id IN (SELECT game_id FROM usage_boxscores WHERE player_name = "%(player)s") '\
+                        'AND ub.player_name = "%(player_matchup)s" '\
+                        'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                        'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+                        'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'player': player, 'player_matchup': player_matchup}
 
     return player_query
 
@@ -614,8 +626,9 @@ PLAYER_GAME_LOG = {}
 # synergy_queries()
 
 # player last game
-# print player_last_game('DeMar DeRozan', 1)
-print player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+player_last_game('DeMar DeRozan', 1)
+player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 # team last game
 team_last_game('TOR', 1)
 
