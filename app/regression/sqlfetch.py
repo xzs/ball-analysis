@@ -21,6 +21,39 @@ DATE_FORMAT_YEAR = str("%Y-%m-%d")
 
 POSITIONS = ['G', 'F', 'G-F', 'C']
 
+TEAMS_DICT = {
+    'ATL':'Atlanta Hawks',
+    'BOS':'Boston Celtics',
+    'BRK':'Brooklyn Nets',
+    'CHO':'Charlotte Hornets',
+    'CHI':'Chicago Bulls',
+    'CLE':'Cleveland Cavaliers',
+    'DAL':'Dallas Mavericks',
+    'DEN':'Denver Nuggets',
+    'DET':'Detroit Pistons',
+    'GSW':'Golden State Warriors',
+    'HOU':'Houston Rockets',
+    'IND':'Indiana Pacers',
+    'LAC':'Los Angeles Clippers',
+    'LAL':'Los Angeles Lakers',
+    'MEM':'Memphis Grizzlies',
+    'MIA':'Miami Heat',
+    'MIL':'Milwaukee Bucks',
+    'MIN':'Minnesota Timberwolves',
+    'NOP':'New Orleans Pelicans',
+    'NYK':'New York Knicks',
+    'OKC':'Oklahoma City Thunder',
+    'ORL':'Orlando Magic',
+    'PHI':'Philadelphia 76ers',
+    'PHO':'Phoenix Suns',
+    'POR':'Portland Trail Blazers',
+    'SAC':'Sacramento Kings',
+    'SAS':'San Antonio Spurs',
+    'TOR':'Toronto Raptors',
+    'UTA':'Utah Jazz',
+    'WAS':'Washington Wizards'
+}
+
 PLAYER_SYNERGY_TABLES_OFFENSE = [
     'synergy_cut_offense', 'synergy_handoff_offense',
     'synergy_isolation_offense', 'synergy_misc_offense', 'synergy_off_screen_offense',
@@ -389,6 +422,20 @@ def team_direct_matchup(team, team_matchup, date_1, date_2):
                     'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'team': team, 'team_matchup': team_matchup}
     return team_query
 
+
+# team stats against specified team b/w dates
+def team_against(team, date_1, date_2):
+
+    team_query = default_team_query()
+    team_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "%(team)s" ORDER BY game_id) as tb3 '\
+                        'ON tb3.game_id = ab.game_id '\
+                    'WHERE tb2.TEAM_ABBREVIATION = "%(team)s" '\
+                    'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                    'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+                    'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'team': team}
+    return team_query
+
+
 # last n games for player
 def player_last_game(player, n):
 
@@ -638,6 +685,74 @@ def compare_player_stats(result_season, result_playoffs, threshold):
 
     return diff_result
 
+# shot_made: int
+# shot_distance, shot_zone_basic, shot_zone_area
+def shot_selection(query_type, name, shot_made, column):
+    query_dict = {
+        'query_for': ''
+    }
+
+    if query_type == 'player':
+        query_dict['query_for'] = 'PLAYER_NAME'
+    else:
+        # there need to be a translation for the team neam
+        name = TEAMS_DICT[name]
+        query_dict['query_for'] = 'TEAM_NAME'
+
+    shot_query = 'SELECT %(query_for)s as NAME, %(column)s, COUNT(%(column)s) as NUM_ACTIONS '\
+        'FROM shots '\
+        'WHERE %(query_for)s = "%(name)s" '\
+        'AND SHOT_MADE_FLAG = %(shot_made)s '\
+        'GROUP BY %(column)s '\
+        'ORDER BY COUNT(%(column)s) DESC' % {'name': name, 'shot_made': shot_made, 'column': column, 'query_for': query_dict['query_for']}
+
+    return shot_query
+
+
+def shot_selection_time(query_type, name, shot_made):
+    query_dict = {
+        'query_for': ''
+    }
+
+    if query_type == 'player':
+        query_dict['query_for'] = 'PLAYER_NAME'
+    else:
+        name = TEAMS_DICT[name]
+        query_dict['query_for'] = 'TEAM_NAME'
+
+    shot_query = 'SELECT %(query_for)s as NAME, PERIOD, MINUTES_REMAINING, COUNT(PERIOD) as NUM_ACTIONS '\
+        'FROM shots '\
+        'WHERE %(query_for)s = "%(name)s" '\
+        'AND SHOT_MADE_FLAG = %(shot_made)s '\
+        'GROUP BY %(column)s '\
+        'ORDER BY COUNT(PERIOD) DESC' % {'name': name, 'shot_made': shot_made, 'query_for': query_dict['query_for']}
+
+    return shot_query
+
+
+def shot_selection_type_detailed(query_type, name, shot_made):
+    query_dict = {
+        'query_for': ''
+    }
+
+    if query_type == 'player':
+        query_dict['query_for'] = 'PLAYER_NAME'
+    else:
+        name = TEAMS_DICT[name]
+        query_dict['query_for'] = 'TEAM_NAME'
+
+    shot_query = 'SELECT %(query_for)s as NAME, SHOT_TYPE, ACTION_TYPE, SHOT_ZONE_BASIC, COUNT(ACTION_TYPE) as NUM_ACTIONS '\
+        'FROM shots '\
+        'WHERE %(query_for)s = "%(name)s" '\
+        'AND SHOT_MADE_FLAG = %(shot_made)s '\
+        'GROUP BY ACTION_TYPE, SHOT_ZONE_BASIC, SHOT_TYPE '\
+        'ORDER BY COUNT(ACTION_TYPE) DESC' % {'name': name, 'shot_made': shot_made, 'query_for': query_dict['query_for']}
+
+    return shot_query
+
+
+shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE')
+shot_selection_type_detailed('team', 'BRK', '1')
 
 PLAYER_GAME_LOG = {}
 # synergy_queries()
@@ -648,6 +763,7 @@ player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASO
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 # team games
 team_last_game('TOR', 1)
+team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
