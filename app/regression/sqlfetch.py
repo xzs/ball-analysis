@@ -724,7 +724,7 @@ def shot_selection_time(query_type, name, shot_made):
         'FROM shots '\
         'WHERE %(query_for)s = "%(name)s" '\
         'AND SHOT_MADE_FLAG = %(shot_made)s '\
-        'GROUP BY %(column)s '\
+        'GROUP BY PERIOD, MINUTES_REMAINING '\
         'ORDER BY COUNT(PERIOD) DESC' % {'name': name, 'shot_made': shot_made, 'query_for': query_dict['query_for']}
 
     return shot_query
@@ -750,10 +750,46 @@ def shot_selection_type_detailed(query_type, name, shot_made):
 
     return shot_query
 
+def player_pass_made(name, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT PASS_TO, FREQUENCY, PASS, AST as AST_MADE, ROUND(AST/PASS,4) as AST_MADE_PER_PASS, ROUND(FGA/PASS,4) as FGA_CREATED_PER_PASS, FG_PCT, FG2A, FG3A '\
+            'FROM player_tracking_passes_made '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" '\
+            'ORDER BY FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season}
+
+    return pass_query
+
+def player_pass_received(name, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT PASS_FROM, FREQUENCY, PASS, AST as AST_CREATED, ROUND(AST/PASS,4) as AST_CREATED_PER_PASS, ROUND(FGA/PASS,4) as FGA_FROM_PASS, FG_PCT, FG2A, FG3A '\
+            'FROM player_tracking_passes_received '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" '\
+            'ORDER BY FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season}
+
+    return pass_query
+
+
+def reverse_name(name):
+    # translate the game in correct format for query
+    # Last, First
+    split_name = name.split(' ')
+    temp = split_name[0]
+    split_name[0] = split_name[1]
+    split_name[1] = temp
+
+    return split_name[0] + ', ' + split_name[1]
 
 shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE')
+shot_selection_time('teams', 'BRK', '1')
 shot_selection_type_detailed('team', 'BRK', '1')
-
+player_pass_received('DeMar DeRozan', 1)
+player_pass_made('DeMar DeRozan', 1)
 PLAYER_GAME_LOG = {}
 # synergy_queries()
 
@@ -762,7 +798,7 @@ player_last_game('DeMar DeRozan', 1)
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 # team games
-team_last_game('TOR', 1)
+team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
