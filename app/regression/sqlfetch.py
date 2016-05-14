@@ -136,7 +136,21 @@ def default_player_box_query():
         'sb.PCT_PTS_2PT, '\
         'sb.PCT_PTS_3PT, '\
         'sb.PCT_PTS_OFF_TOV, '\
-        'sb.PCT_PTS_PAINT '\
+        'sb.PCT_PTS_PAINT, '\
+        'ff.OPP_EFG_PCT, '\
+        'ff.OPP_FTA_RATE, '\
+        'ff.OPP_TOV_PCT, '\
+        'ff.OPP_OREB_PCT, '\
+        'mb.PTS_OFF_TOV, '\
+        'mb.PTS_FB, '\
+        'mb.PTS_2ND_CHANCE, '\
+        'mb.PTS_PAINT, '\
+        'mb.OPP_PTS_OFF_TOV, '\
+        'mb.OPP_PTS_2ND_CHANCE, '\
+        'mb.OPP_PTS_FB, '\
+        'mb.OPP_PTS_PAINT, '\
+        'mb.OPP_PTS_2ND_CHANCE, '\
+        'mb.PFD '\
     'FROM usage_boxscores as ub '\
         'LEFT JOIN game_summary as gs '\
             'ON gs.game_id = ub.game_id '\
@@ -148,6 +162,10 @@ def default_player_box_query():
             'ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
         'LEFT JOIN scoring_boxscores as sb '\
             'ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
+        'LEFT JOIN four_factors_boxscores as ff '\
+            'ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id '\
+        'LEFT JOIN misc_boxscores as mb '\
+            'ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id '\
         'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 '\
             'ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION ' % {'date_format_year': DATE_FORMAT_YEAR}
 
@@ -193,7 +211,23 @@ def default_team_query():
         'sb.PCT_PTS_2PT, '\
         'sb.PCT_PTS_3PT, '\
         'sb.PCT_PTS_OFF_TOV, '\
-        'sb.PCT_PTS_PAINT '\
+        'sb.PCT_PTS_PAINT, '\
+        'ff.OPP_EFG_PCT, '\
+        'ff.OPP_FTA_RATE, '\
+        'ff.OPP_TOV_PCT, '\
+        'ff.OPP_OREB_PCT, '\
+        'mb.PTS_OFF_TOV, '\
+        'mb.PTS_FB, '\
+        'mb.PTS_2ND_CHANCE, '\
+        'mb.PTS_PAINT, '\
+        'mb.OPP_PTS_OFF_TOV, '\
+        'mb.OPP_PTS_2ND_CHANCE, '\
+        'mb.OPP_PTS_FB, '\
+        'mb.OPP_PTS_PAINT, '\
+        'mb.OPP_PTS_2ND_CHANCE, '\
+        'mb.PFD, '\
+        'os.LARGEST_LEAD, '\
+        'os.TIMES_TIED '\
     'FROM advanced_boxscores_team as ab '\
         'LEFT JOIN game_summary as gs '\
             'ON gs.game_id = ab.game_id '\
@@ -203,6 +237,12 @@ def default_team_query():
             'ON ptb.game_id = ab.game_id AND ptb.team_abbreviation = ab.team_abbreviation '\
         'LEFT JOIN scoring_boxscores_team as sb '\
             'ON sb.game_id = ab.game_id AND sb.team_abbreviation = ab.team_abbreviation '\
+        'LEFT JOIN four_factors_boxscores_team as ff '\
+            'ON ff.game_id = ab.game_id AND ff.team_abbreviation = ab.team_abbreviation '\
+        'LEFT JOIN misc_boxscores_team as mb '\
+            'ON mb.game_id = ab.game_id AND mb.team_abbreviation = ab.team_abbreviation '\
+        'LEFT JOIN other_stats as os '\
+            'ON os.game_id = ab.game_id AND os.team_abbreviation = ab.team_abbreviation '\
         'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 '\
             'ON tb2.game_id = ab.game_id AND tb2.TEAM_ABBREVIATION != ab.TEAM_ABBREVIATION ' % {'date_format_year': DATE_FORMAT_YEAR}
 
@@ -797,6 +837,7 @@ PLAYER_GAME_LOG = {}
 player_last_game('DeMar DeRozan', 1)
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
+
 # team games
 team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
