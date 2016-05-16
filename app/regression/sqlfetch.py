@@ -1,9 +1,13 @@
 import MySQLdb
 import pprint
+import csv
+import logging
 import MySQLdb.converters
 from datetime import date, timedelta
 
 pp = pprint.PrettyPrinter(indent=4)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 conv = MySQLdb.converters.conversions.copy()
 conv[246] = float    # convert decimals to floats
@@ -129,7 +133,6 @@ def default_player_box_query():
         'ab.AST_PCT, '\
         'ab.REB_PCT, '\
         'ab.EFG_PCT, '\
-        'ab.USG_PCT, '\
         'ab.PACE, '\
         'sb.PCT_FGA_2PT, '\
         'sb.PCT_FGA_3PT, '\
@@ -150,7 +153,8 @@ def default_player_box_query():
         'mb.OPP_PTS_FB, '\
         'mb.OPP_PTS_PAINT, '\
         'mb.OPP_PTS_2ND_CHANCE, '\
-        'mb.PFD '\
+        'mb.PFD, '\
+        'gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV '\
     'FROM usage_boxscores as ub '\
         'LEFT JOIN game_summary as gs '\
             'ON gs.game_id = ub.game_id '\
@@ -512,6 +516,22 @@ def player_direct_matchup(player, player_matchup, date_1, date_2):
 
     return player_query
 
+# matchup results for player vs another player b/w dates
+def full_player_log(player, date_1, date_2, is_national):
+
+    player_query = default_player_box_query()
+    player_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(player)s" ) as tb3 '\
+                    'ON tb3.game_id = ub.game_id '\
+                    'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                    'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+                    'WHERE ub.PLAYER_NAME = "%(player)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'player': player, 'date_begin': date_1, 'date_end': date_2,}
+
+                        # last game
+    if is_national == 1:
+        player_query += 'AND gs.NATL_TV_BROADCASTER_ABBREVIATION IS NOT NULL '
+
+    return player_query
+
 # query for either a player or team/s
 def player_game_queries(date_1, date_2, is_player, teams):
 
@@ -825,18 +845,46 @@ def reverse_name(name):
 
     return split_name[0] + ', ' + split_name[1]
 
+def write_to_csv(sql_query):
+
+    try:
+        db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
+
+        # prepare a cursor object using cursor() method
+        cursor = db.cursor()
+        # Execute the SQL command
+        cursor.execute(sql_query)
+        header = []
+        for column in cursor.description:
+            header.append(column[0])
+        rows = cursor.fetchall()
+        with open('test/file.csv', 'wb') as f:
+            myFile = csv.writer(f)
+            myFile.writerow(header)
+            myFile.writerows(rows)
+
+    except:
+        print "Error: unable to fetch data"
+
+
 shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE')
 shot_selection_time('teams', 'BRK', '1')
 shot_selection_type_detailed('team', 'BRK', '1')
+
 player_pass_received('DeMar DeRozan', 1)
 player_pass_made('DeMar DeRozan', 1)
+
 PLAYER_GAME_LOG = {}
 # synergy_queries()
 
 # player games
-player_last_game('DeMar DeRozan', 1)
+player_last_game('DeMar DeRozan', 3)
+PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
+
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
+
+# player summary stats
 
 # team games
 team_last_game('TOR', 3)
@@ -864,12 +912,11 @@ compare_team_stats(regular_teams, 75)
 # between regular season and playoffs
 compare_player_stats(regular_players, playoffs_players, 100)
 
-# player stats - players - average
+# player stats - players - average between two teams
 # playoffs
 result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA']))
 # regular season
 result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, ['TOR', 'MIA']))
 compare_player_stats(result_playoffs, result_season, 100)
 
-# compare just based on up and downs for previous game
 db.close()
