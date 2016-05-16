@@ -419,6 +419,26 @@ def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
             'team_two': teams[1]
         }
 
+    return sportvu_query
+
+
+def get_sportvu_game_logs(name, stat, is_regular_season):
+
+    sportvu_query = 'SELECT * FROM sportvu_%(stat)s_game_logs as sl '\
+                    'INNER JOIN (SELECT tb.GAME_ID, tb.PLAYER_NAME, tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+                        'FROM traditional_boxscores AS tb) AS tb ON tb.GAME_ID = sl.GAME_ID and tb.PLAYER_NAME = sl.PLAYER_NAME '\
+                    'WHERE sl.PLAYER_NAME = "%(name)s" AND sl.IS_REGULAR_SEASON = %(is_regular_season)s' % {
+                        'stat': stat, 'name': name, 'is_regular_season': is_regular_season
+                    }
+    return sportvu_query
+
+
+def get_sportvu_team_logs(name, stat, is_regular_season):
+
+    sportvu_query = 'SELECT * FROM sportvu_%(stat)s_game_logs '\
+                    'WHERE TEAM_ABBREVIATION = "%(name)s" AND IS_REGULAR_SEASON = %(is_regular_season)s' % {
+                        'stat': stat, 'name': name, 'is_regular_season': is_regular_season
+                    }
 
     return sportvu_query
 
@@ -621,24 +641,6 @@ def player_game_queries(date_1, date_2, is_player, teams):
     avg_player_query += 'GROUP BY NAME'
 
     return avg_player_query
-
-
-def execute_query(sql_query):
-    query_result = None
-
-    try:
-        db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
-
-        # prepare a cursor object using cursor() method
-        cursor = db.cursor()
-        # Execute the SQL command
-        cursor.execute(sql_query)
-        query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
-                     row) for row in cursor.fetchall()]]
-    except:
-        print "Error: unable to fetch data"
-
-    return query_result
 
 
 def process_query_result(log_results, avg_results):
@@ -845,6 +847,24 @@ def reverse_name(name):
 
     return split_name[0] + ', ' + split_name[1]
 
+
+def execute_query(sql_query):
+    query_result = None
+
+    try:
+        db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
+
+        # prepare a cursor object using cursor() method
+        cursor = db.cursor()
+        # Execute the SQL command
+        cursor.execute(sql_query)
+        query_result = [dict(line) for line in [zip([column[0] for column in cursor.description],
+                     row) for row in cursor.fetchall()]]
+    except:
+        print "Error: unable to fetch data"
+
+    return query_result
+
 def write_to_csv(sql_query):
 
     try:
@@ -860,6 +880,7 @@ def write_to_csv(sql_query):
         rows = cursor.fetchall()
         with open('test/file.csv', 'wb') as f:
             myFile = csv.writer(f)
+            # write to the header
             myFile.writerow(header)
             myFile.writerows(rows)
 
@@ -879,7 +900,7 @@ PLAYER_GAME_LOG = {}
 
 # player games
 player_last_game('DeMar DeRozan', 3)
-PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
+# PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
 
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
@@ -891,32 +912,34 @@ team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
+write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'drives', 1))
+
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
 ''' sportvu - team and players '''
-regular_teams = execute_query(sportvu_queries('team', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
-playoffs_teams = execute_query(sportvu_queries('team', 0, 0, ['TOR', 'MIA'], DATE))
+# regular_teams = execute_query(sportvu_queries('team', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
+# playoffs_teams = execute_query(sportvu_queries('team', 0, 0, ['TOR', 'MIA'], DATE))
 
-# all players
-regular_players = execute_query(sportvu_queries('player', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
-playoffs_players = execute_query(sportvu_queries('player', 0, 0, ['TOR', 'MIA'], DATE))
+# # all players
+# regular_players = execute_query(sportvu_queries('player', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
+# playoffs_players = execute_query(sportvu_queries('player', 0, 0, ['TOR', 'MIA'], DATE))
 
-# individual players
-regular_players = execute_query(sportvu_queries('player', 1, 1, 'DeMar DeRozan', LAST_DATE_REG_SEASON))
-playoffs_players = execute_query(sportvu_queries('player', 0, 1, 'DeMar DeRozan', DATE))
+# # individual players
+# regular_players = execute_query(sportvu_queries('player', 1, 1, 'DeMar DeRozan', LAST_DATE_REG_SEASON))
+# playoffs_players = execute_query(sportvu_queries('player', 0, 1, 'DeMar DeRozan', DATE))
 
 # between two teams
-compare_team_stats(regular_teams, 75)
+# compare_team_stats(regular_teams, 75)
 # compare_team_stats(playoffs_teams, 100)
 
 # between regular season and playoffs
-compare_player_stats(regular_players, playoffs_players, 100)
+# compare_player_stats(regular_players, playoffs_players, 100)
 
 # player stats - players - average between two teams
 # playoffs
-result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA']))
+# result_playoffs = execute_query(player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA']))
 # regular season
-result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, ['TOR', 'MIA']))
-compare_player_stats(result_playoffs, result_season, 100)
+# result_season = execute_query(player_game_queries(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, ['TOR', 'MIA']))
+# compare_player_stats(result_playoffs, result_season, 100)
 
 db.close()
