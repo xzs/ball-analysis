@@ -435,8 +435,10 @@ def get_sportvu_game_logs(name, stat, is_regular_season):
 
 def get_sportvu_team_logs(name, stat, is_regular_season):
 
-    sportvu_query = 'SELECT * FROM sportvu_%(stat)s_game_logs '\
-                    'WHERE TEAM_ABBREVIATION = "%(name)s" AND IS_REGULAR_SEASON = %(is_regular_season)s' % {
+    sportvu_query = 'SELECT * FROM sportvu_%(stat)s_team_game_logs as sl '\
+                    'INNER JOIN (SELECT tb.GAME_ID, tb.TEAM_ABBREVIATION, tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+                        'FROM traditional_boxscores_team AS tb) AS tb ON tb.GAME_ID = sl.GAME_ID and tb.TEAM_ABBREVIATION = sl.TEAM_ABBREVIATION '\
+                    'WHERE sl.TEAM_ABBREVIATION = "%(name)s" AND sl.IS_REGULAR_SEASON = %(is_regular_season)s' % {
                         'stat': stat, 'name': name, 'is_regular_season': is_regular_season
                     }
 
@@ -865,7 +867,7 @@ def execute_query(sql_query):
 
     return query_result
 
-def write_to_csv(sql_query):
+def write_to_csv(sql_query, source, name):
 
     try:
         db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
@@ -878,11 +880,13 @@ def write_to_csv(sql_query):
         for column in cursor.description:
             header.append(column[0])
         rows = cursor.fetchall()
-        with open('test/file.csv', 'wb') as f:
-            myFile = csv.writer(f)
-            # write to the header
-            myFile.writerow(header)
-            myFile.writerows(rows)
+
+        if source == 'sportvu':
+            with open('nba_scrape/'+ source +'/'+ name +'.csv', 'wb') as f:
+                myFile = csv.writer(f)
+                # write to the header
+                myFile.writerow(header)
+                myFile.writerows(rows)
 
     except:
         print "Error: unable to fetch data"
@@ -912,7 +916,18 @@ team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
-write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'drives', 1))
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'drives', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'catch_shoot', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'elbow_touches', 1), 'sportvu', 'Jeremy Lin')
+write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'paint_touches', 1), 'sportvu', 'Jeremy Lin')
+write_to_csv(get_sportvu_team_logs('MEM', 'paint_touches', 1), 'sportvu', 'MEM')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'passing', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'possessions', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'post_touches', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'pull_up_shoot', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'rebounding', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'shooting', 1), 'sportvu', 'Jeremy Lin')
+# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'speed', 1), 'sportvu', 'Jeremy Lin')
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
