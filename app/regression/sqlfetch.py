@@ -422,14 +422,194 @@ def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
     return sportvu_query
 
 
-def get_sportvu_game_logs(name, stat, is_regular_season):
+def get_sportvu_game_logs(name, query_type, is_regular_season):
+    query_dict = {
+        'query_for': '',
+        'query_id': ''
+    }
 
-    sportvu_query = 'SELECT * FROM sportvu_%(stat)s_game_logs as sl '\
-                    'INNER JOIN (SELECT tb.GAME_ID, tb.PLAYER_NAME, tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
-                        'FROM traditional_boxscores AS tb) AS tb ON tb.GAME_ID = sl.GAME_ID and tb.PLAYER_NAME = sl.PLAYER_NAME '\
-                    'WHERE sl.PLAYER_NAME = "%(name)s" AND sl.IS_REGULAR_SEASON = %(is_regular_season)s' % {
-                        'stat': stat, 'name': name, 'is_regular_season': is_regular_season
+    if query_type == 'player':
+        query_dict['query_for'] = 'PLAYER_NAME'
+        query_dict['query_id'] = 'PLAYER_ID'
+        query_type = ''
+    else:
+        query_dict['query_for'] = 'TEAM_ABBREVIATION'
+        query_dict['query_id'] = 'TEAM_ID'
+        query_type = '_team'
+
+    sportvu_query = 'SELECT tb.%(query_for)s as NAME, '\
+                    'tb.TEAM_ABBREVIATION as TEAM_NAME, '\
+                    'tb.MIN, '\
+                    'cs.CATCH_SHOOT_FGM, '\
+                    'cs.CATCH_SHOOT_FGM - cs.CATCH_SHOOT_FG3M as CATCH_SHOOT_FG2M, '\
+                    'cs.CATCH_SHOOT_FGA, '\
+                    'cs.CATCH_SHOOT_FGA - cs.CATCH_SHOOT_FG3A as CATCH_SHOOT_FG2A, '\
+                    'cs.CATCH_SHOOT_FG_PCT, '\
+                    'cs.CATCH_SHOOT_PTS, '\
+                    'cs.CATCH_SHOOT_FG3M, '\
+                    'cs.CATCH_SHOOT_FG3A, '\
+                    'cs.CATCH_SHOOT_FG3_PCT, '\
+                    'cs.CATCH_SHOOT_EFG_PCT, '\
+                    'def.DEF_RIM_FGM as "FG_AT_RIM_ALLOWED", '\
+                    'def.DEF_RIM_FGA as "FG_AT_RIM_FACED", '\
+                    'def.DEF_RIM_FG_PCT, '\
+                    'dr.DRIVES, '\
+                    'dr.DRIVE_FGM, '\
+                    'dr.DRIVE_FGA, '\
+                    'dr.DRIVE_FG_PCT, '\
+                    'dr.DRIVE_FTM, '\
+                    'dr.DRIVE_FTA, '\
+                    'dr.DRIVE_FT_PCT, '\
+                    'dr.DRIVE_PTS, '\
+                    'dr.DRIVE_PTS_PCT, '\
+                    'dr.DRIVE_PASSES, '\
+                    'dr.DRIVE_PASSES_PCT, '\
+                    'dr.DRIVE_AST, '\
+                    'dr.DRIVE_AST_PCT, '\
+                    'dr.DRIVE_TOV, '\
+                    'dr.DRIVE_TOV_PCT, '\
+                    'dr.DRIVE_PF, '\
+                    'dr.DRIVE_PF_PCT, '\
+                    'et.ELBOW_TOUCHES, '\
+                    'et.ELBOW_TOUCH_FGM, '\
+                    'et.ELBOW_TOUCH_FGA, '\
+                    'et.ELBOW_TOUCH_FG_PCT, '\
+                    'et.ELBOW_TOUCH_FTM, '\
+                    'et.ELBOW_TOUCH_FTA, '\
+                    'et.ELBOW_TOUCH_FT_PCT, '\
+                    'et.ELBOW_TOUCH_PTS, '\
+                    'et.ELBOW_TOUCH_PTS_PCT, '\
+                    'et.ELBOW_TOUCH_PASSES, '\
+                    'et.ELBOW_TOUCH_PASSES_PCT, '\
+                    'et.ELBOW_TOUCH_AST, '\
+                    'et.ELBOW_TOUCH_AST_PCT, '\
+                    'et.ELBOW_TOUCH_TOV, '\
+                    'et.ELBOW_TOUCH_TOV_PCT, '\
+                    'et.ELBOW_TOUCH_FOULS, '\
+                    'et.ELBOW_TOUCH_FOULS_PCT, '\
+                    'pt.PAINT_TOUCHES, '\
+                    'pt.PAINT_TOUCH_FGM, '\
+                    'pt.PAINT_TOUCH_FGA, '\
+                    'pt.PAINT_TOUCH_FG_PCT, '\
+                    'pt.PAINT_TOUCH_FTM, '\
+                    'pt.PAINT_TOUCH_FTA, '\
+                    'pt.PAINT_TOUCH_FT_PCT, '\
+                    'pt.PAINT_TOUCH_PTS, '\
+                    'pt.PAINT_TOUCH_PTS_PCT, '\
+                    'pt.PAINT_TOUCH_PASSES, '\
+                    'pt.PAINT_TOUCH_PASSES_PCT, '\
+                    'pt.PAINT_TOUCH_AST, '\
+                    'pt.PAINT_TOUCH_AST_PCT, '\
+                    'pt.PAINT_TOUCH_TOV, '\
+                    'pt.PAINT_TOUCH_TOV_PCT, '\
+                    'pt.PAINT_TOUCH_FOULS, '\
+                    'pt.PAINT_TOUCH_FOULS_PCT, '\
+                    'pass.PASSES_MADE, '\
+                    'pass.PASSES_RECEIVED, '\
+                    'pass.AST, '\
+                    'pass.FT_AST, '\
+                    'pass.SECONDARY_AST, '\
+                    'pass.POTENTIAL_AST, '\
+                    'pass.AST_PTS_CREATED, '\
+                    'pass.AST_ADJ, '\
+                    'pass.AST_TO_PASS_PCT, '\
+                    'pass.AST_TO_PASS_PCT_ADJ, '\
+                    'poss.POINTS, '\
+                    'poss.TOUCHES, '\
+                    'poss.FRONT_CT_TOUCHES, '\
+                    'poss.TIME_OF_POSS, '\
+                    'poss.AVG_SEC_PER_TOUCH, '\
+                    'poss.AVG_DRIB_PER_TOUCH, '\
+                    'poss.PTS_PER_TOUCH, '\
+                    'poss.ELBOW_TOUCHES, '\
+                    'poss.POST_TOUCHES, '\
+                    'poss.PAINT_TOUCHES, '\
+                    'poss.PTS_PER_ELBOW_TOUCH, '\
+                    'poss.PTS_PER_POST_TOUCH, '\
+                    'poss.PTS_PER_PAINT_TOUCH, '\
+                    'pot.TOUCHES, '\
+                    'pot.POST_TOUCHES, '\
+                    'pot.POST_TOUCH_FGM, '\
+                    'pot.POST_TOUCH_FGA, '\
+                    'pot.POST_TOUCH_FG_PCT, '\
+                    'pot.POST_TOUCH_FTM, '\
+                    'pot.POST_TOUCH_FTA, '\
+                    'pot.POST_TOUCH_FT_PCT, '\
+                    'pot.POST_TOUCH_PTS, '\
+                    'pot.POST_TOUCH_PTS_PCT, '\
+                    'pot.POST_TOUCH_PASSES, '\
+                    'pot.POST_TOUCH_PASSES_PCT, '\
+                    'pot.POST_TOUCH_AST, '\
+                    'pot.POST_TOUCH_AST_PCT, '\
+                    'pot.POST_TOUCH_TOV, '\
+                    'pot.POST_TOUCH_TOV_PCT, '\
+                    'pot.POST_TOUCH_FOULS, '\
+                    'pot.POST_TOUCH_FOULS_PCT, '\
+                    'pus.PULL_UP_FGM, '\
+                    'pus.PULL_UP_FGM - pus.PULL_UP_FG3M as PULL_UP_FG2M, '\
+                    'pus.PULL_UP_FGA, '\
+                    'pus.PULL_UP_FGA - pus.PULL_UP_FG3A as PULL_UP_FG2A, '\
+                    'pus.PULL_UP_FG_PCT, '\
+                    'pus.PULL_UP_FG3M, '\
+                    'pus.PULL_UP_FG3A, '\
+                    'pus.PULL_UP_FG3_PCT, '\
+                    'pus.PULL_UP_PTS, '\
+                    'pus.PULL_UP_EFG_PCT, '\
+                    'reb.OREB, '\
+                    'reb.OREB_CONTEST, '\
+                    'reb.OREB_UNCONTEST, '\
+                    'reb.OREB_CONTEST_PCT, '\
+                    'reb.OREB_CHANCES, '\
+                    'reb.OREB_CHANCE_PCT, '\
+                    'reb.OREB_CHANCE_DEFER, '\
+                    'reb.OREB_CHANCE_PCT_ADJ, '\
+                    'reb.AVG_OREB_DIST, '\
+                    'reb.DREB, '\
+                    'reb.DREB_CONTEST, '\
+                    'reb.DREB_UNCONTEST, '\
+                    'reb.DREB_CONTEST_PCT, '\
+                    'reb.DREB_CHANCES, '\
+                    'reb.DREB_CHANCE_PCT, '\
+                    'reb.DREB_CHANCE_DEFER, '\
+                    'reb.DREB_CHANCE_PCT_ADJ, '\
+                    'reb.AVG_DREB_DIST, '\
+                    'reb.REB, '\
+                    'reb.REB_CONTEST, '\
+                    'reb.REB_UNCONTEST, '\
+                    'reb.REB_CONTEST_PCT, '\
+                    'reb.REB_CHANCES, '\
+                    'reb.REB_CHANCE_PCT, '\
+                    'reb.REB_CHANCE_DEFER, '\
+                    'reb.REB_CHANCE_PCT_ADJ, '\
+                    'reb.AVG_REB_DIST, '\
+                    'sp.DIST_FEET, '\
+                    'sp.DIST_MILES, '\
+                    'sp.DIST_MILES_OFF, '\
+                    'sp.DIST_MILES_DEF, '\
+                    'sp.AVG_SPEED, '\
+                    'sp.AVG_SPEED_OFF, '\
+                    'sp.AVG_SPEED_DEF, '\
+                    'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+                    'FROM sportvu_catch_shoot%(query_type)s_game_logs as cs  '\
+                    'LEFT JOIN sportvu_defense%(query_type)s_game_logs as def ON def.%(query_id)s = cs.%(query_id)s AND def.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_drives%(query_type)s_game_logs as dr ON dr.%(query_id)s = cs.%(query_id)s AND dr.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_elbow_touches%(query_type)s_game_logs as et ON et.%(query_id)s = cs.%(query_id)s AND et.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_paint_touches%(query_type)s_game_logs as pt ON pt.%(query_id)s = cs.%(query_id)s AND pt.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_passing%(query_type)s_game_logs as pass ON pass.%(query_id)s = cs.%(query_id)s AND pass.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_possessions%(query_type)s_game_logs as poss ON poss.%(query_id)s = cs.%(query_id)s AND poss.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_post_touches%(query_type)s_game_logs as pot ON pot.%(query_id)s = cs.%(query_id)s AND pot.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_pull_up_shoot%(query_type)s_game_logs as pus ON pus.%(query_id)s = cs.%(query_id)s AND pus.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_rebounding%(query_type)s_game_logs as reb ON reb.%(query_id)s = cs.%(query_id)s AND reb.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN sportvu_speed%(query_type)s_game_logs as sp ON sp.%(query_id)s = cs.%(query_id)s AND sp.GAME_ID = cs.GAME_ID  '\
+                    'LEFT JOIN traditional_boxscores%(query_type)s as tb ON tb.%(query_id)s = cs.%(query_id)s AND tb.GAME_ID = cs.GAME_ID  '\
+                    'WHERE cs.IS_REGULAR_SEASON = %(is_regular_season)s AND tb.%(query_for)s = "%(name)s"' % {
+                        'name': name,
+                        'is_regular_season': is_regular_season,
+                        'query_for': query_dict['query_for'],
+                        'query_id': query_dict['query_id'],
+                        'query_type': query_type
                     }
+
     return sportvu_query
 
 
@@ -881,12 +1061,11 @@ def write_to_csv(sql_query, source, name):
             header.append(column[0])
         rows = cursor.fetchall()
 
-        if source == 'sportvu':
-            with open('nba_scrape/'+ source +'/'+ name +'.csv', 'wb') as f:
-                myFile = csv.writer(f)
-                # write to the header
-                myFile.writerow(header)
-                myFile.writerows(rows)
+        with open('nba_scrape/'+ source +'/'+ name +'.csv', 'wb') as f:
+            myFile = csv.writer(f)
+            # write to the header
+            myFile.writerow(header)
+            myFile.writerows(rows)
 
     except:
         print "Error: unable to fetch data"
@@ -904,6 +1083,7 @@ PLAYER_GAME_LOG = {}
 
 # player games
 player_last_game('DeMar DeRozan', 3)
+write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
 # PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
 
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
@@ -916,21 +1096,13 @@ team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'drives', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'catch_shoot', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'elbow_touches', 1), 'sportvu', 'Jeremy Lin')
-write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'paint_touches', 1), 'sportvu', 'Jeremy Lin')
-write_to_csv(get_sportvu_team_logs('MEM', 'paint_touches', 1), 'sportvu', 'MEM')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'passing', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'possessions', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'post_touches', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'pull_up_shoot', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'rebounding', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'shooting', 1), 'sportvu', 'Jeremy Lin')
-# write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'speed', 1), 'sportvu', 'Jeremy Lin')
+write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'player', 1), 'sportvu', 'Jeremy Lin')
+write_to_csv(get_sportvu_game_logs('ATL', 'team', 1), 'sportvu', 'ATL')
+# write_to_csv(get_sportvu_team_logs('MEM', 'paint_touches', 1), 'sportvu', 'MEM')
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
+# print player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA'])
 ''' sportvu - team and players '''
 # regular_teams = execute_query(sportvu_queries('team', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
 # playoffs_teams = execute_query(sportvu_queries('team', 0, 0, ['TOR', 'MIA'], DATE))
@@ -942,6 +1114,7 @@ get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 # # individual players
 # regular_players = execute_query(sportvu_queries('player', 1, 1, 'DeMar DeRozan', LAST_DATE_REG_SEASON))
 # playoffs_players = execute_query(sportvu_queries('player', 0, 1, 'DeMar DeRozan', DATE))
+
 
 # between two teams
 # compare_team_stats(regular_teams, 75)
