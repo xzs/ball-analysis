@@ -8,7 +8,7 @@ from sklearn.linear_model import LinearRegression
 
 
 # read data into a DataFrame and set the header of the csv to the columns
-data = pd.read_csv('nba_scrape/sportvu/ATL.csv', header=0)
+data = pd.read_csv('nba_scrape/sportvu/Jeremy Lin.csv', header=0)
 
 if not data.empty and len(data.index) > 1:
     try:
@@ -40,7 +40,7 @@ if not data.empty and len(data.index) > 1:
         opp_data = smf.ols(formula='DK_POINTS ~ PASSES_MADE + PASSES_RECEIVED', data=data).fit()
 
         # Drives
-        # opp_data = smf.ols(formula='DK_POINTS ~ DRIVES + DRIVE_PF', data=data).fit()
+        opp_data = smf.ols(formula='DK_POINTS ~ DRIVES + DRIVE_PF', data=data).fit()
 
         # willingness to rebound
         opp_data = smf.ols(formula='DK_POINTS ~ OREB_CONTEST + DREB_CONTEST + OREB_UNCONTEST + DREB_UNCONTEST', data=data).fit()

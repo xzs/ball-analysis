@@ -24,8 +24,10 @@ if not data.empty and len(data.index) > 1:
         opp_team_data = smf.ols(formula='DK_POINTS ~ FTA + PFD', data=data).fit()
         opp_team_data = smf.ols(formula='DK_POINTS ~ IsNational', data=data).fit()
         # box
-        # opp_team_data = smf.ols(formula='DK_POINTS ~ PACE', data=data).fit()
-        # opp_team_data = smf.ols(formula='DK_POINTS ~ PTS_OFF_TOV + PTS_FB + PTS_2ND_CHANCE + PTS_PAINT', data=data).fit()
+        # pace against touch
+        #  does a faster pace game induce more touches?
+        opp_team_data = smf.ols(formula='DK_POINTS ~ PACE', data=data).fit()
+        opp_team_data = smf.ols(formula='DK_POINTS ~ PTS_OFF_TOV + PTS_FB + PTS_2ND_CHANCE + PTS_PAINT', data=data).fit()
         print opp_team_data.summary()
 
         for key, value in opp_team_data.pvalues.iteritems():

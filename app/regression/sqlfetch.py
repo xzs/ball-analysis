@@ -279,6 +279,7 @@ def synergy_queries():
                         'END AS rank '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
+        print team_offense_query
         execute_query(team_offense_query)
 
     for table in TEAM_SYNERGY_TABLES_DEFENSE:
@@ -624,6 +625,80 @@ def get_sportvu_team_logs(name, stat, is_regular_season):
 
     return sportvu_query
 
+def get_synergy_player(name, date_1, date_2):
+
+    synergy_query = 'SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, syn.CUT_PossG, '\
+            'syn.HANDOFF_PossG, '\
+            'syn.HANDOFF_PPP, '\
+            'syn.HANDOFF_FG, '\
+            'syn.ISO_PossG, '\
+            'syn.ISO_PPP, '\
+            'syn.ISO_FG, '\
+            'syn.MISC_PossG, '\
+            'syn.MISC_PPP, '\
+            'syn.MISC_FG, '\
+            'syn.OFF_SCREEN_PossG, '\
+            'syn.OFF_SCREEN_PPP, '\
+            'syn.OFF_SCREEN_FG, '\
+            'syn.POST_UP_PossG, '\
+            'syn.POST_UP_PPP, '\
+            'syn.POST_UP_FG, '\
+            'syn.PR_HANDLER_PossG, '\
+            'syn.PR_HANDLER_PPP, '\
+            'syn.PR_HANDLER_FG, '\
+            'syn.PR_ROLL_PossG, '\
+            'syn.PR_ROLL_PPP, '\
+            'syn.PR_ROLL_FG, '\
+            'syn.PUT_BACK_PossG, '\
+            'syn.PUT_BACK_PPP, '\
+            'syn.PUT_BACK_FG, '\
+            'syn.SPOT_UP_PossG, '\
+            'syn.SPOT_UP_PPP, '\
+            'syn.SPOT_UP_FG, '\
+            'syn.TRANS_PossG, '\
+            'syn.TRANS_PPP, '\
+            'syn.TRANS_FG, '\
+            'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+            'FROM usage_boxscores AS ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
+            'LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
+            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "Jeremy Lin" ) as tb3 ON '\
+                'tb3.game_id = ub.game_id AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+            'INNER JOIN (SELECT scto.DATE, scto.TeamNameAbbreviation as TEAM_NAME, scto.GP, scto.PossG as CUT_PossG, scto.PPP as CUT_PPP, scto.FG as CUT_FG, '\
+                'shto.PossG as HANDOFF_PossG, shto.PPP as HANDOFF_PPP, shto.FG as HANDOFF_FG, '\
+                'sito.PossG as ISO_PossG, sito.PPP as ISO_PPP, sito.FG as ISO_FG, '\
+                'smto.PossG as MISC_PossG, smto.PPP as MISC_PPP, smto.FG as MISC_FG, '\
+                'sosto.PossG as OFF_SCREEN_PossG, sosto.PPP as OFF_SCREEN_PPP, sosto.FG as OFF_SCREEN_FG, '\
+                'sputo.PossG as POST_UP_PossG, sputo.PPP as POST_UP_PPP, sputo.FG as POST_UP_FG, '\
+                'spbhto.PossG as PR_HANDLER_PossG, spbhto.PPP as PR_HANDLER_PPP, spbhto.FG as PR_HANDLER_FG, '\
+                'sprmto.PossG as PR_ROLL_PossG, sprmto.PPP as PR_ROLL_PPP, sprmto.FG as PR_ROLL_FG, '\
+                'spbto.PossG as PUT_BACK_PossG, spbto.PPP as PUT_BACK_PPP, spbto.FG as PUT_BACK_FG , '\
+                'ssuto.PossG as SPOT_UP_PossG, ssuto.PPP as SPOT_UP_PPP, ssuto.FG as SPOT_UP_FG, '\
+                'stto.PossG as TRANS_PossG, stto.PPP as TRANS_PPP, stto.FG as TRANS_FG '\
+                'FROM synergy_cut_team_offense AS scto LEFT JOIN synergy_handoff_team_offense AS shto ON '\
+                    'scto.TEAM_ID = shto.TEAM_ID AND scto.DATE = shto.DATE AND scto.IS_REGULAR_SEASON = shto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_isolation_team_offense AS sito ON '\
+                    'scto.TEAM_ID = sito.TEAM_ID AND scto.DATE = sito.DATE AND scto.IS_REGULAR_SEASON = sito.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_misc_team_offense AS smto ON '\
+                    'scto.TEAM_ID = smto.TEAM_ID AND scto.DATE = smto.DATE AND scto.IS_REGULAR_SEASON = smto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_off_screen_team_offense AS sosto ON '\
+                    'scto.TEAM_ID = sosto.TEAM_ID AND scto.DATE = sosto.DATE AND scto.IS_REGULAR_SEASON = sosto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_post_up_team_offense AS sputo ON '\
+                    'scto.TEAM_ID = sputo.TEAM_ID AND scto.DATE = sputo.DATE AND scto.IS_REGULAR_SEASON = sputo.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_pr_ball_handler_team_offense AS spbhto ON '\
+                    'scto.TEAM_ID = spbhto.TEAM_ID AND scto.DATE = spbhto.DATE AND scto.IS_REGULAR_SEASON = spbhto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_pr_roll_man_team_offense AS sprmto ON '\
+                    'scto.TEAM_ID = sprmto.TEAM_ID AND scto.DATE = sprmto.DATE AND scto.IS_REGULAR_SEASON = sprmto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_put_back_team_offense AS spbto ON '\
+                    'scto.TEAM_ID = spbto.TEAM_ID AND scto.DATE = spbto.DATE AND scto.IS_REGULAR_SEASON = spbto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_spot_up_team_offense AS ssuto ON '\
+                    'scto.TEAM_ID = ssuto.TEAM_ID AND scto.DATE = ssuto.DATE AND scto.IS_REGULAR_SEASON = ssuto.IS_REGULAR_SEASON '\
+                'LEFT JOIN synergy_transition_team_offense AS stto ON '\
+                    'scto.TEAM_ID = stto.TEAM_ID AND scto.DATE = stto.DATE AND scto.IS_REGULAR_SEASON = stto.IS_REGULAR_SEASON '\
+                    'WHERE scto.IS_REGULAR_SEASON = 1) as syn ON syn.DATE = STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") and syn.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+                'WHERE ub.PLAYER_NAME = "%(name)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'name':name}
+
+    return synergy_query
 
 def get_game_line(team, is_last_game, date_1, date_2):
 
@@ -931,21 +1006,30 @@ def compare_player_stats(result_season, result_playoffs, threshold):
 
 # shot_made: int
 # shot_distance, shot_zone_basic, shot_zone_area
-def shot_selection(query_type, name, shot_made, column):
+def shot_selection(query_type, name, shot_made, column, last_n):
     query_dict = {
         'query_for': ''
     }
 
     if query_type == 'player':
         query_dict['query_for'] = 'PLAYER_NAME'
+        query_type = ''
     else:
         # there need to be a translation for the team neam
         name = TEAMS_DICT[name]
         query_dict['query_for'] = 'TEAM_NAME'
+        query_type = '_team'
 
     shot_query = 'SELECT %(query_for)s as NAME, %(column)s, COUNT(%(column)s) as NUM_ACTIONS '\
-        'FROM shots '\
-        'WHERE %(query_for)s = "%(name)s" '\
+        'FROM shots ' % {'query_for': query_dict['query_for'], 'column': column}
+
+    if last_n != 0:
+        shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores%(query_type)s WHERE %(query_for)s = "%(name)s" '\
+                'ORDER BY game_id DESC LIMIT %(last_n)s ) as tb3 ON tb3.game_id = shots.game_id ' % {
+                    'name': name, 'query_for': query_dict['query_for'], 'query_type': query_type, 'last_n': last_n
+                }
+
+    shot_query += 'WHERE %(query_for)s = "%(name)s" '\
         'AND SHOT_MADE_FLAG = %(shot_made)s '\
         'GROUP BY %(column)s '\
         'ORDER BY COUNT(%(column)s) DESC' % {'name': name, 'shot_made': shot_made, 'column': column, 'query_for': query_dict['query_for']}
@@ -953,20 +1037,29 @@ def shot_selection(query_type, name, shot_made, column):
     return shot_query
 
 
-def shot_selection_time(query_type, name, shot_made):
+# last_n
+def shot_selection_time(query_type, name, shot_made, last_n):
     query_dict = {
         'query_for': ''
     }
 
     if query_type == 'player':
         query_dict['query_for'] = 'PLAYER_NAME'
+        query_type = ''
     else:
-        name = TEAMS_DICT[name]
         query_dict['query_for'] = 'TEAM_NAME'
+        query_type = '_team'
 
     shot_query = 'SELECT %(query_for)s as NAME, PERIOD, MINUTES_REMAINING, COUNT(PERIOD) as NUM_ACTIONS '\
-        'FROM shots '\
-        'WHERE %(query_for)s = "%(name)s" '\
+        'FROM shots ' % {'query_for': query_dict['query_for']}
+
+    if last_n != 0:
+        shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores%(query_type)s WHERE %(query_for)s = "%(name)s" '\
+                'ORDER BY game_id DESC LIMIT %(last_n)s ) as tb3 ON tb3.game_id = shots.game_id ' % {
+                    'name': name, 'query_for': query_dict['query_for'], 'query_type': query_type, 'last_n': last_n
+                }
+
+    shot_query += 'WHERE %(query_for)s = "%(name)s" '\
         'AND SHOT_MADE_FLAG = %(shot_made)s '\
         'GROUP BY PERIOD, MINUTES_REMAINING '\
         'ORDER BY COUNT(PERIOD) DESC' % {'name': name, 'shot_made': shot_made, 'query_for': query_dict['query_for']}
@@ -974,20 +1067,28 @@ def shot_selection_time(query_type, name, shot_made):
     return shot_query
 
 
-def shot_selection_type_detailed(query_type, name, shot_made):
+def shot_selection_type_detailed(query_type, name, shot_made, last_n):
     query_dict = {
         'query_for': ''
     }
 
     if query_type == 'player':
         query_dict['query_for'] = 'PLAYER_NAME'
+        query_type = ''
     else:
-        name = TEAMS_DICT[name]
         query_dict['query_for'] = 'TEAM_NAME'
+        query_type = '_team'
 
     shot_query = 'SELECT %(query_for)s as NAME, SHOT_TYPE, ACTION_TYPE, SHOT_ZONE_BASIC, COUNT(ACTION_TYPE) as NUM_ACTIONS '\
-        'FROM shots '\
-        'WHERE %(query_for)s = "%(name)s" '\
+        'FROM shots ' % {'query_for': query_dict['query_for']}
+
+    if last_n != 0:
+        shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores%(query_type)s WHERE %(query_for)s = "%(name)s" '\
+                'ORDER BY game_id DESC LIMIT %(last_n)s ) as tb3 ON tb3.game_id = shots.game_id ' % {
+                    'name': name, 'query_for': query_dict['query_for'], 'query_type': query_type, 'last_n': last_n
+                }
+
+    shot_query += 'WHERE %(query_for)s = "%(name)s" '\
         'AND SHOT_MADE_FLAG = %(shot_made)s '\
         'GROUP BY ACTION_TYPE, SHOT_ZONE_BASIC, SHOT_TYPE '\
         'ORDER BY COUNT(ACTION_TYPE) DESC' % {'name': name, 'shot_made': shot_made, 'query_for': query_dict['query_for']}
@@ -1070,18 +1171,21 @@ def write_to_csv(sql_query, source, name):
     except:
         print "Error: unable to fetch data"
 
-
-shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE')
-shot_selection_time('teams', 'BRK', '1')
-shot_selection_type_detailed('team', 'BRK', '1')
+# for visualizations
+shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 0)
+shot_selection_time('teams', 'BRK', 1, 0)
+shot_selection_type_detailed('team', 'BRK', 1, 0)
 
 player_pass_received('DeMar DeRozan', 1)
 player_pass_made('DeMar DeRozan', 1)
 
 PLAYER_GAME_LOG = {}
 # synergy_queries()
+print get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+# write_to_csv(get_synergy_team(), 'synergy', 'league')
 
 # player games
+full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 player_last_game('DeMar DeRozan', 3)
 write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
 # PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
@@ -1095,6 +1199,7 @@ player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
+
 
 write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'player', 1), 'sportvu', 'Jeremy Lin')
 write_to_csv(get_sportvu_game_logs('ATL', 'team', 1), 'sportvu', 'ATL')
