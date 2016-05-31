@@ -258,39 +258,30 @@ def synergy_queries():
     # player
     for table in PLAYER_SYNERGY_TABLES_OFFENSE:
         for position in POSITIONS:
-            player_offense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
-                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PossG DESC' % {'position': position, 'date': DATE, 'table': table}
+            player_offense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG, BetterPPP '\
+                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'position': position, 'date': DATE, 'table': table}
             execute_query(player_offense_query)
 
     # player defense
     for table in PLAYER_SYNERGY_TABLES_DEFENSE:
         for position in POSITIONS:
-            player_defense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG '\
-                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY PPP ASC' % {'position': position, 'date': DATE, 'table': table}
+            player_defense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG, BetterPPP '\
+                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'position': position, 'date': DATE, 'table': table}
+            print player_defense_query
             execute_query(player_defense_query)
 
     # team
     for table in TEAM_SYNERGY_TABLES_OFFENSE:
         # reset the session variables http://dba.stackexchange.com/a/56609
-        team_offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
-                        'CASE '\
-                        'WHEN @prev_value = PossG THEN @rank_count '\
-                        'WHEN @prev_value := PossG THEN @rank_count := @rank_count + 1 '\
-                        'END AS rank '\
-                        'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
-                            'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
-        print team_offense_query
+        team_offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, BetterPPP '\
+                        'FROM %(table)s '\
+                            'WHERE DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'date': DATE, 'table': table}
         execute_query(team_offense_query)
 
     for table in TEAM_SYNERGY_TABLES_DEFENSE:
-        team_defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, '\
-                        'CASE '\
-                        'WHEN @prev_value = PPP THEN @rank_count '\
-                        'WHEN @prev_value := PPP THEN @rank_count := @rank_count + 1 '\
-                        'END AS rank '\
-                        'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
-                            'WHERE DATE = "%(date)s" ORDER BY PPP ASC' % {'date': DATE, 'table': table}
-
+        team_defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, BetterPPP '\
+                        'FROM %(table)s '\
+                            'WHERE DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'date': DATE, 'table': table}
         execute_query(team_defense_query)
 
 def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
@@ -1171,6 +1162,31 @@ def write_to_csv(sql_query, source, name):
     except:
         print "Error: unable to fetch data"
 
+
+def test():
+    # query = 'SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, '\
+    # 'tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, tb.FTA, tb4.avgPF FROM usage_boxscores as ub '\
+    # 'LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
+    # 'LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id '\
+    # 'LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
+    # 'LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
+    # 'LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id '\
+    # 'LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id '\
+    # 'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 '\
+    #     'ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION '\
+    #     'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "DeMar DeRozan" ) as tb3 '\
+    #     'ON tb3.game_id = ub.game_id AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "2016-04-15" '\
+    #     'INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.PF) as avgPF FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION WHERE ub.PLAYER_NAME = "DeMar DeRozan" and ub.MIN >= 20' % {'date_format_year': DATE_FORMAT_YEAR}
+
+    # query = 'select ptb.MIN, ptb.RBC, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA from `player_tracking_boxscores` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION where player_name = "Trevor Ariza"'
+
+    query = 'select ptb.MIN, ptb.REB, ptb.OREB, ptb.OREB_CHANCES, ptb.OREB_CHANCE_PCT_ADJ, ptb.REB_CHANCES, ptb.REB_CHANCE_PCT_ADJ, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA, ab.avgPace from `sportvu_rebounding_game_logs` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION INNER JOIN (select ab.TEAM_ABBREVIATION as TEAM, avg(ab.pace) as avgPace FROM `advanced_boxscores_team` as ab GROUP BY TEAM) as ab on ab.TEAM = tb2.TEAM_ABBREVIATION where ptb.player_name = "Bismack Biyombo" and ptb.MIN <= 30 and ptb.MIN >= 20'
+    return query
+
+# officials and fouls per game
+# select off_fouls.OFFICIAL, count(off_fouls.OFFICIAL) as num_games, sum(off_fouls.fouls)/count(off_fouls.OFFICIAL) as total_fouls from (Select off.GAME_ID, CONCAT(off.`FIRST_NAME`, off.`LAST_NAME`) as OFFICIAL, g2.fouls from officials as off inner join (select game_id, sum(pf) as fouls from `traditional_boxscores_team` group by game_id) as g2 on g2.game_id = off.game_id) as off_fouls group by off_fouls.OFFICIAL
+
+
 # for visualizations
 shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 0)
 shot_selection_time('teams', 'BRK', 1, 0)
@@ -1180,12 +1196,12 @@ player_pass_received('DeMar DeRozan', 1)
 player_pass_made('DeMar DeRozan', 1)
 
 PLAYER_GAME_LOG = {}
-# synergy_queries()
-print get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+synergy_queries()
+get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 # write_to_csv(get_synergy_team(), 'synergy', 'league')
 
 # player games
-full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
+# print full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 player_last_game('DeMar DeRozan', 3)
 write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
 # PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
@@ -1203,6 +1219,7 @@ team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
 write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'player', 1), 'sportvu', 'Jeremy Lin')
 write_to_csv(get_sportvu_game_logs('ATL', 'team', 1), 'sportvu', 'ATL')
+write_to_csv(test(), 'sportvu', 'Trevor')
 # write_to_csv(get_sportvu_team_logs('MEM', 'paint_touches', 1), 'sportvu', 'MEM')
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
