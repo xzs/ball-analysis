@@ -72,6 +72,26 @@ app.factory('fetch', ['$http', function($http) {
             return $http.get('scrape/json_files/stats/league.json').then(function (response){
                 return response.data;
             })
+        },
+        getTeamSynergyOffense: function() {
+            return $http.get('scrape/json_files/synergy/team_offense_data.json').then(function (response){
+                return response.data;
+            })
+        },
+        getTeamSynergyDefense: function() {
+            return $http.get('scrape/json_files/synergy/team_defense_data.json').then(function (response){
+                return response.data;
+            })
+        },
+        getPlayerSynergyOffense: function() {
+            return $http.get('scrape/json_files/synergy/player_offense_data.json').then(function (response){
+                return response.data;
+            })
+        },
+        getPlayerSynergyDefense: function() {
+            return $http.get('scrape/json_files/synergy/player_defense_data.json').then(function (response){
+                return response.data;
+            })
         }
     }
 }]);

@@ -2,6 +2,7 @@ import MySQLdb
 import pprint
 import csv
 import logging
+import json
 import MySQLdb.converters
 from datetime import date, timedelta
 
@@ -256,33 +257,92 @@ def default_team_query():
 def synergy_queries():
 
     # player
+    player_offense_dict = {}
     for table in PLAYER_SYNERGY_TABLES_OFFENSE:
-        for position in POSITIONS:
-            player_offense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG, BetterPPP '\
-                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'position': position, 'date': DATE, 'table': table}
-            execute_query(player_offense_query)
+        player_offense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, P, '\
+                            'ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(PPG,4) as PPG, BetterPPP+1 as PPP_RANK, '\
+                            'CASE '\
+                            'WHEN @prev_value = PossG THEN @rank_count '\
+                            'WHEN @prev_value := PossG THEN @rank_count := @rank_count + 1 '\
+                            'END AS POSSG_RANK '\
+                            'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
+                                'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
+        player_offense_dict[table] = format_to_json(execute_query(player_offense_query), 'NAME')
+
+    # json dump for all players
+    with open('../scrape/json_files/synergy/player_offense_data.json', 'w') as outfile:
+        logger.info('Writing synergy to json file: player_offense_data')
+        json.dump(player_offense_dict, outfile)
+
 
     # player defense
+    player_defense_dict = {}
     for table in PLAYER_SYNERGY_TABLES_DEFENSE:
-        for position in POSITIONS:
-            player_defense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PPP, PossG, PPG, BetterPPP '\
-                        'FROM %(table)s WHERE P = "%(position)s" AND DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'position': position, 'date': DATE, 'table': table}
-            print player_defense_query
-            execute_query(player_defense_query)
+        player_defense_query = 'SELECT CONCAT(PlayerFirstName, " ", PlayerLastName) as NAME, TeamNameAbbreviation as TEAM_NAME, GP, P, '\
+                            'ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(PPG,4) as PPG, BetterPPP+1 as PPP_RANK, '\
+                            'CASE '\
+                            'WHEN @prev_value = PossG THEN @rank_count '\
+                            'WHEN @prev_value := PossG THEN @rank_count := @rank_count + 1 '\
+                            'END AS POSSG_RANK '\
+                            'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
+                                'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
+        player_defense_dict[table] = format_to_json(execute_query(player_defense_query), 'NAME')
 
-    # team
+    # json dump for all players
+    with open('../scrape/json_files/synergy/player_defense_data.json', 'w') as outfile:
+        logger.info('Writing synergy to json file: player_defense_data')
+        json.dump(player_defense_dict, outfile)
+
+
+    # team offense
+    team_offense_dict = {}
     for table in TEAM_SYNERGY_TABLES_OFFENSE:
         # reset the session variables http://dba.stackexchange.com/a/56609
-        team_offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, BetterPPP '\
-                        'FROM %(table)s '\
-                            'WHERE DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'date': DATE, 'table': table}
-        execute_query(team_offense_query)
+        team_offense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, '\
+                            'ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK, '\
+                            'CASE '\
+                            'WHEN @prev_value = PossG THEN @rank_count '\
+                            'WHEN @prev_value := PossG THEN @rank_count := @rank_count + 1 '\
+                            'END AS POSSG_RANK '\
+                            'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
+                                'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
 
+        team_offense_dict[table] = format_to_json(execute_query(team_offense_query), 'TEAM_NAME')
+
+    # store json dump for all teams
+    with open('../scrape/json_files/synergy/team_offense_data.json', 'w') as outfile:
+        logger.info('Writing synergy to json file: team_offense_data')
+        json.dump(team_offense_dict, outfile)
+
+    # team defense
+    team_defense_dict = {}
     for table in TEAM_SYNERGY_TABLES_DEFENSE:
-        team_defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, PossG, PPP, FG, BetterPPP '\
-                        'FROM %(table)s '\
-                            'WHERE DATE = "%(date)s" ORDER BY BetterPPP ASC' % {'date': DATE, 'table': table}
-        execute_query(team_defense_query)
+        team_defense_query = 'SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, '\
+                        'ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK, '\
+                        'CASE '\
+                        'WHEN @prev_value = PPP THEN @rank_count '\
+                        'WHEN @prev_value := PPP THEN @rank_count := @rank_count + 1 '\
+                        'END AS POSSG_RANK '\
+                        'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
+                            'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
+
+        team_defense_dict[table] = format_to_json(execute_query(team_defense_query), 'TEAM_NAME')
+
+    # store json dump for all teams
+    with open('../scrape/json_files/synergy/team_defense_data.json', 'w') as outfile:
+        logger.info('Writing synergy to json file: team_defense_data')
+        json.dump(team_defense_dict, outfile)
+
+
+def format_to_json(query_result, key_name):
+
+    final_result = {}
+    for result in query_result:
+        name = result[key_name]
+        final_result[name] = result
+
+    return final_result
+
 
 def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
 
@@ -1038,6 +1098,7 @@ def shot_selection_time(query_type, name, shot_made, last_n):
         query_dict['query_for'] = 'PLAYER_NAME'
         query_type = ''
     else:
+        name = TEAMS_DICT[name]
         query_dict['query_for'] = 'TEAM_NAME'
         query_type = '_team'
 
@@ -1057,34 +1118,42 @@ def shot_selection_time(query_type, name, shot_made, last_n):
 
     return shot_query
 
+# split into teams and player
+def shot_selection_type_detailed(name, shot_made, last_n):
 
-def shot_selection_type_detailed(query_type, name, shot_made, last_n):
-    query_dict = {
-        'query_for': ''
-    }
-
-    if query_type == 'player':
-        query_dict['query_for'] = 'PLAYER_NAME'
-        query_type = ''
-    else:
-        query_dict['query_for'] = 'TEAM_NAME'
-        query_type = '_team'
-
-    shot_query = 'SELECT %(query_for)s as NAME, SHOT_TYPE, ACTION_TYPE, SHOT_ZONE_BASIC, COUNT(ACTION_TYPE) as NUM_ACTIONS '\
-        'FROM shots ' % {'query_for': query_dict['query_for']}
+    shot_query = 'SELECT PLAYER_NAME as NAME, SHOT_TYPE, ACTION_TYPE, SHOT_ZONE_BASIC, COUNT(ACTION_TYPE) as NUM_ACTIONS FROM shots '
 
     if last_n != 0:
-        shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores%(query_type)s WHERE %(query_for)s = "%(name)s" '\
+        shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE PLAYER_NAME = "%(name)s" '\
                 'ORDER BY game_id DESC LIMIT %(last_n)s ) as tb3 ON tb3.game_id = shots.game_id ' % {
-                    'name': name, 'query_for': query_dict['query_for'], 'query_type': query_type, 'last_n': last_n
+                    'name': name, 'last_n': last_n
                 }
 
-    shot_query += 'WHERE %(query_for)s = "%(name)s" '\
+    shot_query += 'WHERE PLAYER_NAME = "%(name)s" '\
         'AND SHOT_MADE_FLAG = %(shot_made)s '\
         'GROUP BY ACTION_TYPE, SHOT_ZONE_BASIC, SHOT_TYPE '\
-        'ORDER BY COUNT(ACTION_TYPE) DESC' % {'name': name, 'shot_made': shot_made, 'query_for': query_dict['query_for']}
+        'ORDER BY COUNT(ACTION_TYPE) DESC' % {'name': name, 'shot_made': shot_made}
 
     return shot_query
+
+# split into teams and player
+def shot_selection_type_detailed_team(name, shot_made, last_n):
+
+    shot_query = 'SELECT TEAM_NAME, SHOT_TYPE, SHOT_ZONE_AREA, SHOT_ZONE_BASIC, COUNT(SHOT_ZONE_AREA) as NUM_ACTIONS FROM shots '
+
+    if last_n != 0:
+        shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE CONCAT(TEAM_CITY, " ", TEAM_NAME) = "%(name)s" '\
+                'ORDER BY game_id DESC LIMIT %(last_n)s ) as tb3 ON tb3.game_id = shots.game_id ' % {
+                    'name': name, 'last_n': last_n
+                }
+
+    shot_query += 'WHERE TEAM_NAME = "%(name)s" '\
+        'AND SHOT_MADE_FLAG = %(shot_made)s '\
+        'GROUP BY SHOT_ZONE_AREA, SHOT_ZONE_BASIC, SHOT_TYPE '\
+        'ORDER BY NUM_ACTIONS DESC' % {'name': name, 'shot_made': shot_made}
+
+    return shot_query
+
 
 def player_pass_made(name, is_regular_season):
 
@@ -1162,6 +1231,21 @@ def write_to_csv(sql_query, source, name):
     except:
         print "Error: unable to fetch data"
 
+def get_shot_selection_type_detailed_team():
+    shot_selection_type_detailed_team_dict = {}
+    for team, team_name in TEAMS_DICT.iteritems():
+
+        shot_selection_type_detailed_team_dict[team] = {}
+        # last game
+        shot_selection_type_detailed_team_dict[team]['Last 1'] = execute_query(shot_selection_type_detailed_team(team_name, 1, 1))
+        # last 3 games
+        shot_selection_type_detailed_team_dict[team]['Last 3'] = execute_query(shot_selection_type_detailed_team(team_name, 1, 3))
+        # all
+        shot_selection_type_detailed_team_dict[team]['All'] = execute_query(shot_selection_type_detailed_team(team_name, 1, 0))
+
+    with open('../scrape/json_files/shots/shot_selection_type_detailed_team_data.json', 'w') as outfile:
+        logger.info('Writing synergy to json file: shot_selection_type_detailed_team_data')
+        json.dump(shot_selection_type_detailed_team_dict, outfile)
 
 def test():
     # query = 'SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, '\
@@ -1183,19 +1267,33 @@ def test():
     query = 'select ptb.MIN, ptb.REB, ptb.OREB, ptb.OREB_CHANCES, ptb.OREB_CHANCE_PCT_ADJ, ptb.REB_CHANCES, ptb.REB_CHANCE_PCT_ADJ, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA, ab.avgPace from `sportvu_rebounding_game_logs` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION INNER JOIN (select ab.TEAM_ABBREVIATION as TEAM, avg(ab.pace) as avgPace FROM `advanced_boxscores_team` as ab GROUP BY TEAM) as ab on ab.TEAM = tb2.TEAM_ABBREVIATION where ptb.player_name = "Bismack Biyombo" and ptb.MIN <= 30 and ptb.MIN >= 20'
     return query
 
+# /* shooting fouls  */
+# -- 1=personal foul, 2=shooting foul, 3=blocking foul
+# select * from pbp INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "TOR" ORDER BY game_id DESC LIMIT 3 ) as tb3 ON tb3.game_id = pbp.game_id where `EVENTMSGTYPE` = 6 and `EVENTMSGACTIONTYPE`= 2 and `PLAYER1_TEAM_ABBREVIATION` = "TOR"
+
+# -- 1 = bad pass, 2= lost ball
+# select * from pbp INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "TOR" ORDER BY game_id DESC LIMIT 3 ) as tb3 ON tb3.game_id = pbp.game_id where `EVENTMSGTYPE` = 5 and `EVENTMSGACTIONTYPE` = 1 and `PLAYER1_TEAM_ABBREVIATION` = "TOR"
+
 # officials and fouls per game
 # select off_fouls.OFFICIAL, count(off_fouls.OFFICIAL) as num_games, sum(off_fouls.fouls)/count(off_fouls.OFFICIAL) as total_fouls from (Select off.GAME_ID, CONCAT(off.`FIRST_NAME`, off.`LAST_NAME`) as OFFICIAL, g2.fouls from officials as off inner join (select game_id, sum(pf) as fouls from `traditional_boxscores_team` group by game_id) as g2 on g2.game_id = off.game_id) as off_fouls group by off_fouls.OFFICIAL
 
+# -- passes to slowness of the game what about posessions?
+# select pass.`TEAM_ABBREVIATION`, pass.PASSES_MADE/pass.GP, poss.TOUCHES/poss.GP, poss.TIME_OF_POSS/poss.GP, AVG_SEC_PER_TOUCH from `sportvu_passing_team` as pass left join sportvu_possessions_team as poss on poss.team_id = pass.team_id and poss.date = pass.date where pass.date = '2016-04-15'
+# avg pass per fga
+# select gl.`TEAM_ABBREVIATION` as TEAM, avg(gl.`PASSES_MADE`/tb.FGA) as PASS_PER_FGA from `sportvu_passing_team_game_logs` as gl left join traditional_boxscores_team as tb on tb.game_id = gl.game_id and tb.team_id = gl.team_id WHERE gl.date <= '2016-04-15' and gl.date >= '2015-10-27' group by TEAM
+# with orb and teams against and pace
+# select gl.`TEAM_ABBREVIATION`, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, gl.`PASSES_MADE`/tb.FGA as PASS_PER_FGA, gl.W, gl.L, tb.FGA, tb.OREB, mb.`PTS_2ND_CHANCE`, tb2.FGA as TEAM_AGAINST_FGA, tb2.OREB as TEAM_AGAINST_OREB, ab.PACE from `sportvu_passing_team_game_logs` as gl left join traditional_boxscores_team as tb on tb.game_id = gl.game_id and tb.team_id = gl.team_id left join advanced_boxscores_team as ab on ab.game_id = gl.game_id and ab.team_id = gl.team_id left join misc_boxscores_team as mb on mb.game_id = gl.game_id and mb.team_id = gl.team_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION, tbt.FGA, tbt.OREB FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = gl.game_id and tb2.TEAM_ABBREVIATION != gl.TEAM_ABBREVIATION
+
 
 # for visualizations
-shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 0)
-shot_selection_time('teams', 'BRK', 1, 0)
-shot_selection_type_detailed('team', 'BRK', 1, 0)
+# print shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 1)
+# print shot_selection_time('teams', 'BRK', 1, 2)
+get_shot_selection_type_detailed_team()
 
 player_pass_received('DeMar DeRozan', 1)
 player_pass_made('DeMar DeRozan', 1)
 
-PLAYER_GAME_LOG = {}
+# synergy
 synergy_queries()
 get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 # write_to_csv(get_synergy_team(), 'synergy', 'league')
@@ -1204,8 +1302,9 @@ get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 # print full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 player_last_game('DeMar DeRozan', 3)
 write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
+PLAYER_GAME_LOG = {}
 # PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
-
+full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 
@@ -1216,7 +1315,6 @@ team_last_game('TOR', 3)
 team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
 team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
 
-
 write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'player', 1), 'sportvu', 'Jeremy Lin')
 write_to_csv(get_sportvu_game_logs('ATL', 'team', 1), 'sportvu', 'ATL')
 write_to_csv(test(), 'sportvu', 'Trevor')
@@ -1225,7 +1323,7 @@ write_to_csv(test(), 'sportvu', 'Trevor')
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
 # print player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA'])
-''' sportvu - team and players '''
+# ''' sportvu - team and players '''
 # regular_teams = execute_query(sportvu_queries('team', 1, 0, ['TOR', 'MIA'], LAST_DATE_REG_SEASON))
 # playoffs_teams = execute_query(sportvu_queries('team', 0, 0, ['TOR', 'MIA'], DATE))
 
