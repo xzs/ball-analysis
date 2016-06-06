@@ -88,73 +88,27 @@ TEAM_SYNERGY_TABLES_DEFENSE = [
 
 
 def default_player_box_query():
-    player_query = 'SELECT gs.GAME_ID, '\
-        'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
+    player_query = 'SELECT STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
         'ub.PLAYER_NAME as NAME, '\
-        'ub.TEAM_ABBREVIATION as TEAM, '\
+        'ub.TEAM_ABBREVIATION as TEAM_NAME, '\
         'tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
         'ub.START_POSITION, '\
-        'ub.MIN, '\
-        'ub.USG_PCT, '\
-        'ub.PCT_FGA, '\
-        'ub.PCT_FG3A, '\
-        'ub.PCT_FTA, '\
-        'ub.PCT_REB, '\
-        'ub.PCT_AST, '\
-        'ub.PCT_TOV, '\
-        'ub.PCT_STL, '\
-        'ub.PCT_BLK, '\
-        'ub.PCT_PF, '\
-        'ub.PCT_PTS, '\
-        'tb.FGA, '\
-        'tb.FG_PCT, '\
-        'tb.FG3M, '\
-        'tb.FG3A, '\
-        'tb.FG3_PCT, '\
-        'tb.FTA, '\
-        'tb.FT_PCT, '\
-        'tb.REB, '\
-        'tb.AST, '\
-        'tb.STL, '\
-        'tb.BLK, '\
-        'tb.TO, '\
-        'tb.PF, '\
-        'tb.PTS, '\
+        'ub.MIN, ub.USG_PCT, ub.PCT_FGA, ub.PCT_FG3A, ub.PCT_FTA, '\
+        'ub.PCT_REB, ub.PCT_AST, ub.PCT_TOV, ub.PCT_STL, '\
+        'ub.PCT_BLK, ub.PCT_PF, ub.PCT_PTS, '\
+        'tb.FGA, tb.FG_PCT, tb.FG3M, tb.FG3A, tb.FG3_PCT, '\
+        'tb.FTA, tb.FT_PCT, tb.REB, tb.AST, tb.STL, '\
+        'tb.BLK, tb.TO, tb.PF, tb.PTS, tb.PLUS_MINUS, '\
         'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
-        'tb.PLUS_MINUS, '\
-        'ptb.RBC as REB_CHANCES, '\
-        'ptb.TCHS as TOUCHES, '\
-        'ptb.PASS, '\
-        'ptb.AST/ptb.PASS as AST_PER_PASS, '\
-        'ptb.CFGA as CONTESTED_FGA, '\
-        'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
-        'ab.OFF_RATING, '\
-        'ab.DEF_RATING, '\
-        'ab.NET_RATING, '\
-        'ab.AST_PCT, '\
-        'ab.REB_PCT, '\
-        'ab.EFG_PCT, '\
-        'ab.PACE, '\
-        'sb.PCT_FGA_2PT, '\
-        'sb.PCT_FGA_3PT, '\
-        'sb.PCT_PTS_2PT, '\
-        'sb.PCT_PTS_3PT, '\
-        'sb.PCT_PTS_OFF_TOV, '\
-        'sb.PCT_PTS_PAINT, '\
-        'ff.OPP_EFG_PCT, '\
-        'ff.OPP_FTA_RATE, '\
-        'ff.OPP_TOV_PCT, '\
-        'ff.OPP_OREB_PCT, '\
-        'mb.PTS_OFF_TOV, '\
-        'mb.PTS_FB, '\
-        'mb.PTS_2ND_CHANCE, '\
-        'mb.PTS_PAINT, '\
-        'mb.OPP_PTS_OFF_TOV, '\
-        'mb.OPP_PTS_2ND_CHANCE, '\
-        'mb.OPP_PTS_FB, '\
-        'mb.OPP_PTS_PAINT, '\
-        'mb.OPP_PTS_2ND_CHANCE, '\
-        'mb.PFD, '\
+        'ptb.RBC as REB_CHANCES, ptb.TCHS as TOUCHES, ptb.PASS, '\
+        'ptb.AST/ptb.PASS as AST_PER_PASS, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, '\
+        'ab.OFF_RATING, ab.DEF_RATING, ab.NET_RATING, '\
+        'ab.AST_PCT, ab.REB_PCT, ab.EFG_PCT, ab.PACE, '\
+        'sb.PCT_FGA_2PT, sb.PCT_FGA_3PT, sb.PCT_PTS_2PT, sb.PCT_PTS_3PT, '\
+        'sb.PCT_PTS_OFF_TOV, sb.PCT_PTS_PAINT, '\
+        'ff.OPP_EFG_PCT, ff.OPP_FTA_RATE, ff.OPP_TOV_PCT, ff.OPP_OREB_PCT, '\
+        'mb.PTS_OFF_TOV, mb.PTS_FB, mb.PTS_2ND_CHANCE, mb.PTS_PAINT, mb.OPP_PTS_OFF_TOV, '\
+        'mb.OPP_PTS_2ND_CHANCE, mb.OPP_PTS_FB, mb.OPP_PTS_PAINT, mb.OPP_PTS_2ND_CHANCE, mb.PFD, '\
         'gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV '\
     'FROM usage_boxscores as ub '\
         'LEFT JOIN game_summary as gs '\
@@ -182,57 +136,22 @@ def default_team_query():
         'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
         'ab.TEAM_ABBREVIATION as TEAM, '\
         'tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
-        'tb.FGA, '\
-        'tb.FG_PCT, '\
-        'tb.FG3M, '\
-        'tb.FG3A, '\
-        'tb.FG3_PCT, '\
-        'tb.FTA, '\
-        'tb.FT_PCT, '\
-        'tb.REB, '\
-        'tb.AST, '\
-        'tb.STL, '\
-        'tb.BLK, '\
-        'tb.TO, '\
-        'tb.PF, '\
-        'tb.PTS, '\
+        'tb.FGA, tb.FG_PCT, tb.FG3M, tb.FG3A, tb.FG3_PCT, '\
+        'tb.FTA, tb.FT_PCT, tb.REB, tb.AST, tb.STL, '\
+        'tb.BLK, tb.TO, tb.PF, tb.PTS, tb.PLUS_MINUS,'\
         'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
-        'tb.PLUS_MINUS, '\
-        'ptb.RBC as REB_CHANCES, '\
-        'ptb.TCHS as TOUCHES, '\
-        'ptb.PASS, '\
-        'ptb.AST/ptb.PASS as AST_PER_PASS, '\
-        'ptb.CFGA as CONTESTED_FGA, '\
-        'ptb.CFG_PCT as CONTESTED_FG_PCT, '\
-        'ab.OFF_RATING, '\
-        'ab.DEF_RATING, '\
-        'ab.NET_RATING, '\
-        'ab.AST_PCT, '\
-        'ab.REB_PCT, '\
-        'ab.EFG_PCT, '\
-        'ab.PACE, '\
-        'sb.PCT_FGA_2PT, '\
-        'sb.PCT_FGA_3PT, '\
-        'sb.PCT_PTS_2PT, '\
-        'sb.PCT_PTS_3PT, '\
-        'sb.PCT_PTS_OFF_TOV, '\
-        'sb.PCT_PTS_PAINT, '\
-        'ff.OPP_EFG_PCT, '\
-        'ff.OPP_FTA_RATE, '\
-        'ff.OPP_TOV_PCT, '\
-        'ff.OPP_OREB_PCT, '\
-        'mb.PTS_OFF_TOV, '\
-        'mb.PTS_FB, '\
-        'mb.PTS_2ND_CHANCE, '\
-        'mb.PTS_PAINT, '\
-        'mb.OPP_PTS_OFF_TOV, '\
-        'mb.OPP_PTS_2ND_CHANCE, '\
-        'mb.OPP_PTS_FB, '\
-        'mb.OPP_PTS_PAINT, '\
-        'mb.OPP_PTS_2ND_CHANCE, '\
-        'mb.PFD, '\
-        'os.LARGEST_LEAD, '\
-        'os.TIMES_TIED '\
+        'ptb.RBC as REB_CHANCES, ptb.TCHS as TOUCHES, ptb.PASS, ptb.AST/ptb.PASS as AST_PER_PASS, '\
+        'ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, '\
+        'ab.OFF_RATING, ab.DEF_RATING, ab.NET_RATING, '\
+        'ab.AST_PCT, ab.REB_PCT, ab.EFG_PCT, ab.PACE, '\
+        'sb.PCT_FGA_2PT, sb.PCT_FGA_3PT, sb.PCT_PTS_2PT, sb.PCT_PTS_3PT, '\
+        'sb.PCT_PTS_OFF_TOV, sb.PCT_PTS_PAINT, '\
+        'ff.OPP_EFG_PCT, ff.OPP_FTA_RATE, ff.OPP_TOV_PCT, ff.OPP_OREB_PCT, '\
+        'mb.PTS_OFF_TOV, mb.PTS_FB, mb.PTS_2ND_CHANCE, mb.PTS_PAINT, '\
+        'mb.OPP_PTS_OFF_TOV, mb.OPP_PTS_2ND_CHANCE, mb.OPP_PTS_FB, mb.OPP_PTS_PAINT, '\
+        'mb.OPP_PTS_2ND_CHANCE, mb.PFD, '\
+        'os.LARGEST_LEAD, os.TIMES_TIED, '\
+        'gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV '\
     'FROM advanced_boxscores_team as ab '\
         'LEFT JOIN game_summary as gs '\
             'ON gs.game_id = ab.game_id '\
@@ -361,56 +280,26 @@ def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
         query_type = '_team'
 
     sportvu_query = 'SELECT cs.%(query_for)s as NAME, cs.TEAM_ABBREVIATION as TEAM_NAME, cs.GP, '\
-            'cs.CATCH_SHOOT_FGA/cs.GP as "CATCH_SHOOT_FGA_PER_GAME", '\
-            'cs.CATCH_SHOOT_FG_PCT, '\
-            'cs.CATCH_SHOOT_FG3A/cs.GP as "CATCH_SHOOT_3FGA_PER_GAME", '\
-            'cs.CATCH_SHOOT_FG3_PCT, '\
-            'cs.CATCH_SHOOT_EFG_PCT, '\
-            'def.DEF_RIM_FGM/cs.GP as "FG_AT_RIM_ALLOWED_PER_GAME", '\
-            'def.DEF_RIM_FGA/cs.GP as "FG_AT_RIM_FACED_PER_GAME", '\
-            'def.DEF_RIM_FG_PCT, '\
-            'dr.DRIVES/cs.GP as "DRIVES_PER_GAME", '\
-            'dr.DRIVE_FGA/cs.GP as "DRIVE_FGA_PER_GAME", '\
-            'dr.DRIVE_FG_PCT, '\
-            'dr.DRIVE_PTS/cs.GP as "DRIVE_PTS_PER_GAME", '\
-            'dr.DRIVE_PF/cs.GP as "DRIVE_PF_PER_GAME", '\
-            'dr.DRIVE_PF_PCT, '\
-            'et.ELBOW_TOUCHES/cs.GP as "ELBOW_TOUCHES_PER_GAME", '\
-            'et.ELBOW_TOUCH_FGA/cs.GP as "ELBOW_TOUCH_FGA_PER_GAME", '\
-            'et.ELBOW_TOUCH_FG_PCT, '\
-            'et.ELBOW_TOUCH_PASSES/cs.GP as "ELBOW_TOUCH_PASSES_PER_GAME", '\
-            'pt.PAINT_TOUCHES/cs.GP as "PAINT_TOUCHES_PER_GAME", '\
-            'pt.PAINT_TOUCH_FGA/cs.GP as "PAINT_TOUCH_FGA_PER_GAME", '\
-            'pt.PAINT_TOUCH_FG_PCT, '\
-            'pt.PAINT_TOUCH_PASSES/cs.GP as "PAINT_TOUCH_PASSES_PER_GAME", '\
-            'pass.PASSES_MADE/cs.GP as "PASSES_MADE_PER_GAME", '\
-            'pass.PASSES_RECEIVED/cs.GP as "PASSES_RECEIVED_PER_GAME", '\
+            'cs.CATCH_SHOOT_FGA/cs.GP as "CATCH_SHOOT_FGA_PER_GAME", cs.CATCH_SHOOT_FG_PCT, cs.CATCH_SHOOT_FG3A/cs.GP as "CATCH_SHOOT_3FGA_PER_GAME", '\
+            'cs.CATCH_SHOOT_FG3_PCT, cs.CATCH_SHOOT_EFG_PCT, '\
+            'def.DEF_RIM_FGM/cs.GP as "FG_AT_RIM_ALLOWED_PER_GAME", def.DEF_RIM_FGA/cs.GP as "FG_AT_RIM_FACED_PER_GAME", def.DEF_RIM_FG_PCT, '\
+            'dr.DRIVES/cs.GP as "DRIVES_PER_GAME", dr.DRIVE_FGA/cs.GP as "DRIVE_FGA_PER_GAME", '\
+            'dr.DRIVE_FG_PCT, dr.DRIVE_PTS/cs.GP as "DRIVE_PTS_PER_GAME", dr.DRIVE_PF/cs.GP as "DRIVE_PF_PER_GAME", dr.DRIVE_PF_PCT, '\
+            'et.ELBOW_TOUCHES/cs.GP as "ELBOW_TOUCHES_PER_GAME", et.ELBOW_TOUCH_FGA/cs.GP as "ELBOW_TOUCH_FGA_PER_GAME", '\
+            'et.ELBOW_TOUCH_FG_PCT, et.ELBOW_TOUCH_PASSES/cs.GP as "ELBOW_TOUCH_PASSES_PER_GAME", '\
+            'pt.PAINT_TOUCHES/cs.GP as "PAINT_TOUCHES_PER_GAME", pt.PAINT_TOUCH_FGA/cs.GP as "PAINT_TOUCH_FGA_PER_GAME", '\
+            'pt.PAINT_TOUCH_FG_PCT, pt.PAINT_TOUCH_PASSES/cs.GP as "PAINT_TOUCH_PASSES_PER_GAME", '\
+            'pass.PASSES_MADE/cs.GP as "PASSES_MADE_PER_GAME", pass.PASSES_RECEIVED/cs.GP as "PASSES_RECEIVED_PER_GAME", '\
             'pass.AST_PTS_CREATED/cs.GP as "AST_PTS_CREATED_PER_GAME", '\
-            'poss.TOUCHES/cs.GP as "TOUCHES_PER_GAME", '\
-            'poss.TIME_OF_POSS/cs.GP AS "TIME_OF_POSS_PER_GAME", '\
-            'poss.AVG_SEC_PER_TOUCH, '\
-            'poss.PTS_PER_TOUCH, '\
-            'pot.POST_TOUCHES/cs.GP as "POST_TOUCHES_PER_GAME", '\
-            'pot.POST_TOUCH_FGA/cs.GP as "POST_TOUCH_FGA_PER_GAME", '\
-            'pot.POST_TOUCH_FG_PCT, '\
-            'pot.POST_TOUCH_PASSES/cs.GP as "POST_TOUCH_PASSES_PER_GAME", '\
-            'pus.PULL_UP_FGA/cs.GP as "PULL_UP_FGA_PER_GAME", '\
-            'pus.PULL_UP_FG_PCT, '\
-            'pus.PULL_UP_PTS/cs.GP as "PULL_UP_PTS_PER_GAME", '\
-            'pus.PULL_UP_FG3A/cs.GP as "PULL_UP_3FGA_PER_GAME", '\
-            'pus.PULL_UP_FG3_PCT, '\
-            'pus.PULL_UP_EFG_PCT, '\
-            'reb.OREB/cs.GP as "OREB_PER_GAME", '\
-            'reb.OREB_CHANCE_PCT, '\
-            'reb.AVG_OREB_DIST, '\
-            'reb.DREB/cs.GP as "DREB_PER_GAME", '\
-            'reb.DREB_CHANCE_PCT, '\
-            'reb.AVG_DREB_DIST, '\
-            'reb.REB/cs.GP as "REB_PER_GAME", '\
-            'reb.REB_CHANCE_PCT, '\
-            'reb.AVG_REB_DIST, '\
-            'sp.DIST_MILES/cs.GP as "DIST_MILES_PER_GAME", '\
-            'sp.AVG_SPEED '\
+            'poss.TOUCHES/cs.GP as "TOUCHES_PER_GAME", poss.TIME_OF_POSS/cs.GP AS "TIME_OF_POSS_PER_GAME", '\
+            'poss.AVG_SEC_PER_TOUCH, poss.PTS_PER_TOUCH, '\
+            'pot.POST_TOUCHES/cs.GP as "POST_TOUCHES_PER_GAME", pot.POST_TOUCH_FGA/cs.GP as "POST_TOUCH_FGA_PER_GAME", '\
+            'pot.POST_TOUCH_FG_PCT, pot.POST_TOUCH_PASSES/cs.GP as "POST_TOUCH_PASSES_PER_GAME", '\
+            'pus.PULL_UP_FGA/cs.GP as "PULL_UP_FGA_PER_GAME", pus.PULL_UP_FG_PCT, pus.PULL_UP_PTS/cs.GP as "PULL_UP_PTS_PER_GAME", '\
+            'pus.PULL_UP_FG3A/cs.GP as "PULL_UP_3FGA_PER_GAME", pus.PULL_UP_FG3_PCT, pus.PULL_UP_EFG_PCT, '\
+            'reb.OREB/cs.GP as "OREB_PER_GAME", reb.OREB_CHANCE_PCT, reb.AVG_OREB_DIST, reb.DREB/cs.GP as "DREB_PER_GAME", '\
+            'reb.DREB_CHANCE_PCT, reb.AVG_DREB_DIST, reb.REB/cs.GP as "REB_PER_GAME", reb.REB_CHANCE_PCT, reb.AVG_REB_DIST, '\
+            'sp.DIST_MILES/cs.GP as "DIST_MILES_PER_GAME", sp.AVG_SPEED '\
     'FROM sportvu_catch_shoot%(query_type)s as cs '\
         'LEFT JOIN sportvu_defense%(query_type)s as def '\
             'ON def.%(query_id)s = cs.%(query_id)s '\
@@ -474,7 +363,7 @@ def sportvu_queries(query_type, is_regular_season, is_player, teams, date):
     return sportvu_query
 
 
-def get_sportvu_game_logs(name, query_type, is_regular_season):
+def get_sportvu_game_logs(name, query_type, is_regular_season, last_n):
     query_dict = {
         'query_for': '',
         'query_id': ''
@@ -489,178 +378,58 @@ def get_sportvu_game_logs(name, query_type, is_regular_season):
         query_dict['query_id'] = 'TEAM_ID'
         query_type = '_team'
 
-    sportvu_query = 'SELECT tb.%(query_for)s as NAME, '\
-                    'tb.TEAM_ABBREVIATION as TEAM_NAME, '\
-                    'tb.MIN, '\
-                    'cs.CATCH_SHOOT_FGM, '\
-                    'cs.CATCH_SHOOT_FGM - cs.CATCH_SHOOT_FG3M as CATCH_SHOOT_FG2M, '\
-                    'cs.CATCH_SHOOT_FGA, '\
-                    'cs.CATCH_SHOOT_FGA - cs.CATCH_SHOOT_FG3A as CATCH_SHOOT_FG2A, '\
-                    'cs.CATCH_SHOOT_FG_PCT, '\
-                    'cs.CATCH_SHOOT_PTS, '\
-                    'cs.CATCH_SHOOT_FG3M, '\
-                    'cs.CATCH_SHOOT_FG3A, '\
-                    'cs.CATCH_SHOOT_FG3_PCT, '\
-                    'cs.CATCH_SHOOT_EFG_PCT, '\
-                    'def.DEF_RIM_FGM as "FG_AT_RIM_ALLOWED", '\
-                    'def.DEF_RIM_FGA as "FG_AT_RIM_FACED", '\
-                    'def.DEF_RIM_FG_PCT, '\
-                    'dr.DRIVES, '\
-                    'dr.DRIVE_FGM, '\
-                    'dr.DRIVE_FGA, '\
-                    'dr.DRIVE_FG_PCT, '\
-                    'dr.DRIVE_FTM, '\
-                    'dr.DRIVE_FTA, '\
-                    'dr.DRIVE_FT_PCT, '\
-                    'dr.DRIVE_PTS, '\
-                    'dr.DRIVE_PTS_PCT, '\
-                    'dr.DRIVE_PASSES, '\
-                    'dr.DRIVE_PASSES_PCT, '\
-                    'dr.DRIVE_AST, '\
-                    'dr.DRIVE_AST_PCT, '\
-                    'dr.DRIVE_TOV, '\
-                    'dr.DRIVE_TOV_PCT, '\
-                    'dr.DRIVE_PF, '\
-                    'dr.DRIVE_PF_PCT, '\
-                    'et.ELBOW_TOUCHES, '\
-                    'et.ELBOW_TOUCH_FGM, '\
-                    'et.ELBOW_TOUCH_FGA, '\
-                    'et.ELBOW_TOUCH_FG_PCT, '\
-                    'et.ELBOW_TOUCH_FTM, '\
-                    'et.ELBOW_TOUCH_FTA, '\
-                    'et.ELBOW_TOUCH_FT_PCT, '\
-                    'et.ELBOW_TOUCH_PTS, '\
-                    'et.ELBOW_TOUCH_PTS_PCT, '\
-                    'et.ELBOW_TOUCH_PASSES, '\
-                    'et.ELBOW_TOUCH_PASSES_PCT, '\
-                    'et.ELBOW_TOUCH_AST, '\
-                    'et.ELBOW_TOUCH_AST_PCT, '\
-                    'et.ELBOW_TOUCH_TOV, '\
-                    'et.ELBOW_TOUCH_TOV_PCT, '\
-                    'et.ELBOW_TOUCH_FOULS, '\
-                    'et.ELBOW_TOUCH_FOULS_PCT, '\
-                    'pt.PAINT_TOUCHES, '\
-                    'pt.PAINT_TOUCH_FGM, '\
-                    'pt.PAINT_TOUCH_FGA, '\
-                    'pt.PAINT_TOUCH_FG_PCT, '\
-                    'pt.PAINT_TOUCH_FTM, '\
-                    'pt.PAINT_TOUCH_FTA, '\
-                    'pt.PAINT_TOUCH_FT_PCT, '\
-                    'pt.PAINT_TOUCH_PTS, '\
-                    'pt.PAINT_TOUCH_PTS_PCT, '\
-                    'pt.PAINT_TOUCH_PASSES, '\
-                    'pt.PAINT_TOUCH_PASSES_PCT, '\
-                    'pt.PAINT_TOUCH_AST, '\
-                    'pt.PAINT_TOUCH_AST_PCT, '\
-                    'pt.PAINT_TOUCH_TOV, '\
-                    'pt.PAINT_TOUCH_TOV_PCT, '\
-                    'pt.PAINT_TOUCH_FOULS, '\
-                    'pt.PAINT_TOUCH_FOULS_PCT, '\
-                    'pass.PASSES_MADE, '\
-                    'pass.PASSES_RECEIVED, '\
-                    'pass.AST, '\
-                    'pass.FT_AST, '\
-                    'pass.SECONDARY_AST, '\
-                    'pass.POTENTIAL_AST, '\
-                    'pass.AST_PTS_CREATED, '\
-                    'pass.AST_ADJ, '\
-                    'pass.AST_TO_PASS_PCT, '\
-                    'pass.AST_TO_PASS_PCT_ADJ, '\
-                    'poss.POINTS, '\
-                    'poss.TOUCHES, '\
-                    'poss.FRONT_CT_TOUCHES, '\
-                    'poss.TIME_OF_POSS, '\
-                    'poss.AVG_SEC_PER_TOUCH, '\
-                    'poss.AVG_DRIB_PER_TOUCH, '\
-                    'poss.PTS_PER_TOUCH, '\
-                    'poss.ELBOW_TOUCHES, '\
-                    'poss.POST_TOUCHES, '\
-                    'poss.PAINT_TOUCHES, '\
-                    'poss.PTS_PER_ELBOW_TOUCH, '\
-                    'poss.PTS_PER_POST_TOUCH, '\
-                    'poss.PTS_PER_PAINT_TOUCH, '\
-                    'pot.TOUCHES, '\
-                    'pot.POST_TOUCHES, '\
-                    'pot.POST_TOUCH_FGM, '\
-                    'pot.POST_TOUCH_FGA, '\
-                    'pot.POST_TOUCH_FG_PCT, '\
-                    'pot.POST_TOUCH_FTM, '\
-                    'pot.POST_TOUCH_FTA, '\
-                    'pot.POST_TOUCH_FT_PCT, '\
-                    'pot.POST_TOUCH_PTS, '\
-                    'pot.POST_TOUCH_PTS_PCT, '\
-                    'pot.POST_TOUCH_PASSES, '\
-                    'pot.POST_TOUCH_PASSES_PCT, '\
-                    'pot.POST_TOUCH_AST, '\
-                    'pot.POST_TOUCH_AST_PCT, '\
-                    'pot.POST_TOUCH_TOV, '\
-                    'pot.POST_TOUCH_TOV_PCT, '\
-                    'pot.POST_TOUCH_FOULS, '\
-                    'pot.POST_TOUCH_FOULS_PCT, '\
-                    'pus.PULL_UP_FGM, '\
-                    'pus.PULL_UP_FGM - pus.PULL_UP_FG3M as PULL_UP_FG2M, '\
-                    'pus.PULL_UP_FGA, '\
-                    'pus.PULL_UP_FGA - pus.PULL_UP_FG3A as PULL_UP_FG2A, '\
-                    'pus.PULL_UP_FG_PCT, '\
-                    'pus.PULL_UP_FG3M, '\
-                    'pus.PULL_UP_FG3A, '\
-                    'pus.PULL_UP_FG3_PCT, '\
-                    'pus.PULL_UP_PTS, '\
-                    'pus.PULL_UP_EFG_PCT, '\
-                    'reb.OREB, '\
-                    'reb.OREB_CONTEST, '\
-                    'reb.OREB_UNCONTEST, '\
-                    'reb.OREB_CONTEST_PCT, '\
-                    'reb.OREB_CHANCES, '\
-                    'reb.OREB_CHANCE_PCT, '\
-                    'reb.OREB_CHANCE_DEFER, '\
-                    'reb.OREB_CHANCE_PCT_ADJ, '\
-                    'reb.AVG_OREB_DIST, '\
-                    'reb.DREB, '\
-                    'reb.DREB_CONTEST, '\
-                    'reb.DREB_UNCONTEST, '\
-                    'reb.DREB_CONTEST_PCT, '\
-                    'reb.DREB_CHANCES, '\
-                    'reb.DREB_CHANCE_PCT, '\
-                    'reb.DREB_CHANCE_DEFER, '\
-                    'reb.DREB_CHANCE_PCT_ADJ, '\
-                    'reb.AVG_DREB_DIST, '\
-                    'reb.REB, '\
-                    'reb.REB_CONTEST, '\
-                    'reb.REB_UNCONTEST, '\
-                    'reb.REB_CONTEST_PCT, '\
-                    'reb.REB_CHANCES, '\
-                    'reb.REB_CHANCE_PCT, '\
-                    'reb.REB_CHANCE_DEFER, '\
-                    'reb.REB_CHANCE_PCT_ADJ, '\
-                    'reb.AVG_REB_DIST, '\
-                    'sp.DIST_FEET, '\
-                    'sp.DIST_MILES, '\
-                    'sp.DIST_MILES_OFF, '\
-                    'sp.DIST_MILES_DEF, '\
-                    'sp.AVG_SPEED, '\
-                    'sp.AVG_SPEED_OFF, '\
-                    'sp.AVG_SPEED_DEF, '\
+    sportvu_query = 'SELECT cs.DATE, tb.%(query_for)s as NAME, '\
+                    'tb.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb.MIN, '\
+                    'cs.CATCH_SHOOT_FGM, cs.CATCH_SHOOT_FGM - cs.CATCH_SHOOT_FG3M as CATCH_SHOOT_FG2M, cs.CATCH_SHOOT_FGA, '\
+                    'cs.CATCH_SHOOT_FGA - cs.CATCH_SHOOT_FG3A as CATCH_SHOOT_FG2A, cs.CATCH_SHOOT_FG_PCT, '\
+                    'cs.CATCH_SHOOT_PTS, cs.CATCH_SHOOT_FG3M, cs.CATCH_SHOOT_FG3A, cs.CATCH_SHOOT_FG3_PCT, cs.CATCH_SHOOT_EFG_PCT, '\
+                    'def.DEF_RIM_FGM as "FG_AT_RIM_ALLOWED", def.DEF_RIM_FGA as "FG_AT_RIM_FACED", def.DEF_RIM_FG_PCT, '\
+                    'dr.DRIVES, dr.DRIVE_FGM, dr.DRIVE_FGA, dr.DRIVE_FG_PCT, dr.DRIVE_FTM, dr.DRIVE_FTA, dr.DRIVE_FT_PCT, dr.DRIVE_PTS, dr.DRIVE_PTS_PCT, '\
+                    'dr.DRIVE_PASSES, dr.DRIVE_PASSES_PCT, dr.DRIVE_AST, dr.DRIVE_AST_PCT, dr.DRIVE_TOV, dr.DRIVE_TOV_PCT, dr.DRIVE_PF, dr.DRIVE_PF_PCT, '\
+                    'et.ELBOW_TOUCHES, et.ELBOW_TOUCH_FGM, et.ELBOW_TOUCH_FGA, et.ELBOW_TOUCH_FG_PCT, et.ELBOW_TOUCH_FTM, et.ELBOW_TOUCH_FTA, '\
+                    'et.ELBOW_TOUCH_FT_PCT, et.ELBOW_TOUCH_PTS, et.ELBOW_TOUCH_PTS_PCT, et.ELBOW_TOUCH_PASSES, et.ELBOW_TOUCH_PASSES_PCT, '\
+                    'et.ELBOW_TOUCH_AST, et.ELBOW_TOUCH_AST_PCT, et.ELBOW_TOUCH_TOV, et.ELBOW_TOUCH_TOV_PCT, et.ELBOW_TOUCH_FOULS, et.ELBOW_TOUCH_FOULS_PCT, '\
+                    'pt.PAINT_TOUCHES, pt.PAINT_TOUCH_FGM, pt.PAINT_TOUCH_FGA, pt.PAINT_TOUCH_FG_PCT, pt.PAINT_TOUCH_FTM, pt.PAINT_TOUCH_FTA, '\
+                    'pt.PAINT_TOUCH_FT_PCT, pt.PAINT_TOUCH_PTS, pt.PAINT_TOUCH_PTS_PCT, pt.PAINT_TOUCH_PASSES, pt.PAINT_TOUCH_PASSES_PCT, '\
+                    'pt.PAINT_TOUCH_AST, pt.PAINT_TOUCH_AST_PCT, pt.PAINT_TOUCH_TOV, pt.PAINT_TOUCH_TOV_PCT, pt.PAINT_TOUCH_FOULS, pt.PAINT_TOUCH_FOULS_PCT, '\
+                    'pass.PASSES_MADE, pass.PASSES_RECEIVED, pass.AST, pass.FT_AST, pass.SECONDARY_AST, pass.POTENTIAL_AST, pass.AST_PTS_CREATED, '\
+                    'pass.AST_ADJ, pass.AST_TO_PASS_PCT, pass.AST_TO_PASS_PCT_ADJ, '\
+                    'poss.POINTS, poss.TOUCHES, poss.FRONT_CT_TOUCHES, poss.TIME_OF_POSS, poss.AVG_SEC_PER_TOUCH, poss.AVG_DRIB_PER_TOUCH, '\
+                    'poss.PTS_PER_TOUCH, poss.ELBOW_TOUCHES, poss.POST_TOUCHES, poss.PAINT_TOUCHES, poss.PTS_PER_ELBOW_TOUCH, poss.PTS_PER_POST_TOUCH, poss.PTS_PER_PAINT_TOUCH, '\
+                    'pot.TOUCHES, pot.POST_TOUCHES, pot.POST_TOUCH_FGM, pot.POST_TOUCH_FGA, pot.POST_TOUCH_FG_PCT, pot.POST_TOUCH_FTM, pot.POST_TOUCH_FTA, '\
+                    'pot.POST_TOUCH_FT_PCT, pot.POST_TOUCH_PTS, pot.POST_TOUCH_PTS_PCT, pot.POST_TOUCH_PASSES, pot.POST_TOUCH_PASSES_PCT, pot.POST_TOUCH_AST, pot.POST_TOUCH_AST_PCT, '\
+                    'pot.POST_TOUCH_TOV, pot.POST_TOUCH_TOV_PCT, pot.POST_TOUCH_FOULS, pot.POST_TOUCH_FOULS_PCT, '\
+                    'pus.PULL_UP_FGM, pus.PULL_UP_FGM - pus.PULL_UP_FG3M as PULL_UP_FG2M, pus.PULL_UP_FGA, pus.PULL_UP_FGA - pus.PULL_UP_FG3A as PULL_UP_FG2A, '\
+                    'pus.PULL_UP_FG_PCT, pus.PULL_UP_FG3M, pus.PULL_UP_FG3A, pus.PULL_UP_FG3_PCT, pus.PULL_UP_PTS, pus.PULL_UP_EFG_PCT, '\
+                    'reb.OREB, reb.OREB_CONTEST, reb.OREB_UNCONTEST, reb.OREB_CONTEST_PCT, reb.OREB_CHANCES, reb.OREB_CHANCE_PCT, reb.OREB_CHANCE_DEFER, '\
+                    'reb.OREB_CHANCE_PCT_ADJ, reb.AVG_OREB_DIST, reb.DREB, reb.DREB_CONTEST, reb.DREB_UNCONTEST, reb.DREB_CONTEST_PCT, reb.DREB_CHANCES, '\
+                    'reb.DREB_CHANCE_PCT, reb.DREB_CHANCE_DEFER, reb.DREB_CHANCE_PCT_ADJ, reb.AVG_DREB_DIST, reb.REB, reb.REB_CONTEST, reb.REB_UNCONTEST, '\
+                    'reb.REB_CONTEST_PCT, reb.REB_CHANCES, reb.REB_CHANCE_PCT, reb.REB_CHANCE_DEFER, reb.REB_CHANCE_PCT_ADJ, reb.AVG_REB_DIST, '\
+                    'sp.DIST_FEET, sp.DIST_MILES, sp.DIST_MILES_OFF, sp.DIST_MILES_DEF, sp.AVG_SPEED, sp.AVG_SPEED_OFF, sp.AVG_SPEED_DEF, '\
                     'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
                     'FROM sportvu_catch_shoot%(query_type)s_game_logs as cs  '\
                     'LEFT JOIN sportvu_defense%(query_type)s_game_logs as def ON def.%(query_id)s = cs.%(query_id)s AND def.GAME_ID = cs.GAME_ID '\
-                    'LEFT JOIN sportvu_drives%(query_type)s_game_logs as dr ON dr.%(query_id)s = cs.%(query_id)s AND dr.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_elbow_touches%(query_type)s_game_logs as et ON et.%(query_id)s = cs.%(query_id)s AND et.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_paint_touches%(query_type)s_game_logs as pt ON pt.%(query_id)s = cs.%(query_id)s AND pt.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_passing%(query_type)s_game_logs as pass ON pass.%(query_id)s = cs.%(query_id)s AND pass.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_possessions%(query_type)s_game_logs as poss ON poss.%(query_id)s = cs.%(query_id)s AND poss.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_post_touches%(query_type)s_game_logs as pot ON pot.%(query_id)s = cs.%(query_id)s AND pot.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_pull_up_shoot%(query_type)s_game_logs as pus ON pus.%(query_id)s = cs.%(query_id)s AND pus.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_rebounding%(query_type)s_game_logs as reb ON reb.%(query_id)s = cs.%(query_id)s AND reb.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN sportvu_speed%(query_type)s_game_logs as sp ON sp.%(query_id)s = cs.%(query_id)s AND sp.GAME_ID = cs.GAME_ID  '\
-                    'LEFT JOIN traditional_boxscores%(query_type)s as tb ON tb.%(query_id)s = cs.%(query_id)s AND tb.GAME_ID = cs.GAME_ID  '\
-                    'WHERE cs.IS_REGULAR_SEASON = %(is_regular_season)s AND tb.%(query_for)s = "%(name)s"' % {
+                    'LEFT JOIN sportvu_drives%(query_type)s_game_logs as dr ON dr.%(query_id)s = cs.%(query_id)s AND dr.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_elbow_touches%(query_type)s_game_logs as et ON et.%(query_id)s = cs.%(query_id)s AND et.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_paint_touches%(query_type)s_game_logs as pt ON pt.%(query_id)s = cs.%(query_id)s AND pt.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_passing%(query_type)s_game_logs as pass ON pass.%(query_id)s = cs.%(query_id)s AND pass.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_possessions%(query_type)s_game_logs as poss ON poss.%(query_id)s = cs.%(query_id)s AND poss.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_post_touches%(query_type)s_game_logs as pot ON pot.%(query_id)s = cs.%(query_id)s AND pot.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_pull_up_shoot%(query_type)s_game_logs as pus ON pus.%(query_id)s = cs.%(query_id)s AND pus.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_rebounding%(query_type)s_game_logs as reb ON reb.%(query_id)s = cs.%(query_id)s AND reb.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN sportvu_speed%(query_type)s_game_logs as sp ON sp.%(query_id)s = cs.%(query_id)s AND sp.GAME_ID = cs.GAME_ID '\
+                    'LEFT JOIN traditional_boxscores%(query_type)s as tb ON tb.%(query_id)s = cs.%(query_id)s AND tb.GAME_ID = cs.GAME_ID '\
+                    'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = cs.GAME_ID and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION '\
+                    'WHERE cs.IS_REGULAR_SEASON = %(is_regular_season)s AND tb.%(query_for)s = "%(name)s" ORDER BY DATE ' % {
                         'name': name,
                         'is_regular_season': is_regular_season,
                         'query_for': query_dict['query_for'],
                         'query_id': query_dict['query_id'],
                         'query_type': query_type
                     }
+
+    if last_n != 0:
+        sportvu_query += 'DESC LIMIT %(last_n)s' % {'last_n': last_n}
 
     return sportvu_query
 
@@ -676,39 +445,19 @@ def get_sportvu_team_logs(name, stat, is_regular_season):
 
     return sportvu_query
 
-def get_synergy_player(name, date_1, date_2):
+def get_synergy_player(name, date_1, date_2, last_n):
 
     synergy_query = 'SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, syn.CUT_PossG, '\
-            'syn.HANDOFF_PossG, '\
-            'syn.HANDOFF_PPP, '\
-            'syn.HANDOFF_FG, '\
-            'syn.ISO_PossG, '\
-            'syn.ISO_PPP, '\
-            'syn.ISO_FG, '\
-            'syn.MISC_PossG, '\
-            'syn.MISC_PPP, '\
-            'syn.MISC_FG, '\
-            'syn.OFF_SCREEN_PossG, '\
-            'syn.OFF_SCREEN_PPP, '\
-            'syn.OFF_SCREEN_FG, '\
-            'syn.POST_UP_PossG, '\
-            'syn.POST_UP_PPP, '\
-            'syn.POST_UP_FG, '\
-            'syn.PR_HANDLER_PossG, '\
-            'syn.PR_HANDLER_PPP, '\
-            'syn.PR_HANDLER_FG, '\
-            'syn.PR_ROLL_PossG, '\
-            'syn.PR_ROLL_PPP, '\
-            'syn.PR_ROLL_FG, '\
-            'syn.PUT_BACK_PossG, '\
-            'syn.PUT_BACK_PPP, '\
-            'syn.PUT_BACK_FG, '\
-            'syn.SPOT_UP_PossG, '\
-            'syn.SPOT_UP_PPP, '\
-            'syn.SPOT_UP_FG, '\
-            'syn.TRANS_PossG, '\
-            'syn.TRANS_PPP, '\
-            'syn.TRANS_FG, '\
+            'syn.HANDOFF_PossG, syn.HANDOFF_PPP, syn.HANDOFF_FG, '\
+            'syn.ISO_PossG, syn.ISO_PPP, syn.ISO_FG, '\
+            'syn.MISC_PossG, syn.MISC_PPP, syn.MISC_FG, '\
+            'syn.OFF_SCREEN_PossG, syn.OFF_SCREEN_PPP, syn.OFF_SCREEN_FG, '\
+            'syn.POST_UP_PossG, syn.POST_UP_PPP, syn.POST_UP_FG, '\
+            'syn.PR_HANDLER_PossG, syn.PR_HANDLER_PPP, syn.PR_HANDLER_FG, '\
+            'syn.PR_ROLL_PossG, syn.PR_ROLL_PPP, syn.PR_ROLL_FG, '\
+            'syn.PUT_BACK_PossG, syn.PUT_BACK_PPP, syn.PUT_BACK_FG, '\
+            'syn.SPOT_UP_PossG, syn.SPOT_UP_PPP, syn.SPOT_UP_FG, '\
+            'syn.TRANS_PossG, syn.TRANS_PPP, syn.TRANS_FG, '\
             'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
             'FROM usage_boxscores AS ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
             'LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
@@ -747,7 +496,10 @@ def get_synergy_player(name, date_1, date_2):
                 'LEFT JOIN synergy_transition_team_offense AS stto ON '\
                     'scto.TEAM_ID = stto.TEAM_ID AND scto.DATE = stto.DATE AND scto.IS_REGULAR_SEASON = stto.IS_REGULAR_SEASON '\
                     'WHERE scto.IS_REGULAR_SEASON = 1) as syn ON syn.DATE = STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") and syn.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
-                'WHERE ub.PLAYER_NAME = "%(name)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'name':name}
+                'WHERE ub.PLAYER_NAME = "%(name)s" ORDER BY DATE ' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'name':name}
+
+    if last_n != 0:
+        synergy_query += 'DESC LIMIT %(last_n)s' % {'last_n': last_n}
 
     return synergy_query
 
@@ -804,7 +556,7 @@ def team_against(team, date_1, date_2):
                     'WHERE tb2.TEAM_ABBREVIATION = "%(team)s" '\
                     'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
                     'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
-                    'ORDER BY dk_points DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'team': team}
+                    'ORDER BY DATE ASC' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_1, 'date_end': date_2, 'team': team}
     return team_query
 
 
@@ -845,7 +597,7 @@ def player_direct_matchup(player, player_matchup, date_1, date_2):
     return player_query
 
 # matchup results for player vs another player b/w dates
-def full_player_log(player, date_1, date_2, is_national):
+def full_player_log(player, date_1, date_2, is_national, last_n):
 
     player_query = default_player_box_query()
     player_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(player)s" ) as tb3 '\
@@ -854,9 +606,13 @@ def full_player_log(player, date_1, date_2, is_national):
                     'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
                     'WHERE ub.PLAYER_NAME = "%(player)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'player': player, 'date_begin': date_1, 'date_end': date_2,}
 
-                        # last game
     if is_national == 1:
         player_query += 'AND gs.NATL_TV_BROADCASTER_ABBREVIATION IS NOT NULL '
+
+
+    if last_n != 0:
+        player_query += 'ORDER BY DATE DESC LIMIT %(last_n)s' % {'last_n': last_n}
+
 
     return player_query
 
@@ -867,59 +623,23 @@ def player_game_queries(date_1, date_2, is_player, teams):
 
     avg_player_query = 'SELECT gs.GAME_ID, '\
             'STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, '\
-            'ub.PLAYER_NAME as NAME, '\
-            'ub.TEAM_ABBREVIATION as TEAM, '\
-            'ub.START_POSITION, '\
-            'ROUND(avg(ub.MIN), 4) as MIN, '\
-            'ROUND(avg(ub.USG_PCT), 4) as USG_PCT, '\
-            'ROUND(avg(ub.PCT_FGA), 4) as PCT_FGA, '\
-            'ROUND(avg(ub.PCT_FG3A), 4) as PCT_FG3A, '\
-            'ROUND(avg(ub.PCT_FTA), 4) as PCT_FTA, '\
-            'ROUND(avg(ub.PCT_REB), 4) as PCT_REB, '\
-            'ROUND(avg(ub.PCT_AST), 4) as PCT_AST, '\
-            'ROUND(avg(ub.PCT_TOV), 4) as PCT_TOV, '\
-            'ROUND(avg(ub.PCT_STL), 4) as PCT_STL, '\
-            'ROUND(avg(ub.PCT_BLK), 4) as PCT_BLK, '\
-            'ROUND(avg(ub.PCT_PF), 4) as PCT_PF, '\
-            'ROUND(avg(ub.PCT_PTS), 4) as PCT_PTS, '\
-            'ROUND(avg(tb.FGA), 4) as FGA, '\
-            'ROUND(avg(tb.FG_PCT), 4) as FG_PCT, '\
-            'ROUND(avg(tb.FG3M), 4) as FG3M, '\
-            'ROUND(avg(tb.FG3A), 4) as FG3A, '\
-            'ROUND(avg(tb.FG3_PCT), 4) as FG3_PCT, '\
-            'ROUND(avg(tb.FTA), 4) as FTA, '\
-            'ROUND(avg(tb.FT_PCT), 4) as FT_PCT, '\
-            'ROUND(avg(tb.FG3M), 4) as FG3M, '\
-            'ROUND(avg(tb.REB), 4) as REB, '\
-            'ROUND(avg(tb.AST), 4) as AST, '\
-            'ROUND(avg(tb.STL), 4) as STL, '\
-            'ROUND(avg(tb.BLK), 4) as BLK, '\
-            'ROUND(avg(tb.TO), 4) as TOV, '\
-            'ROUND(avg(tb.PF), 4) as PF, '\
-            'ROUND(avg(tb.PTS), 4) as PTS, '\
+            'ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, ub.START_POSITION, '\
+            'ROUND(avg(ub.MIN), 4) as MIN, ROUND(avg(ub.USG_PCT), 4) as USG_PCT, ROUND(avg(ub.PCT_FGA), 4) as PCT_FGA, ROUND(avg(ub.PCT_FG3A), 4) as PCT_FG3A, '\
+            'ROUND(avg(ub.PCT_FTA), 4) as PCT_FTA, ROUND(avg(ub.PCT_REB), 4) as PCT_REB, ROUND(avg(ub.PCT_AST), 4) as PCT_AST, ROUND(avg(ub.PCT_TOV), 4) as PCT_TOV, '\
+            'ROUND(avg(ub.PCT_STL), 4) as PCT_STL, ROUND(avg(ub.PCT_BLK), 4) as PCT_BLK, ROUND(avg(ub.PCT_PF), 4) as PCT_PF, ROUND(avg(ub.PCT_PTS), 4) as PCT_PTS, '\
+            'ROUND(avg(tb.FGA), 4) as FGA, ROUND(avg(tb.FG_PCT), 4) as FG_PCT, ROUND(avg(tb.FG3M), 4) as FG3M, ROUND(avg(tb.FG3A), 4) as FG3A, '\
+            'ROUND(avg(tb.FG3_PCT), 4) as FG3_PCT, ROUND(avg(tb.FTA), 4) as FTA, ROUND(avg(tb.FT_PCT), 4) as FT_PCT, ROUND(avg(tb.FG3M), 4) as FG3M, '\
+            'ROUND(avg(tb.REB), 4) as REB, ROUND(avg(tb.AST), 4) as AST, ROUND(avg(tb.STL), 4) as STL, ROUND(avg(tb.BLK), 4) as BLK, '\
+            'ROUND(avg(tb.TO), 4) as TOV, ROUND(avg(tb.PF), 4) as PF, ROUND(avg(tb.PTS), 4) as PTS, ROUND(avg(tb.PLUS_MINUS), 4) as PLUS_MINUS, '\
             'ROUND(avg(tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1), 4) as DK_POINTS, '\
-            'ROUND(avg(tb.PLUS_MINUS), 4) as PLUS_MINUS, '\
-            'ROUND(avg(ptb.RBC), 4) as REB_CHANCES, '\
-            'ROUND(avg(ptb.TCHS), 4) as TOUCHES, '\
-            'ROUND(avg(ptb.PASS), 4) as PASS, '\
-            'ROUND(avg(ptb.AST) / avg(ptb.PASS), 4) as AST_PER_PASS, '\
-            'ROUND(avg(ptb.CFGA), 4) as CONTESTED_FGA, '\
-            'ROUND(avg(ptb.CFG_PCT), 4) as CONTESTED_FG_PCT, '\
-            'ROUND(avg(ptb.FG_PCT), 4) as FG_PCT, '\
-            'ROUND(avg(ab.OFF_RATING), 4) as OFF_RATING, '\
-            'ROUND(avg(ab.DEF_RATING), 4) as DEF_RATING, '\
-            'ROUND(avg(ab.NET_RATING), 4) as NET_RATING, '\
-            'ROUND(avg(ab.AST_PCT), 4) as AST_PCT, '\
-            'ROUND(avg(ab.REB_PCT), 4) as REB_PCT, '\
-            'ROUND(avg(ab.EFG_PCT), 4) as EFG_PCT, '\
-            'ROUND(avg(ab.USG_PCT), 4) as USG_PCT, '\
-            'ROUND(avg(ab.PACE), 4) as PACE, '\
-            'ROUND(avg(sb.PCT_FGA_2PT), 4) as PCT_FGA_2PT, '\
-            'ROUND(avg(sb.PCT_FGA_3PT), 4) as PCT_FGA_3PT, '\
-            'ROUND(avg(sb.PCT_PTS_2PT), 4) as PCT_PTS_2PT, '\
-            'ROUND(avg(sb.PCT_PTS_3PT), 4) as PCT_PTS_3PT, '\
-            'ROUND(avg(sb.PCT_PTS_OFF_TOV), 4) as PCT_PTS_OFF_TOV, '\
-            'ROUND(avg(sb.PCT_PTS_PAINT), 4) as PCT_PTS_PAINT, '\
+            'ROUND(avg(ptb.RBC), 4) as REB_CHANCES, ROUND(avg(ptb.TCHS), 4) as TOUCHES, ROUND(avg(ptb.PASS), 4) as PASS, '\
+            'ROUND(avg(ptb.AST) / avg(ptb.PASS), 4) as AST_PER_PASS, ROUND(avg(ptb.CFGA), 4) as CONTESTED_FGA, '\
+            'ROUND(avg(ptb.CFG_PCT), 4) as CONTESTED_FG_PCT, ROUND(avg(ptb.FG_PCT), 4) as FG_PCT, '\
+            'ROUND(avg(ab.OFF_RATING), 4) as OFF_RATING, ROUND(avg(ab.DEF_RATING), 4) as DEF_RATING, ROUND(avg(ab.NET_RATING), 4) as NET_RATING, '\
+            'ROUND(avg(ab.AST_PCT), 4) as AST_PCT, ROUND(avg(ab.REB_PCT), 4) as REB_PCT, ROUND(avg(ab.EFG_PCT), 4) as EFG_PCT, '\
+            'ROUND(avg(ab.USG_PCT), 4) as USG_PCT, ROUND(avg(ab.PACE), 4) as PACE, '\
+            'ROUND(avg(sb.PCT_FGA_2PT), 4) as PCT_FGA_2PT, ROUND(avg(sb.PCT_FGA_3PT), 4) as PCT_FGA_3PT, ROUND(avg(sb.PCT_PTS_2PT), 4) as PCT_PTS_2PT, '\
+            'ROUND(avg(sb.PCT_PTS_3PT), 4) as PCT_PTS_3PT, ROUND(avg(sb.PCT_PTS_OFF_TOV), 4) as PCT_PTS_OFF_TOV, ROUND(avg(sb.PCT_PTS_PAINT), 4) as PCT_PTS_PAINT, '\
             'count(ub.PLAYER_NAME) as NUM_GAMES '\
         'FROM usage_boxscores as ub '\
             'LEFT JOIN game_summary as gs '\
@@ -1121,7 +841,7 @@ def shot_selection_time(query_type, name, shot_made, last_n):
 # split into teams and player
 def shot_selection_type_detailed(name, shot_made, last_n):
 
-    shot_query = 'SELECT PLAYER_NAME as NAME, SHOT_TYPE, ACTION_TYPE, SHOT_ZONE_BASIC, COUNT(ACTION_TYPE) as NUM_ACTIONS FROM shots '
+    shot_query = 'SELECT PLAYER_NAME as NAME, SHOT_TYPE, SHOT_ZONE_AREA, SHOT_ZONE_BASIC, CONCAT(SHOT_ZONE_BASIC, ", ", SHOT_ZONE_AREA) as SHOT_LOCATION, COUNT(SHOT_ZONE_AREA) as NUM_ACTIONS FROM shots '
 
     if last_n != 0:
         shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE PLAYER_NAME = "%(name)s" '\
@@ -1131,15 +851,15 @@ def shot_selection_type_detailed(name, shot_made, last_n):
 
     shot_query += 'WHERE PLAYER_NAME = "%(name)s" '\
         'AND SHOT_MADE_FLAG = %(shot_made)s '\
-        'GROUP BY ACTION_TYPE, SHOT_ZONE_BASIC, SHOT_TYPE '\
-        'ORDER BY COUNT(ACTION_TYPE) DESC' % {'name': name, 'shot_made': shot_made}
+        'GROUP BY SHOT_ZONE_AREA, SHOT_ZONE_BASIC, SHOT_TYPE '\
+        'ORDER BY NUM_ACTIONS DESC' % {'name': name, 'shot_made': shot_made}
 
     return shot_query
 
 # split into teams and player
 def shot_selection_type_detailed_team(name, shot_made, last_n):
 
-    shot_query = 'SELECT TEAM_NAME, SHOT_TYPE, SHOT_ZONE_AREA, SHOT_ZONE_BASIC, COUNT(SHOT_ZONE_AREA) as NUM_ACTIONS FROM shots '
+    shot_query = 'SELECT TEAM_NAME, SHOT_TYPE, SHOT_ZONE_AREA, SHOT_ZONE_BASIC, CONCAT(SHOT_ZONE_BASIC, ", ", SHOT_ZONE_AREA) as SHOT_LOCATION, COUNT(SHOT_ZONE_AREA) as NUM_ACTIONS FROM shots '
 
     if last_n != 0:
         shot_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE CONCAT(TEAM_CITY, " ", TEAM_NAME) = "%(name)s" '\
@@ -1231,21 +951,21 @@ def write_to_csv(sql_query, source, name):
     except:
         print "Error: unable to fetch data"
 
-def get_shot_selection_type_detailed_team():
-    shot_selection_type_detailed_team_dict = {}
+def get_shot_detailed_team():
+    shot_detailed_team_dict = {}
     for team, team_name in TEAMS_DICT.iteritems():
 
-        shot_selection_type_detailed_team_dict[team] = {}
+        shot_detailed_team_dict[team] = {}
         # last game
-        shot_selection_type_detailed_team_dict[team]['Last 1'] = execute_query(shot_selection_type_detailed_team(team_name, 1, 1))
+        shot_detailed_team_dict[team]['Last 1'] = format_to_json(execute_query(shot_selection_type_detailed_team(team_name, 1, 1)), 'SHOT_LOCATION')
         # last 3 games
-        shot_selection_type_detailed_team_dict[team]['Last 3'] = execute_query(shot_selection_type_detailed_team(team_name, 1, 3))
+        shot_detailed_team_dict[team]['Last 3'] = format_to_json(execute_query(shot_selection_type_detailed_team(team_name, 1, 3)), 'SHOT_LOCATION')
         # all
-        shot_selection_type_detailed_team_dict[team]['All'] = execute_query(shot_selection_type_detailed_team(team_name, 1, 0))
+        shot_detailed_team_dict[team]['All'] = format_to_json(execute_query(shot_selection_type_detailed_team(team_name, 1, 0)), 'SHOT_LOCATION')
 
     with open('../scrape/json_files/shots/shot_selection_type_detailed_team_data.json', 'w') as outfile:
         logger.info('Writing synergy to json file: shot_selection_type_detailed_team_data')
-        json.dump(shot_selection_type_detailed_team_dict, outfile)
+        json.dump(shot_detailed_team_dict, outfile)
 
 def test():
     # query = 'SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, '\
@@ -1285,40 +1005,55 @@ def test():
 # select gl.`TEAM_ABBREVIATION`, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, gl.`PASSES_MADE`/tb.FGA as PASS_PER_FGA, gl.W, gl.L, tb.FGA, tb.OREB, mb.`PTS_2ND_CHANCE`, tb2.FGA as TEAM_AGAINST_FGA, tb2.OREB as TEAM_AGAINST_OREB, ab.PACE from `sportvu_passing_team_game_logs` as gl left join traditional_boxscores_team as tb on tb.game_id = gl.game_id and tb.team_id = gl.team_id left join advanced_boxscores_team as ab on ab.game_id = gl.game_id and ab.team_id = gl.team_id left join misc_boxscores_team as mb on mb.game_id = gl.game_id and mb.team_id = gl.team_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION, tbt.FGA, tbt.OREB FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = gl.game_id and tb2.TEAM_ABBREVIATION != gl.TEAM_ABBREVIATION
 
 
-# for visualizations
-# print shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 1)
-# print shot_selection_time('teams', 'BRK', 1, 2)
-get_shot_selection_type_detailed_team()
+'''
+Can be used for visualization (not needed for now)
+# shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 1)
+# shot_selection_time('teams', 'BRK', 1, 2)
+'''
+# detailed shot selection
+# for team
+# get_shot_detailed_team()
+# for players
+# shot_selection_type_detailed('DeMar DeRozan', 1, 1)
+
+# synergy
+# synergy_queries()
+
+# player games
+# player_last_game('DeMar DeRozan', 1)
+# player_last_game('DeMar DeRozan', 3)
+# get_sportvu_game_logs('Jeremy Lin', 'player', 1, 1)
+# get_sportvu_game_logs('Jeremy Lin', 'player', 1, 3)
+# full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 1)
+# full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 3)
+# get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 1)
+# get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
+
+# team games
+team_last_game('TOR', 1)
+team_last_game('TOR', 3)
 
 player_pass_received('DeMar DeRozan', 1)
 player_pass_made('DeMar DeRozan', 1)
 
-# synergy
-synergy_queries()
-get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
-# write_to_csv(get_synergy_team(), 'synergy', 'league')
+
+
+'''
+    For processing
+
+team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
+team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
+player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
+'''
+
+
+get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
 
 # player games
 # print full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
-player_last_game('DeMar DeRozan', 3)
-write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
-PLAYER_GAME_LOG = {}
-# PLAYER_GAME_LOG = write_to_csv(full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0))
-full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
-player_last_matchups('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
-player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
-
-# player summary stats
-
-# team games
-team_last_game('TOR', 3)
-team_against('TOR', FIRST_DATE_REG_SEASON, DATE)
-team_direct_matchup('TOR','MIA', FIRST_DATE_REG_SEASON, DATE)
-
-write_to_csv(get_sportvu_game_logs('Jeremy Lin', 'player', 1), 'sportvu', 'Jeremy Lin')
-write_to_csv(get_sportvu_game_logs('ATL', 'team', 1), 'sportvu', 'ATL')
-write_to_csv(test(), 'sportvu', 'Trevor')
-# write_to_csv(get_sportvu_team_logs('MEM', 'paint_touches', 1), 'sportvu', 'MEM')
+# write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
+# full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 
 get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
