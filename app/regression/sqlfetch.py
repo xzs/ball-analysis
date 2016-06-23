@@ -106,6 +106,7 @@ def default_player_box_query():
         'ab.AST_PCT, ab.REB_PCT, ab.EFG_PCT, ab.PACE, '\
         'sb.PCT_FGA_2PT, sb.PCT_FGA_3PT, sb.PCT_PTS_2PT, sb.PCT_PTS_3PT, '\
         'sb.PCT_PTS_OFF_TOV, sb.PCT_PTS_PAINT, '\
+        'sb.PCT_AST_FGM, sb.PCT_UAST_FGM, '\
         'ff.OPP_EFG_PCT, ff.OPP_FTA_RATE, ff.OPP_TOV_PCT, ff.OPP_OREB_PCT, '\
         'mb.PTS_OFF_TOV, mb.PTS_FB, mb.PTS_2ND_CHANCE, mb.PTS_PAINT, mb.OPP_PTS_OFF_TOV, '\
         'mb.OPP_PTS_2ND_CHANCE, mb.OPP_PTS_FB, mb.OPP_PTS_PAINT, mb.OPP_PTS_2ND_CHANCE, mb.PFD, '\
@@ -225,7 +226,6 @@ def synergy_queries():
                             'END AS POSSG_RANK '\
                             'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                                 'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
-
         team_offense_dict[table] = format_to_json(execute_query(team_offense_query), 'TEAM_NAME')
 
     # store json dump for all teams
@@ -244,7 +244,7 @@ def synergy_queries():
                         'END AS POSSG_RANK '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
-
+        print team_defense_query
         team_defense_dict[table] = format_to_json(execute_query(team_defense_query), 'TEAM_NAME')
 
     # store json dump for all teams
@@ -967,6 +967,82 @@ def get_shot_detailed_team():
         logger.info('Writing synergy to json file: shot_selection_type_detailed_team_data')
         json.dump(shot_detailed_team_dict, outfile)
 
+
+def player_shot_types_general(name, date, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT GP, SHOT_TYPE, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT '\
+            'FROM player_tracking_shots_general '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" AND DATE = "%(date)s" '\
+            'ORDER BY FGA_FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season, 'date': date}
+
+    return pass_query
+
+def player_shot_types_defender(name, date, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT GP, CLOSE_DEF_DIST_RANGE, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT '\
+            'FROM player_tracking_shots_defender '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" AND DATE = "%(date)s" '\
+            'ORDER BY FGA_FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season, 'date': date}
+
+    return pass_query
+
+def player_shot_types_defender_ten(name, date, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT GP, CLOSE_DEF_DIST_RANGE, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT '\
+            'FROM player_tracking_shots_defender_ten '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" AND DATE = "%(date)s" '\
+            'ORDER BY FGA_FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season, 'date': date}
+
+    return pass_query
+
+def player_shot_types_dribble(name, date, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT GP, DRIBBLE_RANGE, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT '\
+            'FROM player_tracking_shots_dribble '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" AND DATE = "%(date)s" '\
+            'ORDER BY FGA_FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season, 'date': date}
+
+    return pass_query
+
+def player_shot_types_shot_clock(name, date, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT GP, SHOT_CLOCK_RANGE, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT '\
+            'FROM player_tracking_shots_shot_clock '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" AND DATE = "%(date)s" '\
+            'ORDER BY FGA_FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season, 'date': date}
+
+    return pass_query
+
+
+def player_shot_types_touch_time(name, date, is_regular_season):
+
+    name = reverse_name(name)
+
+    # -- pass/FGA i want to know how many times the player shoots when he is passed the ball
+    pass_query = 'SELECT GP, TOUCH_TIME_RANGE, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT '\
+            'FROM player_tracking_shots_touch_time '\
+            'WHERE is_regular_season = %(is_regular_season)s AND player_name_last_first = "%(name)s" AND DATE = "%(date)s" '\
+            'ORDER BY FGA_FREQUENCY DESC' % {'name': name, 'is_regular_season': is_regular_season, 'date': date}
+
+    return pass_query
+
+# http://stats.nba.com/stats/teamdashptshots?DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlusMinus=N&Rank=N&Season=2015-16&SeasonSegment=&SeasonType=Playoffs&TeamID=1610612738&VsConference=&VsDivision=
+
 def test():
     # query = 'SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM, '\
     # 'tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, tb.FTA, tb4.avgPF FROM usage_boxscores as ub '\
@@ -982,11 +1058,91 @@ def test():
     #     'ON tb3.game_id = ub.game_id AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "2016-04-15" '\
     #     'INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.PF) as avgPF FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION WHERE ub.PLAYER_NAME = "DeMar DeRozan" and ub.MIN >= 20' % {'date_format_year': DATE_FORMAT_YEAR}
 
-    # query = 'select ptb.MIN, ptb.RBC, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA from `player_tracking_boxscores` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION where player_name = "Trevor Ariza"'
+    # query = 'select ptb.MIN, ptb.REB, ptb.OREB, ptb.OREB_CHANCES, ptb.OREB_CHANCE_PCT_ADJ, ptb.REB_CHANCES, ptb.REB_CHANCE_PCT_ADJ, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA, ab.avgPace from `sportvu_rebounding_game_logs` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION INNER JOIN (select ab.TEAM_ABBREVIATION as TEAM, avg(ab.pace) as avgPace FROM `advanced_boxscores_team` as ab GROUP BY TEAM) as ab on ab.TEAM = tb2.TEAM_ABBREVIATION where ptb.player_name = "Bismack Biyombo" and ptb.MIN <= 30 and ptb.MIN >= 20'
 
-    query = 'select ptb.MIN, ptb.REB, ptb.OREB, ptb.OREB_CHANCES, ptb.OREB_CHANCE_PCT_ADJ, ptb.REB_CHANCES, ptb.REB_CHANCE_PCT_ADJ, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA, ab.avgPace from `sportvu_rebounding_game_logs` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION INNER JOIN (select ab.TEAM_ABBREVIATION as TEAM, avg(ab.pace) as avgPace FROM `advanced_boxscores_team` as ab GROUP BY TEAM) as ab on ab.TEAM = tb2.TEAM_ABBREVIATION where ptb.player_name = "Bismack Biyombo" and ptb.MIN <= 30 and ptb.MIN >= 20'
+    # When face against a BIG. For example, Rudy Gobert. Do drives, paint points affect player behavior?
+    query = 'SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE,  gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") <= "2016-04-15" LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id WHERE tb2.TEAM_ABBREVIATION = "UTA" and ub.MIN >= 20 and ub.START_POSITION = "G" order by mb.PTS_PAINT DESC'
     return query
 
+# print test()
+# write_to_csv(test(), 'test', 'againstUTA')
+
+def get_data_against_based_on_position():
+    db_team_names = ['BKN', 'POR', 'CHI', 'OKC', 'HOU', 'LAC', 'NOP', 'DEN', 'CLE', 'ORL', 'MIN', 'SAS', 'TOR', 'NYK', 'PHX', 'ATL', 'LAL', 'IND', 'WAS', 'BOS', 'PHI', 'MEM', 'MIA', 'DAL', 'UTA', 'CHA', 'SAC', 'GSW', 'DET', 'MIL']
+    # for each team and position
+    for team in db_team_names:
+        print team
+        for position in POSITIONS:
+            query = 'SELECT STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
+            'ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, '\
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, '\
+            'ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE, '\
+            'gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
+            'LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
+            'LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id '\
+            'LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id '\
+            'LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id '\
+            'LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id '\
+            'LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id '\
+            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id '\
+                'AND tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "2015-10-27" '\
+                'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "2016-04-15" '\
+                'LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id '\
+            'WHERE tb2.TEAM_ABBREVIATION = "%(team)s" and ub.MIN >= 20 and ub.START_POSITION = "%(position)s" order by mb.PTS_PAINT DESC' % {'team': team, 'position': position, 'date_format_year': DATE_FORMAT_YEAR}
+            # print query
+            filename = 'players_against_%(team)s_%(position)s' % {'team': team, 'position': position}
+            write_to_csv(query, 'test', filename)
+
+
+def get_synergy_wrt_dk(name):
+    query = 'SELECT tb.GAME_ID, tb.PLAYER_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
+            'sctd.PossG as CUT_PossG, sctd.PPP as CUT_PPP, sctd.FG as CUT_FG, '\
+            'shtd.PossG as HANDOFF_PossG, shtd.PPP as HANDOFF_PPP, shtd.FG as HANDOFF_FG, '\
+            'sitd.PossG as ISO_PossG, sitd.PPP as ISO_PPP, sitd.FG as ISO_FG, '\
+            'smtd.PossG as MISC_PossG, smtd.PPP as MISC_PPP, smtd.FG as MISC_FG, '\
+            'sostd.PossG as OFF_SCREEN_PossG, sostd.PPP as OFF_SCREEN_PPP, sostd.FG as OFF_SCREEN_FG, '\
+            'sputd.PossG as POST_UP_PossG, sputd.PPP as POST_UP_PPP, sputd.FG as POST_UP_FG, '\
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS FROM `traditional_boxscores` as tb  '\
+            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = tb.game_id and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                'FROM synergy_cut_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sctd ON sctd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                'FROM synergy_handoff_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as shtd ON shtd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                'FROM synergy_isolation_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sitd ON sitd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                'FROM synergy_misc_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as smtd ON smtd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                'FROM synergy_off_screen_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sostd ON sostd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+            'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                'FROM synergy_post_up_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sputd ON sputd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+            'WHERE PLAYER_NAME = "%(name)s"' % {'name': name}
+
+    query_two = 'SELECT tb.GAME_ID, tb.PLAYER_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
+                'spbhtd.PossG as PR_HANDLER_PossG, spbhtd.PPP as PR_HANDLER_PPP, spbhtd.FG as PR_HANDLER_FG, '\
+                'sprmtd.PossG as PR_ROLL_PossG, sprmtd.PPP as PR_ROLL_PPP, sprmtd.FG as PR_ROLL_FG, '\
+                'spbtd.PossG as PUT_BACK_PossG, spbtd.PPP as PUT_BACK_PPP, spbtd.FG as PUT_BACK_FG , '\
+                'ssutd.PossG as SPOT_UP_PossG, ssutd.PPP as SPOT_UP_PPP, ssutd.FG as SPOT_UP_FG, '\
+                'sttd.PossG as TRANS_PossG, sttd.PPP as TRANS_PPP, sttd.FG as TRANS_FG, '\
+                'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS FROM `traditional_boxscores` as tb  '\
+                'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = tb.game_id and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION '\
+                'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                    'FROM synergy_pr_ball_handler_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as spbhtd ON spbhtd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+                'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                    'FROM synergy_pr_roll_man_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sprmtd ON sprmtd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+                'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                    'FROM synergy_put_back_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as spbtd ON spbtd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+                'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                    'FROM synergy_spot_up_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as ssutd ON ssutd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
+                'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
+                    'FROM synergy_transition_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sttd ON sttd.TEAM_NAME = tb2.TEAM_ABBREVIATION ' \
+                'WHERE PLAYER_NAME = "%(name)s"' % {'name': name}
+
+    write_to_csv(query, 'player_synergy', name)
+    write_to_csv(query_two, 'player_synergy', name+'2')
+
+get_synergy_wrt_dk('DeMar DeRozan')
+# get_data_against_based_on_position()
 # /* shooting fouls  */
 # -- 1=personal foul, 2=shooting foul, 3=blocking foul
 # select * from pbp INNER JOIN (SELECT game_id FROM traditional_boxscores_team WHERE TEAM_ABBREVIATION = "TOR" ORDER BY game_id DESC LIMIT 3 ) as tb3 ON tb3.game_id = pbp.game_id where `EVENTMSGTYPE` = 6 and `EVENTMSGACTIONTYPE`= 2 and `PLAYER1_TEAM_ABBREVIATION` = "TOR"
@@ -1002,9 +1158,10 @@ def test():
 # avg pass per fga
 # select gl.`TEAM_ABBREVIATION` as TEAM, avg(gl.`PASSES_MADE`/tb.FGA) as PASS_PER_FGA from `sportvu_passing_team_game_logs` as gl left join traditional_boxscores_team as tb on tb.game_id = gl.game_id and tb.team_id = gl.team_id WHERE gl.date <= '2016-04-15' and gl.date >= '2015-10-27' group by TEAM
 # with orb and teams against and pace
-# select gl.`TEAM_ABBREVIATION`, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, gl.`PASSES_MADE`/tb.FGA as PASS_PER_FGA, gl.W, gl.L, tb.FGA, tb.OREB, mb.`PTS_2ND_CHANCE`, tb2.FGA as TEAM_AGAINST_FGA, tb2.OREB as TEAM_AGAINST_OREB, ab.PACE from `sportvu_passing_team_game_logs` as gl left join traditional_boxscores_team as tb on tb.game_id = gl.game_id and tb.team_id = gl.team_id left join advanced_boxscores_team as ab on ab.game_id = gl.game_id and ab.team_id = gl.team_id left join misc_boxscores_team as mb on mb.game_id = gl.game_id and mb.team_id = gl.team_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION, tbt.FGA, tbt.OREB FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = gl.game_id and tb2.TEAM_ABBREVIATION != gl.TEAM_ABBREVIATION
+# select gl.`TEAM_ABBREVIATION`, tb2.TEAM_ABBREVIATION as TEAM_AGAIN0ST, gl.`PASSES_MADE`/tb.FGA as PASS_PER_FGA, gl.W, gl.L, tb.FGA, tb.OREB, mb.`PTS_2ND_CHANCE`, tb2.FGA as TEAM_AGAINST_FGA, tb2.OREB as TEAM_AGAINST_OREB, ab.PACE from `sportvu_passing_team_game_logs` as gl left join traditional_boxscores_team as tb on tb.game_id = gl.game_id and tb.team_id = gl.team_id left join advanced_boxscores_team as ab on ab.game_id = gl.game_id and ab.team_id = gl.team_id left join misc_boxscores_team as mb on mb.game_id = gl.game_id and mb.team_id = gl.team_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION, tbt.FGA, tbt.OREB FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = gl.game_id and tb2.TEAM_ABBREVIATION != gl.TEAM_ABBREVIATION WHERE tb2.TEAM_ABBREVIATION = 'ATL'
 
-
+# -- if the opponent takes many threes
+# select PLAYER_NAME, tb.MIN, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb2.FG3A as OPP_FG3A, tb.FTA, tb.REB, tb.FG3A from traditional_boxscores as tb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION, tbt.FG3A FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = tb.game_id and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
 '''
 Can be used for visualization (not needed for now)
 # shot_selection('team', 'CHO', 1, 'SHOT_DISTANCE', 1)
@@ -1024,7 +1181,7 @@ Can be used for visualization (not needed for now)
 # player_last_game('DeMar DeRozan', 3)
 # get_sportvu_game_logs('Jeremy Lin', 'player', 1, 1)
 # get_sportvu_game_logs('Jeremy Lin', 'player', 1, 3)
-# full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 1)
+# full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 0)
 # full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 3)
 # get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 1)
 # get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
@@ -1037,7 +1194,7 @@ player_pass_received('DeMar DeRozan', 1)
 player_pass_made('DeMar DeRozan', 1)
 
 
-
+# print player_shot_types_dribble('Jeremy Lin', DATE, 1)
 '''
     For processing
 
@@ -1051,7 +1208,7 @@ player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
 
 # player games
-# print full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
+# print full_player_log('Jimmy Butler', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 # write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
 # full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 
