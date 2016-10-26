@@ -77,6 +77,7 @@ def correlation_matrix(df,file):
     cax = ax1.imshow(df.corr(), interpolation="nearest", cmap=cmap)
     ax1.grid(True)
     plt.title('Correlation against Position' + file)
+    # vs
     labels=df.columns.tolist()
     print labels
     ax1.yticks = labels
@@ -87,7 +88,11 @@ def correlation_matrix(df,file):
     cbar = fig.colorbar(cax)
     plt.show()
 
-data = pd.read_csv('nba_scrape/player_synergy/DeMar DeRozan2.csv', header=0)
+# data = pd.read_csv('nba_scrape/player_synergy/DeMar DeRozan2.csv', header=0)
+# print data.corr()
+# correlation_matrix(data, 'DeMaR')
+
+data = pd.read_csv('nba_scrape/query_result.csv', header=0)
 print data.corr()
 correlation_matrix(data, 'DeMaR')
 # for file in glob.glob('nba_scrape/test/*.csv'):

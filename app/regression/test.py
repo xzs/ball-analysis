@@ -16,7 +16,7 @@ ISSUE_NAMES = ['Kelly Oubre Jr.', 'Nene', 'Patty Mills', 'Xavier Munford']
 
 for file in glob.glob('../scrape/mod_player_logs/'+YEAR+'/*.csv'):
     player_name = file.split('/')[4].split('.c')[0]
-
+    print player_name
     # issue with names
     if player_name not in ISSUE_NAMES:
     # read data into a DataFrame

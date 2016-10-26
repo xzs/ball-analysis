@@ -13,7 +13,7 @@ from datetime import datetime as dt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-YEAR = '2016'
+YEAR = '2017'
 
 ALL_STAR_DATE = '2016-02-13'
 
@@ -155,10 +155,10 @@ def read_team_schedule_csv(csv_f, team_name):
     logger.debug('Completed creation of schedule dictionary for: '+team_name)
     schedule = csv.reader(csv_f)
     for game in schedule:
-        date = game[1]
-        opp = game[6]
-        time = game[2]
-        if game[5] == '@':
+        date = game[0]
+        opp = game[5]
+        time = game[1]
+        if game[4] == '@':
             location = 'Away'
         else:
             location = 'Home'
@@ -198,19 +198,19 @@ def read_team_schedule_csv(csv_f, team_name):
 
         # Count the number of times the team played on national TV, and against who
         # If it's not played on a local TV channel
-        if game[3]:
-            if game[3] in SCHEDULE_DICT[team_name]['channel']:
-                SCHEDULE_DICT[team_name]['channel'][game[3]]['times_played'] += 1
+        if game[2]:
+            if game[2] in SCHEDULE_DICT[team_name]['channel']:
+                SCHEDULE_DICT[team_name]['channel'][game[2]]['times_played'] += 1
                 # If the channel already exists but the opponent does not
-                if opp in SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent']:
-                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][opp] += 1
+                if opp in SCHEDULE_DICT[team_name]['channel'][game[2]]['opponent']:
+                    SCHEDULE_DICT[team_name]['channel'][game[2]]['opponent'][opp] += 1
                 else:
-                    SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][opp] = 1
+                    SCHEDULE_DICT[team_name]['channel'][game[2]]['opponent'][opp] = 1
             else:
-                SCHEDULE_DICT[team_name]['channel'][game[3]] = {}
-                SCHEDULE_DICT[team_name]['channel'][game[3]]['times_played'] = 1
-                SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'] = {}
-                SCHEDULE_DICT[team_name]['channel'][game[3]]['opponent'][opp] = 1
+                SCHEDULE_DICT[team_name]['channel'][game[2]] = {}
+                SCHEDULE_DICT[team_name]['channel'][game[2]]['times_played'] = 1
+                SCHEDULE_DICT[team_name]['channel'][game[2]]['opponent'] = {}
+                SCHEDULE_DICT[team_name]['channel'][game[2]]['opponent'][opp] = 1
 
 '''
 GmSc
@@ -1006,56 +1006,56 @@ for files in glob.glob('team_schedules/'+YEAR+'/*.csv'):
 with open('json_files/team_schedules/'+YEAR+'/league_schedule.json', 'w') as outfile:
     json.dump(SCHEDULE_DICT['league_schedule'], outfile)
 
-with open('misc/team_stats/league.json') as data_file:
-    LEAGUE_ADV_STATS = json.load(data_file)
+# with open('misc/team_stats/league.json') as data_file:
+#     LEAGUE_ADV_STATS = json.load(data_file)
 
-with open('misc/team_stats/league_opponent.json') as data_file:
-    LEAGUE_OPPONENT_STATS = json.load(data_file)
+# with open('misc/team_stats/league_opponent.json') as data_file:
+#     LEAGUE_OPPONENT_STATS = json.load(data_file)
 
-ALL_PLAYERS = {}
-# guys who got waived or name conflicts
-BLACK_LIST = ['Christian Wood', 'DeJuan Blair', 'Elijah Millsap', 'Kelly Oubre', 'Kostas Papanikolaou', 'Nene Hilario', 'Patrick Mills', 'Russ Smith', 'Tony Wroten']
-# Open all player files for data parsing
-for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
-    player_name = files.split('/')[2].split('.c')[0]
+# ALL_PLAYERS = {}
+# # guys who got waived or name conflicts
+# BLACK_LIST = ['Christian Wood', 'DeJuan Blair', 'Elijah Millsap', 'Kelly Oubre', 'Kostas Papanikolaou', 'Nene Hilario', 'Patrick Mills', 'Russ Smith', 'Tony Wroten']
+# # Open all player files for data parsing
+# for files in glob.glob('player_logs/'+YEAR+'/*.csv'):
+#     player_name = files.split('/')[2].split('.c')[0]
 
-    with open(files, 'rb') as f:
-        try:
-            # skip first line
-            if player_name not in BLACK_LIST:
-                next(f, None)
-                PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
-                categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
+#     with open(files, 'rb') as f:
+#         try:
+#             # skip first line
+#             if player_name not in BLACK_LIST:
+#                 next(f, None)
+#                 PLAYER_DICT = read_player_csv(f, SCHEDULE_DICT, player_name)
+#                 categorize_players_by_teams(PLAYER_DICT, ALL_PLAYERS)
 
-                # Since we need to go through the files again we seek to the beginning of the file
-                f.seek(0)
-                last_n_games(f, 1)
-                f.seek(0)
-                last_n_games(f, 3)
-                f.seek(0)
-                last_n_games(f, 5)
-                f.seek(0)
-                last_n_games(f, 10)
-                try:
-                    with open('player_logs/advanced/'+YEAR+'/'+player_name+'.csv', 'rb') as adv_f:
-                        adv_f.seek(0)
-                        last_n_games_adv(adv_f, 1)
-                        adv_f.seek(0)
-                        last_n_games_adv(adv_f, 3)
-                        adv_f.seek(0)
-                        last_n_games_adv(adv_f, 5)
-                        adv_f.seek(0)
-                        last_n_games_adv(adv_f, 10)
-                except IOError as e:
-                    print "Unable to open file" #Does not exist OR no read permissions
-                # Dump the json file
-                logger.debug('Dumping json for: '+player_name)
-                with open('json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
-                    json.dump(PLAYER_DICT, outfile)
+#                 # Since we need to go through the files again we seek to the beginning of the file
+#                 f.seek(0)
+#                 last_n_games(f, 1)
+#                 f.seek(0)
+#                 last_n_games(f, 3)
+#                 f.seek(0)
+#                 last_n_games(f, 5)
+#                 f.seek(0)
+#                 last_n_games(f, 10)
+#                 try:
+#                     with open('player_logs/advanced/'+YEAR+'/'+player_name+'.csv', 'rb') as adv_f:
+#                         adv_f.seek(0)
+#                         last_n_games_adv(adv_f, 1)
+#                         adv_f.seek(0)
+#                         last_n_games_adv(adv_f, 3)
+#                         adv_f.seek(0)
+#                         last_n_games_adv(adv_f, 5)
+#                         adv_f.seek(0)
+#                         last_n_games_adv(adv_f, 10)
+#                 except IOError as e:
+#                     print "Unable to open file" #Does not exist OR no read permissions
+#                 # Dump the json file
+#                 logger.debug('Dumping json for: '+player_name)
+#                 with open('json_files/player_logs/'+YEAR+'/'+player_name+'.json', 'w') as outfile:
+#                     json.dump(PLAYER_DICT, outfile)
 
-        except csv.Error as e:
-            sys.exit('file %s: %s' % (files, e))
-# Dump a json for all players
-with open('json_files/player_logs/'+YEAR+'/all_players.json', 'w') as outfile:
-    json.dump(ALL_PLAYERS, outfile)
+#         except csv.Error as e:
+#             sys.exit('file %s: %s' % (files, e))
+# # Dump a json for all players
+# with open('json_files/player_logs/'+YEAR+'/all_players.json', 'w') as outfile:
+#     json.dump(ALL_PLAYERS, outfile)
 

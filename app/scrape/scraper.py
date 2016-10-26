@@ -4,6 +4,7 @@ import csv
 import logging
 import json
 import numpy
+import requests
 from scipy import stats
 
 from bs4 import BeautifulSoup
@@ -126,11 +127,24 @@ NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
 MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
 # order by minutes played
 LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.cgi?'\
-            'request=1&player_id=&match=single&lineup_type=5-man&output=total&year_id=2016&is_playoffs=N&'\
+            'request=1&player_id=&match=single&lineup_type=5-man&output=total&year_id=2017&is_playoffs=N&'\
             'opp_id=&game_num_min=0&game_num_max=99&game_month=&game_location=&game_result=&'\
             'c1stat=&c1comp=ge&c1val=&c2stat=&c2comp=ge&c2val=&c3stat=&c3comp=ge&c3val=&c4stat=&c4comp=ge&c4val=&order_by=mp&team_id='
 
-YEAR = '2016'
+YEAR = '2017'
+
+def get_fantasy_lab_news():
+
+    # http://www.fantasylabs.com/api/players/news/2/
+
+    url = 'http://www.fantasylabs.com/api/players/news/2/'
+    response = requests.get(url)
+    data = response.json()
+
+    for news in data:
+        print news['PlayerName']
+        print news['PlayerStatus']
+        print news['News']
 
 
 def get_fantasy_news():
@@ -146,6 +160,8 @@ def get_fantasy_news():
         logger.debug('Scraping news for: '+ team)
         news_content = []
         url = urllib2.urlopen(NEWS_URL+'/'+team+'/'+team_link)
+        print NEWS_URL+'/'+team+'/'+team_link
+
         soup = BeautifulSoup(url, 'html5lib')
         news_holder = soup.find_all('div', attrs={'class':'RW_pn'})[1]
         news = news_holder.find_all('div', attrs={'class':'pb'})
@@ -214,10 +230,11 @@ def get_active_teams():
     teams_dict = {}
 
     url = urllib2.urlopen(BASE_URL+'/teams/')
+    print BASE_URL+'/teams/'
     # we have to use the html5lib parser, as some elements were not showing up fully
     soup = BeautifulSoup(url, 'html5lib')
 
-    table = soup.find('table', attrs={'id':'active'})
+    table = soup.find('table', attrs={'id':'teams_active'})
     table_body = table.find('tbody')
     rows = table_body.find_all('tr', attrs={'class':'full_table'})
 
@@ -444,7 +461,7 @@ def get_team_schedule(teams_dict):
         soup = BeautifulSoup(url, 'html5lib')
         log_rows = []
 
-        table = soup.find('table', attrs={'id':'teams_games'})
+        table = soup.find('table', attrs={'id':'games'})
         if table:
             logger.debug('Getting schedule for: ' + team)
             table_body = table.find('tbody')
@@ -684,15 +701,16 @@ def get_team_stats():
 
 
 pp = pprint.PrettyPrinter(indent=4)
-teams_dict = get_active_teams()
+# teams_dict = get_active_teams()
 # get_team_schedule(teams_dict)
-PLAYERS_DICT = get_current_roster(teams_dict)
-get_player_log(PLAYERS_DICT)
+# PLAYERS_DICT = get_current_roster(teams_dict)
+# get_player_log(PLAYERS_DICT)
 
-get_depth_chart()
+# get_depth_chart()
 get_fantasy_news()
-get_team_against_position()
-get_team_stats()
+# get_fantasy_lab_news()
+# get_team_against_position()
+# get_team_stats()
 
-top_n_lineups(0, 5)
-top_n_lineups(2, 5)
+# top_n_lineups(0, 5)
+# top_n_lineups(2, 5)

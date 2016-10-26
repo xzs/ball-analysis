@@ -244,7 +244,6 @@ def synergy_queries():
                         'END AS POSSG_RANK '\
                         'FROM %(table)s, (SELECT @prev_value:=NULL, @rank_count:=0) as V '\
                             'WHERE DATE = "%(date)s" ORDER BY PossG DESC' % {'date': DATE, 'table': table}
-        print team_defense_query
         team_defense_dict[table] = format_to_json(execute_query(team_defense_query), 'TEAM_NAME')
 
     # store json dump for all teams
@@ -604,7 +603,7 @@ def full_player_log(player, date_1, date_2, is_national, last_n):
                     'ON tb3.game_id = ub.game_id '\
                     'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
                     'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
-                    'WHERE ub.PLAYER_NAME = "%(player)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'player': player, 'date_begin': date_1, 'date_end': date_2,}
+                    'WHERE ub.PLAYER_NAME = "%(player)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'player': player, 'date_begin': date_1, 'date_end': date_2}
 
     if is_national == 1:
         player_query += 'AND gs.NATL_TV_BROADCASTER_ABBREVIATION IS NOT NULL '
@@ -758,7 +757,6 @@ def compare_player_stats(result_season, result_playoffs, threshold):
                     diff = (temp_hash[players]['playoffs'][stat] / temp_hash[players]['season'][stat]) * 100
                 else:
                     diff = 100
-
                 if diff <= threshold:
                     if players in diff_result:
                         diff_result[players][stat] = {
@@ -872,6 +870,7 @@ def shot_selection_type_detailed_team(name, shot_made, last_n):
         'GROUP BY SHOT_ZONE_AREA, SHOT_ZONE_BASIC, SHOT_TYPE '\
         'ORDER BY NUM_ACTIONS DESC' % {'name': name, 'shot_made': shot_made}
 
+    print shot_query
     return shot_query
 
 
@@ -1062,8 +1061,11 @@ def test():
 
     # When face against a BIG. For example, Rudy Gobert. Do drives, paint points affect player behavior?
     query = 'SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE,  gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") <= "2016-04-15" LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id WHERE tb2.TEAM_ABBREVIATION = "UTA" and ub.MIN >= 20 and ub.START_POSITION = "G" order by mb.PTS_PAINT DESC'
+
+    print query
     return query
 
+# test()
 # print test()
 # write_to_csv(test(), 'test', 'againstUTA')
 
@@ -1071,7 +1073,6 @@ def get_data_against_based_on_position():
     db_team_names = ['BKN', 'POR', 'CHI', 'OKC', 'HOU', 'LAC', 'NOP', 'DEN', 'CLE', 'ORL', 'MIN', 'SAS', 'TOR', 'NYK', 'PHX', 'ATL', 'LAL', 'IND', 'WAS', 'BOS', 'PHI', 'MEM', 'MIA', 'DAL', 'UTA', 'CHA', 'SAC', 'GSW', 'DET', 'MIL']
     # for each team and position
     for team in db_team_names:
-        print team
         for position in POSITIONS:
             query = 'SELECT STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
             'ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, '\
@@ -1089,7 +1090,6 @@ def get_data_against_based_on_position():
                 'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "2016-04-15" '\
                 'LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id '\
             'WHERE tb2.TEAM_ABBREVIATION = "%(team)s" and ub.MIN >= 20 and ub.START_POSITION = "%(position)s" order by mb.PTS_PAINT DESC' % {'team': team, 'position': position, 'date_format_year': DATE_FORMAT_YEAR}
-            # print query
             filename = 'players_against_%(team)s_%(position)s' % {'team': team, 'position': position}
             write_to_csv(query, 'test', filename)
 
@@ -1141,7 +1141,305 @@ def get_synergy_wrt_dk(name):
     write_to_csv(query, 'player_synergy', name)
     write_to_csv(query_two, 'player_synergy', name+'2')
 
-get_synergy_wrt_dk('DeMar DeRozan')
+
+def get_team_synergy_ranks():
+    query = 'SELECT ostd.TeamNameAbbreviation as TEAM_NAME, ostd.BetterPPP+1 as OFFSCREEN_RANK, '\
+        'ctd.BetterPPP+1 as CUT_RANK, '\
+        'htd.BetterPPP+1 as HAND_RANK, '\
+        'itd.BetterPPP+1 as ISO_RANK, '\
+        'mtd.BetterPPP+1 as MISC_RANK, '\
+        'putd.BetterPPP+1 as POST_RANK, '\
+        'phtd.BetterPPP+1 as PR_HANDLER_RANK, '\
+        'prtd.BetterPPP+1 as PR_ROLL_RANK, '\
+        'pbtd.BetterPPP+1 as PUT_BACK_RANK, '\
+        'std.BetterPPP+1 as SPOTUP_RANK, '\
+        'ttd.BetterPPP+1 as TRANS_RANK '\
+        'FROM synergy_off_screen_team_defense as ostd '\
+            'LEFT JOIN synergy_cut_team_defense as ctd ON ostd.TeamNameAbbreviation = ctd.TeamNameAbbreviation AND ostd.DATE = ctd.DATE '\
+            'LEFT JOIN synergy_handoff_team_defense as htd ON ostd.TeamNameAbbreviation = htd.TeamNameAbbreviation AND ostd.DATE = htd.DATE '\
+            'LEFT JOIN synergy_isolation_team_defense as itd ON ostd.TeamNameAbbreviation = itd.TeamNameAbbreviation AND ostd.DATE = itd.DATE '\
+            'LEFT JOIN synergy_misc_team_defense as mtd ON ostd.TeamNameAbbreviation = mtd.TeamNameAbbreviation AND ostd.DATE = mtd.DATE '\
+            'LEFT JOIN synergy_post_up_team_defense as putd ON ostd.TeamNameAbbreviation = putd.TeamNameAbbreviation AND ostd.DATE = putd.DATE '\
+            'LEFT JOIN synergy_pr_ball_handler_team_defense as phtd ON ostd.TeamNameAbbreviation = phtd.TeamNameAbbreviation AND ostd.DATE = phtd.DATE '\
+            'LEFT JOIN synergy_pr_roll_man_team_defense as prtd ON ostd.TeamNameAbbreviation = prtd.TeamNameAbbreviation AND ostd.DATE = prtd.DATE '\
+            'LEFT JOIN synergy_put_back_team_defense as pbtd ON ostd.TeamNameAbbreviation = pbtd.TeamNameAbbreviation AND ostd.DATE = pbtd.DATE '\
+            'LEFT JOIN synergy_spot_up_team_defense as std ON ostd.TeamNameAbbreviation = std.TeamNameAbbreviation AND ostd.DATE = std.DATE '\
+            'LEFT JOIN synergy_transition_team_defense as ttd ON ostd.TeamNameAbbreviation = ttd.TeamNameAbbreviation AND ostd.DATE = ttd.DATE '\
+        'WHERE ostd.DATE = "%(date)s" '% {'date': LAST_DATE_REG_SEASON}
+    return query
+
+def get_starter_defensive_stats(players):
+    query = 'SELECT DISTINCT ostd.PLAYER_ID, CONCAT(ostd.PlayerFirstName, " ", ostd.PlayerLastName) as PLAYER_NAME, '\
+            'ostd.TeamNameAbbreviation as TEAM_NAME, '\
+            'ostd.BetterPPP+1 as OFFSCREEN_RANK, '\
+            'ROUND(ostd.PPP, 2) as OFFSCREEN_ALLOWED_PPP, '\
+            'ROUND(ostd.PossG, 2) as OFFSCREEN_ALLOWED_PossG, '\
+            'htd.BetterPPP+1 as HAND_RANK, '\
+            'ROUND(htd.PPP, 2) as HAND_OFF_ALLOWED_PPP, '\
+            'ROUND(htd.PossG, 2) as HAND_OFF_ALLOWED_PossG, '\
+            'iso.BetterPPP+1 as ISO_RANK, '\
+            'ROUND(iso.PPP, 2) as ISO_ALLOWED_PPP, '\
+            'ROUND(iso.PossG, 2) as ISO_ALLOWED_PossG, '\
+            'putd.BetterPPP+1 as POST_RANK, '\
+            'ROUND(putd.PPP, 2) as POST_ALLOWED_PPP, '\
+            'ROUND(putd.PossG, 2) as POST_ALLOWED_PossG, '\
+            'phtd.BetterPPP+1 as PR_HANDLER_RANK, '\
+            'ROUND(phtd.PPP, 2) as PR_HANDLER_ALLOWED_PPP, '\
+            'ROUND(phtd.PossG, 2) as PR_HANDLER_ALLOWED_PossG, '\
+            'prtd.BetterPPP+1 as PR_ROLL_RANK, '\
+            'ROUND(prtd.PPP, 2) as PR_ROLL_ALLOWED_PPP, '\
+            'ROUND(prtd.PossG, 2) as PR_ROLL_ALLOWED_PossG, '\
+            'std.BetterPPP+1 as SPOTUP_RANK, '\
+            'ROUND(std.PPP, 2) as SPOTUP_ALLOWED_PPP, '\
+            'ROUND(std.PossG, 2) as SPOTUP_ALLOWED_PossG '\
+            'FROM synergy_off_screen_defense as ostd  '\
+                'LEFT JOIN synergy_handoff_defense as htd ON ostd.player_id = htd.player_id AND ostd.DATE = htd.DATE '\
+                'LEFT JOIN synergy_isolation_defense as iso ON ostd.player_id = iso.player_id AND ostd.DATE = iso.DATE '\
+                'LEFT JOIN synergy_post_up_defense as putd ON ostd.player_id = putd.player_id AND ostd.DATE = putd.DATE '\
+                'LEFT JOIN synergy_pr_ball_handler_defense as phtd ON ostd.player_id = phtd.player_id AND ostd.DATE = phtd.DATE '\
+                'LEFT JOIN synergy_pr_roll_man_defense as prtd ON ostd.player_id = prtd.player_id AND ostd.DATE = prtd.DATE '\
+                'LEFT JOIN synergy_spot_up_defense as std ON ostd.player_id = std.player_id AND ostd.DATE = std.DATE '\
+            'WHERE ostd.DATE = "2016-04-15" and CONCAT(ostd.PlayerFirstName, " ", ostd.PlayerLastName) '\
+            'IN ("%(players)s") AND ostd.IS_REGULAR_SEASON = 1 GROUP BY(PLAYER_NAME)' % {'players': players}
+    return query
+
+def get_starter_offensive_stats(players):
+    query = 'SELECT DISTINCT ostd.PLAYER_ID, CONCAT(ostd.PlayerFirstName, " ", ostd.PlayerLastName) as PLAYER_NAME, ostd.TeamNameAbbreviation as TEAM_NAME, '\
+            'ostd.BetterPPP+1 as OFFSCREEN_RANK, '\
+            'ROUND(ostd.PPP, 2) as OFFSCREEN_PPP, '\
+            'ROUND(ostd.PossG, 2) as OFFSCREEN_PossG, '\
+            'htd.BetterPPP+1 as HAND_RANK, '\
+            'ROUND(htd.PPP, 2) as HAND_OFF_PPP, '\
+            'ROUND(htd.PossG, 2) as HAND_OFF_PossG, '\
+            'itd.BetterPPP+1 as ISO_RANK, '\
+            'ROUND(itd.PPP, 2) as ISO_PPP, '\
+            'ROUND(itd.PossG, 2) as ISO_PossG, '\
+            'putd.BetterPPP+1 as POST_RANK, '\
+            'ROUND(putd.PPP, 2) as POST_PPP, '\
+            'ROUND(putd.PossG, 2) as POST_PossG, '\
+            'phtd.BetterPPP+1 as PR_HANDLER_RANK, '\
+            'ROUND(phtd.PPP, 2) as PR_HANDLER_PPP, '\
+            'ROUND(phtd.PossG, 2) as PR_HANDLER_PossG, '\
+            'prtd.BetterPPP+1 as PR_ROLL_RANK, '\
+            'ROUND(prtd.PPP, 2) as PR_ROLL_PPP, '\
+            'ROUND(prtd.PossG, 2) as PR_ROLL_PossG, '\
+            'std.BetterPPP+1 as SPOTUP_RANK, '\
+            'ROUND(std.PPP, 2) as SPOTUP_PPP, '\
+            'ROUND(std.PossG, 2) as SPOTUP_PossG, '\
+            'cut.BetterPPP+1 as CUT_RANK, '\
+            'ROUND(cut.PPP, 2) as CUT_PPP, '\
+            'ROUND(cut.PossG, 2) as CUT_PossG, '\
+            'misc.BetterPPP+1 as MISC_RANK, '\
+            'ROUND(misc.PPP, 2) as MISC_PPP, '\
+            'ROUND(misc.PossG, 2) as MISC_PossG, '\
+            'putback.BetterPPP+1 as PUT_BACK_RANK, '\
+            'ROUND(putback.PPP, 2) as PUT_BACK_PPP, '\
+            'ROUND(putback.PossG, 2) as PUT_BACK_PossG, '\
+            'trans.BetterPPP+1 as TRANSITION_RANK, '\
+            'ROUND(trans.PPP, 2) as TRANSITION_PPP, '\
+            'ROUND(trans.PossG, 2) as TRANSITION_PossG '\
+            'FROM synergy_off_screen_offense as ostd '\
+                'LEFT JOIN synergy_handoff_offense as htd ON ostd.player_id = htd.player_id AND ostd.DATE = htd.DATE '\
+                'LEFT JOIN synergy_isolation_offense as itd ON ostd.player_id = itd.player_id AND ostd.DATE = itd.DATE '\
+                'LEFT JOIN synergy_post_up_offense as putd ON ostd.player_id = putd.player_id AND ostd.DATE = putd.DATE '\
+                'LEFT JOIN synergy_pr_ball_handler_offense as phtd ON ostd.player_id = phtd.player_id AND ostd.DATE = phtd.DATE '\
+                'LEFT JOIN synergy_pr_roll_man_offense as prtd ON ostd.player_id = prtd.player_id AND ostd.DATE = prtd.DATE '\
+                'LEFT JOIN synergy_spot_up_offense as std ON ostd.player_id = std.player_id AND ostd.DATE = std.DATE '\
+                'LEFT JOIN synergy_cut_offense as cut ON ostd.player_id = cut.player_id AND ostd.DATE = cut.DATE '\
+                'LEFT JOIN synergy_misc_offense as misc ON ostd.player_id = misc.player_id AND ostd.DATE = misc.DATE '\
+                'LEFT JOIN synergy_put_back_offense as putback ON ostd.player_id = putback.player_id AND ostd.DATE = putback.DATE '\
+                'LEFT JOIN synergy_transition_offense as trans ON ostd.player_id = trans.player_id AND ostd.DATE = trans.DATE '\
+            'WHERE ostd.DATE = "2016-04-15" and CONCAT(ostd.PlayerFirstName, " ", ostd.PlayerLastName) '\
+                            'IN ("%(players)s") AND ostd.IS_REGULAR_SEASON = 1 GROUP BY(PLAYER_NAME)' % {'players': players}
+    return query
+
+def get_player_names():
+    query = 'SELECT PLAYER_ID, '\
+       'PLAYER_NAME '\
+        'FROM   traditional_boxscores '\
+        'WHERE  GAME_ID IN (SELECT GAME_ID '\
+                    'FROM   game_summary '\
+                    'WHERE  GAME_DATE_EST >= "2015-10-27" '\
+                                  'AND GAME_DATE_EST <= "2016-04-15") '\
+        'GROUP  BY PLAYER_ID '
+    return query
+
+def get_player_id_by_team(team):
+    query = 'SELECT PLAYER_ID '\
+        'FROM   traditional_boxscores '\
+        'WHERE  GAME_ID IN (SELECT GAME_ID '\
+                           'FROM   game_summary '\
+                           'WHERE  GAME_DATE_EST >= "2015-10-27" '\
+                                  'AND GAME_DATE_EST <= "2016-04-15") '\
+               'AND TEAM_ABBREVIATION = "%(team)s" '\
+        'GROUP  BY PLAYER_ID ' % {'team': team}
+    return query
+
+def get_lineups_per_action(player_id, team, event):
+    query = 'SELECT GAME_ID, '\
+        'HOME_PLAYER1, '\
+        'HOME_PLAYER2, '\
+        'HOME_PLAYER3, '\
+        'HOME_PLAYER4, '\
+        'HOME_PLAYER5 '\
+        'FROM   pbp '\
+        'WHERE  GAME_ID IN (SELECT GAME_ID '\
+            'FROM   game_summary '\
+            'WHERE  GAME_DATE_EST >= "2015-10-27" '\
+               'AND GAME_DATE_EST <= "2016-04-15" '\
+               'AND HOME_TEAM_ID = (SELECT TEAM_ID '\
+                                    'FROM '\
+                                      'traditional_boxscores_team ' \
+                                          'WHERE  TEAM_ABBREVIATION = "%(team)s" ' \
+                                          'GROUP  BY TEAM_ID)) '\
+                'AND ( PLAYER1_ID = "%(player_id)s" ) '\
+            'AND EVENTMSGTYPE IN (%(event)s) ' % {'player_id': player_id, 'team': team, 'event': event}
+    return query
+
+def get_totals_by_home_lineup(team, event):
+    query = 'SELECT GAME_ID, '\
+               'HOME_PLAYER1, '\
+               'HOME_PLAYER2, '\
+               'HOME_PLAYER3, '\
+               'HOME_PLAYER4, '\
+               'HOME_PLAYER5 '\
+        'FROM   pbp '\
+        'WHERE  GAME_ID IN (SELECT GAME_ID '\
+                           'FROM   game_summary '\
+                           'WHERE  GAME_DATE_EST >= "%(date_begin)s" '\
+                                  'AND GAME_DATE_EST <= "%(date_end)s" '\
+                                  'AND HOME_TEAM_ID = (SELECT TEAM_ID '\
+                                                      'FROM '\
+                                      'traditional_boxscores_team '\
+                                                      'WHERE  TEAM_ABBREVIATION = "%(team)s" '\
+                                                      'GROUP  BY TEAM_ID)) '\
+               'AND ( PLAYER1_ID IN (SELECT PLAYER_ID '\
+                                    'FROM   traditional_boxscores '\
+                                    'WHERE  GAME_ID IN (SELECT GAME_ID '\
+                                                       'FROM   game_summary '\
+                                                       'WHERE '\
+                                           'GAME_DATE_EST >= "%(date_begin)s" '\
+                                           'AND GAME_DATE_EST <= "%(date_end)s" '\
+                                                      ') '\
+                                           'AND TEAM_ABBREVIATION = "%(team)s" '\
+                                    'GROUP  BY PLAYER_ID) ) '\
+               'AND EVENTMSGTYPE IN (%(event)s) ' % {'team': team, 'event': event, 'date_begin': FIRST_DATE_REG_SEASON, 'date_end': LAST_DATE_REG_SEASON}
+
+    return query
+
+def get_totals_by_away_lineup(team, event):
+    query = 'SELECT GAME_ID, '\
+               'VISITOR_PLAYER1, '\
+               'VISITOR_PLAYER2, '\
+               'VISITOR_PLAYER3, '\
+               'VISITOR_PLAYER4, '\
+               'VISITOR_PLAYER5 '\
+        'FROM   pbp '\
+        'WHERE  GAME_ID IN (SELECT GAME_ID '\
+                           'FROM   game_summary '\
+                           'WHERE  GAME_DATE_EST >= "%(date_begin)s" '\
+                                  'AND GAME_DATE_EST <= "%(date_end)s" '\
+                                  'AND VISITOR_TEAM_ID = (SELECT TEAM_ID '\
+                                                      'FROM '\
+                                      'traditional_boxscores_team '\
+                                                      'WHERE  TEAM_ABBREVIATION = "%(team)s" '\
+                                                      'GROUP  BY TEAM_ID)) '\
+               'AND ( PLAYER1_ID IN (SELECT PLAYER_ID '\
+                                    'FROM   traditional_boxscores '\
+                                    'WHERE  GAME_ID IN (SELECT GAME_ID '\
+                                                       'FROM   game_summary '\
+                                                       'WHERE '\
+                                           'GAME_DATE_EST >= "%(date_begin)s" '\
+                                           'AND GAME_DATE_EST <= "%(date_end)s" '\
+                                                      ') '\
+                                           'AND TEAM_ABBREVIATION = "%(team)s" '\
+                                    'GROUP  BY PLAYER_ID) ) '\
+               'AND EVENTMSGTYPE IN (%(event)s) ' % {'team': team, 'event': event, 'date_begin': FIRST_DATE_REG_SEASON, 'date_end': LAST_DATE_REG_SEASON}
+
+    return query
+
+def get_player_against_team_log(team, players):
+    query = 'SELECT  ub.PLAYER_NAME, ub.START_POSITION, ub.USG_PCT, '\
+            'tb.MIN, tb.FGA, tb.FG_PCT, tb.FG3A, tb.OREB, tb.REB, tb.AST, tb.STL, tb.PTS, tb.TO, tb.PF, '\
+            'tb.FG3M * 0.5 + tb.REB * 1.25 + tb.AST * 1.25 + tb.STL * 2 + tb.BLK * 2 + tb.TO * -0.5 + tb.PTS * 1 AS DK_POINTS, '\
+            'ROUND((tb.FG3M * 0.5 + tb.REB * 1.25 + tb.AST * 1.25 + tb.STL * 2 + tb.BLK * 2 + tb.TO *-0.5 + tb.PTS * 1)/tb.MIN, 2) AS FP_PER_MIN, '\
+            'mb.PTS_PAINT, mb.PFD, '\
+            'dgl.DRIVES, dgl.DRIVE_FGA, dgl.DRIVE_FG_PCT, dr.DRIVE_PTS, '\
+            'ptb.TCHS AS TOUCHES, ptb.CFGA AS CONTESTED_FGA, ptb.CFG_PCT AS CONTESTED_FG_PCT, ab.PACE, '\
+            'ROUND(prho.PossG, 2) as PNR_POSSG, ROUND(iso.PossG, 2) as ISO_POSSG, ROUND(spot.PossG, 2) as SPOT_POSSG, ROUND(screen.PossG, 2) as OFF_SCREEN_POSSG, '\
+            'cs.CATCH_SHOOT_FGA / cs.GP AS "CATCH_SHOOT_FGA", cs.CATCH_SHOOT_FG_PCT, cs.CATCH_SHOOT_FG3A / cs.GP AS "CATCH_SHOOT_3FGA", '\
+            'pass.PASSES_MADE / cs.GP AS "PASSES_MADE", pass.PASSES_RECEIVED / cs.GP AS "PASSES_RECEIVED", poss.TIME_OF_POSS / cs.GP AS "TIME_OF_POSS", '\
+            'pot.POST_TOUCH_FGA / cs.GP AS "POST_TOUCH_FGA", pus.PULL_UP_FGA / cs.GP AS "PULL_UP_FGA", pus.PULL_UP_FG3A / cs.GP AS "PULL_UP_3FGA", '\
+            'gs.NATL_TV_BROADCASTER_ABBREVIATION AS NATIONAL_TV '\
+            'FROM   usage_boxscores AS ub '\
+            'LEFT JOIN game_summary AS gs '\
+            'ON gs.game_id = ub.game_id '\
+            'LEFT JOIN traditional_boxscores AS tb '\
+            'ON tb.game_id = ub.game_id '\
+                    'AND tb.player_id = ub.player_id '\
+            'LEFT JOIN player_tracking_boxscores AS ptb '\
+            'ON ptb.game_id = ub.game_id '\
+                    'AND ptb.player_id = ub.player_id '\
+            'LEFT JOIN advanced_boxscores AS ab '\
+            'ON ab.game_id = ub.game_id '\
+                    'AND ab.player_id = ub.player_id '\
+            'LEFT JOIN misc_boxscores AS mb '\
+            'ON mb.game_id = ub.game_id '\
+                    'AND mb.player_id = ub.player_id '\
+            'LEFT JOIN synergy_pr_ball_handler_offense AS prho '\
+            'ON prho.player_id = ub.player_id '\
+            'AND prho.team_id = ub.team_id '\
+                    'AND prho.DATE = "2016-04-15" '\
+            'LEFT JOIN synergy_isolation_offense AS iso '\
+            'ON iso.player_id = ub.player_id '\
+            'AND iso.team_id = ub.team_id '\
+                    'AND iso.DATE = "2016-04-15" '\
+            'LEFT JOIN synergy_spot_up_offense AS spot '\
+            'ON spot.player_id = ub.player_id '\
+            'AND spot.team_id = ub.team_id '\
+                    'AND spot.DATE = "2016-04-15" '\
+            'LEFT JOIN synergy_off_screen_offense AS screen '\
+            'ON screen.player_id = ub.player_id '\
+            'AND screen.team_id = ub.team_id '\
+            'AND screen.DATE = "2016-04-15" '\
+            'LEFT JOIN sportvu_catch_shoot_game_logs AS cs '\
+            'ON cs.player_id = ub.player_id '\
+            'AND cs.game_id = ub.game_id '\
+            'LEFT JOIN sportvu_drives_game_logs AS dr '\
+            'ON dr.player_id = ub.player_id '\
+            'AND dr.game_id = ub.game_id '\
+            'LEFT JOIN sportvu_paint_touches_game_logs AS pt '\
+            'ON pt.player_id = ub.player_id '\
+            'AND pt.game_id = ub.game_id '\
+            'LEFT JOIN sportvu_passing_game_logs AS pass '\
+            'ON pass.player_id = ub.player_id '\
+            'AND pass.game_id = ub.game_id '\
+            'LEFT JOIN sportvu_possessions_game_logs AS poss '\
+            'ON poss.player_id = ub.player_id '\
+            'AND poss.game_id = ub.game_id '\
+            'LEFT JOIN sportvu_post_touches_game_logs AS pot '\
+            'ON pot.player_id = ub.player_id '\
+            'AND pot.game_id = ub.game_id '\
+            'LEFT JOIN sportvu_pull_up_shoot_game_logs AS pus '\
+            'ON pus.player_id = ub.player_id '\
+            'AND pus.game_id = ub.game_id '\
+            'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION '\
+            'FROM traditional_boxscores_team AS tbt) AS tb2 '\
+            'ON tb2.game_id = ub.game_id '\
+                    'AND tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION '\
+                    'AND Str_to_date(gs.game_date_est, "%(date_format_year)s") >= "2015-10-27" '\
+                    'AND Str_to_date(gs.game_date_est, "%(date_format_year)s") <= "2016-04-15" '\
+            'LEFT JOIN sportvu_drives_game_logs AS dgl '\
+            'ON dgl.game_id = ub.game_id '\
+            'AND dgl.player_id = ub.player_id '\
+            'WHERE tb2.TEAM_ABBREVIATION = "%(team)s" '\
+            'AND ub.MIN >= 15 '\
+            'AND ub.PLAYER_NAME in ("%(players)s") '\
+        'ORDER  BY DK_POINTS DESC' % {'team': team, 'players': players, 'date_format_year': DATE_FORMAT_YEAR}
+
+    return query
+
+# get_synergy_wrt_dk('DeMar DeRozan')
 # get_data_against_based_on_position()
 # /* shooting fouls  */
 # -- 1=personal foul, 2=shooting foul, 3=blocking foul
@@ -1169,9 +1467,9 @@ Can be used for visualization (not needed for now)
 '''
 # detailed shot selection
 # for team
-# get_shot_detailed_team()
+# print get_shot_detailed_team()
 # for players
-# shot_selection_type_detailed('DeMar DeRozan', 1, 1)
+# print shot_selection_type_detailed('DeMar DeRozan', 1, 1)
 
 # synergy
 # synergy_queries()
@@ -1180,18 +1478,21 @@ Can be used for visualization (not needed for now)
 # player_last_game('DeMar DeRozan', 1)
 # player_last_game('DeMar DeRozan', 3)
 # get_sportvu_game_logs('Jeremy Lin', 'player', 1, 1)
-# get_sportvu_game_logs('Jeremy Lin', 'player', 1, 3)
-# full_player_log('DeMar DeRozan', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 0)
+# print get_sportvu_game_logs('Jeremy Lin', 'player', 1, 3)
+# get_sportvu_game_logs('DeMar DeRozan', 'player', 1, 0)
+# write_to_csv(get_sportvu_game_logs('DeMar DeRozan', 'player', 1, 0), 'player_sportvu', 'DeMar DeRozan')
+
+# print full_player_log('Brandon Knight', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 0)
 # full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 3)
 # get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 1)
 # get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
 
 # team games
-team_last_game('TOR', 1)
-team_last_game('TOR', 3)
+# team_last_game('TOR', 1)
+# team_last_game('TOR', 3)
 
-player_pass_received('DeMar DeRozan', 1)
-player_pass_made('DeMar DeRozan', 1)
+# player_pass_received('DeMar DeRozan', 1)
+# player_pass_made('DeMar DeRozan', 1)
 
 
 # print player_shot_types_dribble('Jeremy Lin', DATE, 1)
@@ -1205,14 +1506,14 @@ player_direct_matchup('DeMar DeRozan', 'Luol Deng', FIRST_DATE_REG_SEASON, DATE)
 '''
 
 
-get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
+# get_synergy_player('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 3)
 
 # player games
-# print full_player_log('Jimmy Butler', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
+# print full_player_log('Jimmy Butler', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 0)
 # write_to_csv(full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0), 'box', 'Jeremy Lin')
 # full_player_log('Jeremy Lin', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0)
 
-get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+# print get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
 # print player_game_queries(LAST_DATE_REG_SEASON, DATE, 0, ['TOR', 'MIA'])
 # ''' sportvu - team and players '''
@@ -1225,6 +1526,7 @@ get_game_line('TOR', 0, FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
 # # individual players
 # regular_players = execute_query(sportvu_queries('player', 1, 1, 'DeMar DeRozan', LAST_DATE_REG_SEASON))
+# print sportvu_queries('player', 1, 1, 'DeMar DeRozan', LAST_DATE_REG_SEASON)
 # playoffs_players = execute_query(sportvu_queries('player', 0, 1, 'DeMar DeRozan', DATE))
 
 
