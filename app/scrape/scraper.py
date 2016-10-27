@@ -4,7 +4,6 @@ import csv
 import logging
 import json
 import numpy
-import requests
 from scipy import stats
 
 from bs4 import BeautifulSoup
@@ -133,18 +132,7 @@ LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.
 
 YEAR = '2017'
 
-def get_fantasy_lab_news():
 
-    # http://www.fantasylabs.com/api/players/news/2/
-
-    url = 'http://www.fantasylabs.com/api/players/news/2/'
-    response = requests.get(url)
-    data = response.json()
-
-    for news in data:
-        print news['PlayerName']
-        print news['PlayerStatus']
-        print news['News']
 
 
 def get_fantasy_news():
@@ -160,7 +148,6 @@ def get_fantasy_news():
         logger.debug('Scraping news for: '+ team)
         news_content = []
         url = urllib2.urlopen(NEWS_URL+'/'+team+'/'+team_link)
-        print NEWS_URL+'/'+team+'/'+team_link
 
         soup = BeautifulSoup(url, 'html5lib')
         news_holder = soup.find_all('div', attrs={'class':'RW_pn'})[1]
@@ -708,7 +695,6 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # get_depth_chart()
 get_fantasy_news()
-# get_fantasy_lab_news()
 # get_team_against_position()
 # get_team_stats()
 

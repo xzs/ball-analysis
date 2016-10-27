@@ -9,6 +9,11 @@ import operator
 import json
 import csv
 from datetime import date, timedelta
+import requests
+
+import warnings
+# explictly not show warnings
+warnings.filterwarnings("ignore")
 
 import urllib2
 from bs4 import BeautifulSoup
@@ -610,6 +615,30 @@ def process_playtime(playtime_seconds, record):
 
     return playtime_seconds
 
+TRANSLATE_DICT = {
+    'CHO':'CHA',
+    'BRK':'BKN'
+}
+
+def get_fantasy_lab_news():
+
+    # http://www.fantasylabs.com/api/players/news/2/
+    url = 'http://www.fantasylabs.com/api/players/news/2/'
+    response = requests.get(url)
+    data = response.json()
+    fantasy_labs_news = {}
+    for news in data:
+        # only get the latest news for player
+        if news['PlayerName'] not in fantasy_labs_news:
+            fantasy_labs_news[news['PlayerName']] = {
+                'news': news['News'],
+                'status': news['PlayerStatus'],
+                'team': news['Team'],
+                'title': news['Title'],
+            }
+
+    return fantasy_labs_news
+
 # for all players playing in tomorrow's game we are going to get how they played in the preseason
 with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
     data = json.load(data_file)
@@ -618,7 +647,10 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
     all_teams = []
     opponents = {}
+    fantasy_lab_news = get_fantasy_lab_news()
+
     for game in data[formatted_date]:
+
         all_teams.append(game['team'])
         all_teams.append(game['opp'])
 
@@ -628,6 +660,31 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     team_players = {}
     for (team, oppo) in opponents.iteritems():
         team_players[team] = []
+
+        player_news = {}
+        with open('../scrape/misc/news/'+team+'.json') as news_file:
+            news = json.load(news_file)
+            for player in news:
+
+                if player in player_news.iteritems():
+                    player_news[player['player']]['report'].append(player['report'])
+                    player_news[player['player']]['news'].append(player['impact'])
+                else:
+                    if player['player'] in fantasy_lab_news:
+                        report_list = [fantasy_lab_news[player['player']]['title'], player['report']]
+                        news_list = [fantasy_lab_news[player['player']]['news'], player['impact']]
+                    else:
+                        report_list = [player['report']]
+                        news_list = [player['impact']]
+
+                    player_news[player['player']] = {
+                        'report': report_list,
+                        'news': news_list
+                    }
+
+            # player_news[fantasy_lab_news[player['player']]]['title']
+
+        # pp.pprint(player_news)
         with open('../scrape/misc/depth_chart/'+team+'.json') as data_file:
             data = json.load(data_file)
             positions = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -638,6 +695,11 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
             players = '","'.join(team_players[team])
 
+            print '{team} vs {oppo}'.format(team=team, oppo=oppo)
+
+            if oppo in TRANSLATE_DICT:
+                oppo = TRANSLATE_DICT[oppo]
+
             player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(oppo, players))
 
             player_data = {}
@@ -645,7 +707,6 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 player_name = game['PLAYER_NAME']
                 if player_name in player_data:
                     for param in game:
-
                         if param == 'MIN':
                             game['MIN'] = process_playtime(0, game['MIN']) / 60
                         player_data[player_name][param].append(game[param])
@@ -657,32 +718,27 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                             game['MIN'] = process_playtime(0, game['MIN']) / 60
                         player_data[player_name][param].append(game[param])
 
+            # if they are not in player_data but have news
             for player, param in player_data.iteritems():
-                print player, len(param['DK_POINTS'])
-                print np.std(param['DK_POINTS']), np.max(param['DK_POINTS']), np.min(param['DK_POINTS'])
-                print np.std(param['FP_PER_MIN']), np.max(param['FP_PER_MIN']), np.min(param['FP_PER_MIN'])
-                print np.max(param['MIN']), np.min(param['MIN'])
+                print '{player_name}: {num_games} Games'.format(player_name=player, num_games=len(param['DK_POINTS']))
+                if player in player_news:
+                    for report in player_news[player]['report']:
+                        print report
+                    for news in player_news[player]['news']:
+                        print news
+                # print '\n'
+                print 'FP - Max: {max_dk}, Min: {min_dk}, Deviation: {dev}'.format(max_dk=np.max(param['DK_POINTS']), min_dk=np.min(param['DK_POINTS']), dev=np.std(param['DK_POINTS']))
+                print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(param['MIN']), min_min=np.min(param['MIN']))
+                print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}, Deviation: {dev_fpm}'.format(max_fpm=np.max(param['FP_PER_MIN']), min_fpm=np.min(param['FP_PER_MIN']), dev_fpm=np.std(param['FP_PER_MIN']))
+                print '\n'
 
-    # get max and min and also the variance 
-
-    # # print all_teams
-    # player_playing_tonight = []
-    # for team in all_teams:
-    #     with open('../scrape/misc/depth_chart/'+team+'.json') as data_file:
-    #         data = json.load(data_file)
-    #         positions = ['PG', 'SG', 'SF', 'PF', 'C']
-    #         for position in positions:
-    #             depth = data[position]
-    #             for player in depth:
-    #                 player_playing_tonight.append(player['player'])
-
-    #     with open('../scrape/misc/news/'+team+'.json') as news_file:
-    #         news = json.load(news_file)
-    #         for player in news:
-    #             print player['player']
-    #             print player['report']
-    #             print player['impact']
-
+            # if they are not in player_data but have news (ie Rookies)
+            for player in player_news:
+                if player not in player_data:
+                    for report in player_news[player]['report']:
+                        print report
+                    for news in player_news[player]['news']:
+                        print news
 
 
     # with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:

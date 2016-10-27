@@ -29,8 +29,8 @@ POSITIONS = ['G', 'F', 'G-F', 'C']
 TEAMS_DICT = {
     'ATL':'Atlanta Hawks',
     'BOS':'Boston Celtics',
-    'BRK':'Brooklyn Nets',
-    'CHO':'Charlotte Hornets',
+    'BKN':'Brooklyn Nets',
+    'CHA':'Charlotte Hornets',
     'CHI':'Chicago Bulls',
     'CLE':'Cleveland Cavaliers',
     'DAL':'Dallas Mavericks',
@@ -1435,7 +1435,8 @@ def get_player_against_team_log(team, players):
             'WHERE tb2.TEAM_ABBREVIATION = "%(team)s" '\
             'AND ub.MIN >= 15 '\
             'AND ub.PLAYER_NAME in ("%(players)s") '\
-        'ORDER  BY DK_POINTS DESC' % {'team': team, 'players': players, 'date_format_year': DATE_FORMAT_YEAR}
+            'AND ub.game_id NOT LIKE "%(season_id)s" '\
+        'ORDER  BY DK_POINTS DESC' % {'team': team, 'players': players, 'date_format_year': DATE_FORMAT_YEAR, 'season_id': '001%'}
 
     return query
 
