@@ -648,9 +648,23 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     all_teams = []
     opponents = {}
     fantasy_lab_news = get_fantasy_lab_news()
+    
+    dk_money_obj = {}
+    with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
+        try:
+            next(csv_file, None)
+            players = csv.reader(csv_file)
+            for player in players:
+                name = player[1]
+                dk_money_obj[name] = {
+                    'salary': player[2],
+                    'fp_needed': float(player[2])*0.001*5.5
+                }
+
+        except csv.Error as e:
+            sys.exit('file %s: %s' % (csv_file, e))
 
     for game in data[formatted_date]:
-
         all_teams.append(game['team'])
         all_teams.append(game['opp'])
 
@@ -682,9 +696,6 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                         'news': news_list
                     }
 
-            # player_news[fantasy_lab_news[player['player']]]['title']
-
-        # pp.pprint(player_news)
         with open('../scrape/misc/depth_chart/'+team+'.json') as data_file:
             data = json.load(data_file)
             positions = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -696,6 +707,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             players = '","'.join(team_players[team])
 
             print '{team} vs {oppo}'.format(team=team, oppo=oppo)
+            # I should put the team stats here for print like the PnR shooting. etc
 
             if oppo in TRANSLATE_DICT:
                 oppo = TRANSLATE_DICT[oppo]
@@ -718,15 +730,32 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                             game['MIN'] = process_playtime(0, game['MIN']) / 60
                         player_data[player_name][param].append(game[param])
 
+
             # if they are not in player_data but have news
             for player, param in player_data.iteritems():
-                print '{player_name}: {num_games} Games'.format(player_name=player, num_games=len(param['DK_POINTS']))
+
+
+                if player in dk_money_obj:
+                    player_salary = dk_money_obj[player]['salary']
+                    fp_needed = dk_money_obj[player]['fp_needed']
+                else:
+                    player_salary = ''
+                    fp_needed = ''
+
+                print '{player_name}: {salary}, POINTS NEEDED: {fp_needed}'.format(player_name=player, salary=player_salary, fp_needed=fp_needed)
                 if player in player_news:
                     for report in player_news[player]['report']:
                         print report
                     for news in player_news[player]['news']:
                         print news
-                # print '\n'
+
+
+                player_last_game = execute_query(sqlfetch.player_last_game(player, 1, False))
+                last_game = player_last_game[0]
+                print 'Last Game:'
+                print '{date}: vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(date=last_game['DATE'], team=last_game['TEAM_AGAINST'], min=last_game['MIN'], usg=last_game['USG_PCT'], dk=last_game['DK_POINTS'])
+                print 'Last Time Against: %s' % oppo
+                print '{num_games} Games'.format(num_games=len(param['DK_POINTS']))
                 print 'FP - Max: {max_dk}, Min: {min_dk}, Deviation: {dev}'.format(max_dk=np.max(param['DK_POINTS']), min_dk=np.min(param['DK_POINTS']), dev=np.std(param['DK_POINTS']))
                 print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(param['MIN']), min_min=np.min(param['MIN']))
                 print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}, Deviation: {dev_fpm}'.format(max_fpm=np.max(param['FP_PER_MIN']), min_fpm=np.min(param['FP_PER_MIN']), dev_fpm=np.std(param['FP_PER_MIN']))
@@ -739,32 +768,3 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                         print report
                     for news in player_news[player]['news']:
                         print news
-
-
-    # with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
-    #     try:
-    #         next(csv_file, None)
-    #         players = csv.reader(csv_file)
-    #         # for player in players:
-    #             # print player[2]
-
-        # except csv.Error as e:
-            # sys.exit('file %s: %s' % (csv_file, e))
-    # finalData['dkPlayers'] = {};
-    #     var dataLength = data.length;
-    #     for (var i=0; i<dataLength; i++) {
-    #         var dataItem = data[i];
-    #         // get the team name
-
-    #         var team = common.translateDkDict()[dataItem[5]];
-    #         var player = {
-    #             name: dataItem[1],
-    #             position: dataItem[0],
-    #             salary: dataItem[2],
-    #             appg: dataItem[4]
-    #         }
-    #         finalData['dkPlayers'][dataItem[1]] = player;
-    #     }
-    #     return finalData.dkPlayers;
-    # players_string = '","'.join(player_playing_tonight)
-    # print players_string

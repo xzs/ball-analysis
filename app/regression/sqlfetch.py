@@ -560,10 +560,18 @@ def team_against(team, date_1, date_2):
 
 
 # last n games for player
-def player_last_game(player, n):
+def player_last_game(player, n, is_playoff):
 
     player_query = default_player_box_query()
-    player_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(player)s" ORDER BY game_id DESC LIMIT %(games)s ) as tb3 '\
+    player_query += 'INNER JOIN (SELECT game_id FROM traditional_boxscores WHERE player_name = "%(player)s" ' % {'player': player}
+
+    # last game
+    if is_playoff == False:
+        player_query += 'AND game_id NOT LIKE "%(playoff)s" ' % {
+            'playoff': '004%'
+        }
+
+    player_query += 'ORDER BY game_id DESC LIMIT %(games)s ) as tb3 '\
                         'ON tb3.game_id = ub.game_id '\
                     'WHERE ub.PLAYER_NAME = "%(player)s"' % {'player': player, 'games': n}
 
@@ -1440,7 +1448,8 @@ def get_player_against_team_log(team, players):
 
     return query
 
-# get_synergy_wrt_dk('DeMar DeRozan')
+# print get_synergy_wrt_dk('DeMar DeRozan')
+# print get_team_synergy_ranks()
 # get_data_against_based_on_position()
 # /* shooting fouls  */
 # -- 1=personal foul, 2=shooting foul, 3=blocking foul
@@ -1476,7 +1485,7 @@ Can be used for visualization (not needed for now)
 # synergy_queries()
 
 # player games
-# player_last_game('DeMar DeRozan', 1)
+# print player_last_game('DeMar DeRozan', 1, False)
 # player_last_game('DeMar DeRozan', 3)
 # get_sportvu_game_logs('Jeremy Lin', 'player', 1, 1)
 # print get_sportvu_game_logs('Jeremy Lin', 'player', 1, 3)
