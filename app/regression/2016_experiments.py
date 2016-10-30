@@ -648,7 +648,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     all_teams = []
     opponents = {}
     fantasy_lab_news = get_fantasy_lab_news()
-    
+
     dk_money_obj = {}
     with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
         try:
@@ -658,6 +658,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 name = player[1]
                 dk_money_obj[name] = {
                     'salary': player[2],
+                    'fp_avg': player[4],
                     'fp_needed': float(player[2])*0.001*5.5
                 }
 
@@ -672,10 +673,15 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
         opponents[game['opp']] = game['team']
 
     team_players = {}
+    all_players = []
+    player_news = {}
+    players_string = ''
     for (team, oppo) in opponents.iteritems():
-        team_players[team] = []
+        team_players[team] = {
+            'oppo': oppo,
+            'players': []
+        }
 
-        player_news = {}
         with open('../scrape/misc/news/'+team+'.json') as news_file:
             news = json.load(news_file)
             for player in news:
@@ -702,69 +708,74 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             for position in positions:
                 depth = data[position]
                 for player in depth:
-                    team_players[team].append(player['player'])
+                    team_players[team]['players'].append(player['player'])
+                all_players.append(player['player'])
 
-            players = '","'.join(team_players[team])
+            players_string = '","'.join(team_players[team])
 
-            print '{team} vs {oppo}'.format(team=team, oppo=oppo)
-            # I should put the team stats here for print like the PnR shooting. etc
+    for team, team_players in team_players.iteritems():
+        oppo = team_players['oppo']
+        if oppo in TRANSLATE_DICT:
+            oppo = TRANSLATE_DICT[oppo]
+        print '{team} vs {oppo}'.format(team=team, oppo=oppo)
+        for player in team_players['players']:
+            if player in dk_money_obj:
+                player_salary = dk_money_obj[player]['salary']
+                fp_needed = dk_money_obj[player]['fp_needed']
+                fp_avg = dk_money_obj[player]['fp_avg']
+            else:
+                player_salary = ''
+                fp_needed = ''
+                fp_avg = ''
+            print '{player_name}: {salary}, AVG PTS: {fp_avg}, PTS NEEDED: {fp_needed}'.format(player_name=player, salary=player_salary, fp_avg=fp_avg, fp_needed=fp_needed)
+            if player in player_news:
+                for report in player_news[player]['report']:
+                    print report
+                for news in player_news[player]['news']:
+                    print news
 
-            if oppo in TRANSLATE_DICT:
-                oppo = TRANSLATE_DICT[oppo]
+            player_last_game = execute_query(sqlfetch.player_last_game(player, 1, False))
+            try:
+                last_game = player_last_game[0]
+                # we need a way to check whether or not they player in the previous game (instead of just getting the game date they played)
+                print 'Last Contest:'
+                print '{date}: vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(date=last_game['DATE'], team=last_game['TEAM_AGAINST'], min=last_game['MIN'], usg=last_game['USG_PCT'], dk=last_game['DK_POINTS'])
+            except IndexError:
+                print 'Out of range'
 
-            player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(oppo, players))
+
+            player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(oppo, player))
 
             player_data = {}
-            for game in player_against_team_logs:
-                player_name = game['PLAYER_NAME']
-                if player_name in player_data:
-                    for param in game:
-                        if param == 'MIN':
-                            game['MIN'] = process_playtime(0, game['MIN']) / 60
-                        player_data[player_name][param].append(game[param])
-                else:
-                    player_data[player_name] = {}
-                    for param in game:
-                        player_data[player_name][param] = []
-                        if param == 'MIN':
-                            game['MIN'] = process_playtime(0, game['MIN']) / 60
-                        player_data[player_name][param].append(game[param])
+            if len(player_against_team_logs) >= 1:
+                usg_list = []
+                dk_list = []
+                min_list = []
+                fp_min_list = []
+                for game in player_against_team_logs:
+                    usg_list.append(game['USG_PCT'])
+                    dk_list.append(game['DK_POINTS'])
+                    fp_min_list.append(game['FP_PER_MIN'])
 
+                    player_name = game['PLAYER_NAME']
+                    if player_name in player_data:
+                        for param in game:
+                            if param == 'MIN':
+                                game['MIN'] = process_playtime(0, game['MIN']) / 60
+                                min_list.append(game['MIN'])
 
-            # if they are not in player_data but have news
-            for player, param in player_data.iteritems():
+                    else:
+                        player_data[player_name] = {}
+                        for param in game:
+                            player_data[player_name][param] = []
+                            if param == 'MIN':
+                                game['MIN'] = process_playtime(0, game['MIN']) / 60
+                                min_list.append(game['MIN'])
 
-
-                if player in dk_money_obj:
-                    player_salary = dk_money_obj[player]['salary']
-                    fp_needed = dk_money_obj[player]['fp_needed']
-                else:
-                    player_salary = ''
-                    fp_needed = ''
-
-                print '{player_name}: {salary}, POINTS NEEDED: {fp_needed}'.format(player_name=player, salary=player_salary, fp_needed=fp_needed)
-                if player in player_news:
-                    for report in player_news[player]['report']:
-                        print report
-                    for news in player_news[player]['news']:
-                        print news
-
-
-                player_last_game = execute_query(sqlfetch.player_last_game(player, 1, False))
-                last_game = player_last_game[0]
-                print 'Last Game:'
-                print '{date}: vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(date=last_game['DATE'], team=last_game['TEAM_AGAINST'], min=last_game['MIN'], usg=last_game['USG_PCT'], dk=last_game['DK_POINTS'])
                 print 'Last Time Against: %s' % oppo
-                print '{num_games} Games'.format(num_games=len(param['DK_POINTS']))
-                print 'FP - Max: {max_dk}, Min: {min_dk}, Deviation: {dev}'.format(max_dk=np.max(param['DK_POINTS']), min_dk=np.min(param['DK_POINTS']), dev=np.std(param['DK_POINTS']))
-                print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(param['MIN']), min_min=np.min(param['MIN']))
-                print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}, Deviation: {dev_fpm}'.format(max_fpm=np.max(param['FP_PER_MIN']), min_fpm=np.min(param['FP_PER_MIN']), dev_fpm=np.std(param['FP_PER_MIN']))
+                print '{num_games} Games'.format(num_games=len(player_against_team_logs))
+                print 'USG - Max: {max_usg}, Min: {min_usg}, Deviation: {dev}'.format(max_usg=np.max(usg_list), min_usg=np.min(usg_list), dev=np.std(usg_list))
+                print 'FP - Max: {max_dk}, Min: {min_dk}, Deviation: {dev}'.format(max_dk=np.max(dk_list), min_dk=np.min(dk_list), dev=np.std(dk_list))
+                print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(min_list), min_min=np.min(min_list))
+                print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}, Deviation: {dev_fpm}'.format(max_fpm=np.max(fp_min_list), min_fpm=np.min(fp_min_list), dev_fpm=np.std(fp_min_list))
                 print '\n'
-
-            # if they are not in player_data but have news (ie Rookies)
-            for player in player_news:
-                if player not in player_data:
-                    for report in player_news[player]['report']:
-                        print report
-                    for news in player_news[player]['news']:
-                        print news
