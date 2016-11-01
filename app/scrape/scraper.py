@@ -464,7 +464,7 @@ def get_team_schedule(teams_dict):
 
 
 def get_team_against_position():
-    pos_list = ['PG', 'SG', 'SF', 'PF', 'C']
+    pos_list = ['PG', 'SG', 'G', 'SF', 'PF', 'F', 'C']
     site = 'DraftKings'
     matchup_data = {}
     matchup_data['league'] = {}

@@ -1150,7 +1150,7 @@ def get_synergy_wrt_dk(name):
     write_to_csv(query_two, 'player_synergy', name+'2')
 
 
-def get_team_synergy_ranks():
+def get_team_synergy_ranks(date):
     query = 'SELECT ostd.TeamNameAbbreviation as TEAM_NAME, ostd.BetterPPP+1 as OFFSCREEN_RANK, '\
         'ctd.BetterPPP+1 as CUT_RANK, '\
         'htd.BetterPPP+1 as HAND_RANK, '\
@@ -1173,7 +1173,7 @@ def get_team_synergy_ranks():
             'LEFT JOIN synergy_put_back_team_defense as pbtd ON ostd.TeamNameAbbreviation = pbtd.TeamNameAbbreviation AND ostd.DATE = pbtd.DATE '\
             'LEFT JOIN synergy_spot_up_team_defense as std ON ostd.TeamNameAbbreviation = std.TeamNameAbbreviation AND ostd.DATE = std.DATE '\
             'LEFT JOIN synergy_transition_team_defense as ttd ON ostd.TeamNameAbbreviation = ttd.TeamNameAbbreviation AND ostd.DATE = ttd.DATE '\
-        'WHERE ostd.DATE = "%(date)s" '% {'date': LAST_DATE_REG_SEASON}
+        'WHERE ostd.DATE = "%(date)s" '% {'date': date}
     return query
 
 def get_starter_defensive_stats(players):
@@ -1448,6 +1448,45 @@ def get_player_against_team_log(team, players):
 
     return query
 
+def get_team_possessions_per_game(date):
+    query = 'SELECT `TEAM_ABBREVIATION`, ROUND(TIME_OF_POSS/GP, 2) AS AVG_TIME_POSS, (48*60)/ROUND(TIME_OF_POSS/GP, 2) AS AVG_NUM_POSS, '\
+            'CASE '\
+            'WHEN @prev_value = ROUND(TIME_OF_POSS/GP, 2) THEN @rank_count '\
+            'WHEN @prev_value := ROUND(TIME_OF_POSS/GP, 2) THEN @rank_count := @rank_count + 1  '\
+            'END AS POSSG_RANK  '\
+            'FROM sportvu_possessions_team, (SELECT @prev_value:=NULL, @rank_count:=0) AS V '\
+            'WHERE date = "%(date)s" ORDER BY AVG_TIME_POSS ASC ' % {'date': date}
+
+    return query
+
+def get_team_fouls(date):
+    query = 'SELECT gl.`TEAM_ABBREVIATION` as TEAM, ROUND(avg(tb.PF), 2) as AVG_FOULS '\
+            'FROM `sportvu_defense_team_game_logs` as gl '\
+            'LEFT JOIN traditional_boxscores_team as tb '\
+                'ON tb.game_id = gl.game_id '\
+                'AND tb.team_id = gl.team_id '\
+            'WHERE gl.date >= "%(date)s" GROUP BY TEAM ORDER BY AVG_FOULS DESC ' % {'date': date}
+    return query
+
+def get_player_pfd(date, player):
+    query = 'SELECT mb.PLAYER_NAME, ROUND(avg(mb.PFD), 2) as AVG_PFD '\
+            'FROM misc_boxscores as mb '\
+            'LEFT JOIN game_summary as gs '\
+                'ON mb.game_id = gs.game_id '\
+            'WHERE gs.GAME_DATE_EST >= "%(date)s" AND mb.PLAYER_NAME = "%(player)s" ' % {'date': date, 'player': player}
+
+    return query
+
+def get_player_pf(date, player):
+    query = 'SELECT tb.PLAYER_NAME, ROUND(avg(tb.PF), 2) as AVG_PF '\
+            'FROM traditional_boxscores as tb '\
+            'LEFT JOIN game_summary as gs '\
+                'ON tb.game_id = gs.game_id '\
+            'WHERE gs.GAME_DATE_EST >= "%(date)s" AND tb.PLAYER_NAME = "%(player)s" ' % {'date': date, 'player': player}
+
+    return query
+
+# def get_
 # print get_synergy_wrt_dk('DeMar DeRozan')
 # print get_team_synergy_ranks()
 # get_data_against_based_on_position()

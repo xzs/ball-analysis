@@ -5,6 +5,7 @@ import glob
 import pandas as pd
 import numpy as np
 import sqlfetch
+import nba_scrape_linear_regression
 import operator
 import json
 import csv
@@ -28,15 +29,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 YEAR = '2017'
-LAST_DATE_REG_SEASON = '2016-04-15'
-FIRST_DATE_REG_SEASON = '2015-10-27'
 conv = MySQLdb.converters.conversions.copy()
 conv[246] = float    # convert decimals to floats
 conv[10] = str       # convert dates to strings
 
 DATE_FORMAT_YEAR = str("%Y-%m-%d")
-LAST_DATE_REG_SEASON = '2016-04-15'
-FIRST_DATE_REG_SEASON = '2015-10-27'
+LAST_DATE_REG_SEASON = '2017-04-12'
+FIRST_DATE_REG_SEASON = '2016-10-25'
 
 FIRST_DATE_PRE_SEASON = '2016-10-01'
 LAST_DATE_PRE_SEASON = '2016-10-15'
@@ -73,6 +72,7 @@ def starting_line_query(players, date_1, date_2):
     'ORDER BY USAGE_PCT DESC' % {'date_format_year': DATE_FORMAT_YEAR, 'players': players, 'date_begin': date_1, 'date_end': date_2,}
 
     return query
+
 def execute_query(sql_query):
     query_result = None
 
@@ -92,6 +92,29 @@ def execute_query(sql_query):
         print "Error: unable to fetch data"
 
     return query_result
+
+def write_to_csv(sql_query, source, name):
+
+    try:
+        db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
+
+        # prepare a cursor object using cursor() method
+        cursor = db.cursor()
+        # Execute the SQL command
+        cursor.execute(sql_query)
+        header = []
+        for column in cursor.description:
+            header.append(column[0])
+        rows = cursor.fetchall()
+
+        with open('nba_scrape/'+ source +'/'+ name +'.csv', 'wb') as f:
+            myFile = csv.writer(f)
+            # write to the header
+            myFile.writerow(header)
+            myFile.writerows(rows)
+
+    except:
+        print "Error: unable to fetch data"
 
 def get_player_college():
     url = urllib2.urlopen('http://www.basketball-reference.com/players/k/knighbr03/gamelog/2016')
@@ -617,7 +640,8 @@ def process_playtime(playtime_seconds, record):
 
 TRANSLATE_DICT = {
     'CHO':'CHA',
-    'BRK':'BKN'
+    'BRK':'BKN',
+    'PHO':'PHX',
 }
 
 def get_fantasy_lab_news():
@@ -676,6 +700,10 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     all_players = []
     player_news = {}
     players_string = ''
+
+    team_synergy_ranks = execute_query(sqlfetch.get_team_synergy_ranks(today_date))
+    team_possessions_ranks = execute_query(sqlfetch.get_team_possessions_per_game(today_date))
+    team_foul_ranks = execute_query(sqlfetch.get_team_fouls(FIRST_DATE_REG_SEASON))
     for (team, oppo) in opponents.iteritems():
         team_players[team] = {
             'oppo': oppo,
@@ -717,8 +745,43 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
         oppo = team_players['oppo']
         if oppo in TRANSLATE_DICT:
             oppo = TRANSLATE_DICT[oppo]
-        print '{team} vs {oppo}'.format(team=team, oppo=oppo)
+
+        if team in TRANSLATE_DICT:
+            team = TRANSLATE_DICT[team]
+
+        team_possession_rank = (item for item in team_possessions_ranks if item["TEAM_ABBREVIATION"] == team).next()
+        oppo_possession_rank = (item for item in team_possessions_ranks if item["TEAM_ABBREVIATION"] == oppo).next()
+        oppo_foul_rank = (item for item in team_foul_ranks if item["TEAM"] == oppo).next()
+        print '{team}: {team_poss} ({team_poss_rank}) vs {oppo}: {oppo_poss} ({oppo_poss_rank})'.format(team=team, oppo=oppo, team_poss=team_possession_rank['AVG_NUM_POSS'], team_poss_rank=team_possession_rank['POSSG_RANK'], oppo_poss=oppo_possession_rank['AVG_NUM_POSS'],oppo_poss_rank=oppo_possession_rank['POSSG_RANK'])
+        print 'Fouls: {fouls} ({fouls_rank})'.format(fouls=oppo_foul_rank['AVG_FOULS'], fouls_rank=team_foul_ranks.index(oppo_foul_rank))
+        oppo_synergy_rank = (item for item in team_synergy_ranks if item["TEAM_NAME"] == oppo).next()
+
+        print 'Synergy Ranks: '+oppo
+        print 'PnR Handler: {roll_rank}, PnR Roller: {handler_rank}, SpotUp Shots: {spotup_rank}, ISO: {iso_rank}'.format(roll_rank=oppo_synergy_rank['PR_ROLL_RANK'], handler_rank=oppo_synergy_rank['PR_HANDLER_RANK'], spotup_rank=oppo_synergy_rank['SPOTUP_RANK'], iso_rank=oppo_synergy_rank['ISO_RANK'])
+
+        print '{oppo} DvP:'.format(oppo=oppo)
+
+        if oppo == 'BKN':
+            oppo = 'BRK'
+        elif oppo == 'PHX':
+            oppo = 'PHO'
+        with open('../scrape/misc/fantasy_stats/'+oppo+'.json') as data_file:
+            data = json.load(data_file)
+            positions = ['G', 'F', 'C']
+            for position in positions:
+                fp_against = data[position]
+
+                print '{position}: {season} ({rank})'.format(position=position, season=fp_against['Season'], rank=fp_against['rank'])
+
+        if oppo == 'BRK':
+            oppo = 'BKN'
+        elif oppo == 'PHO':
+            oppo = 'PHX'
+
+        print '\n'
+
         for player in team_players['players']:
+
             if player in dk_money_obj:
                 player_salary = dk_money_obj[player]['salary']
                 fp_needed = dk_money_obj[player]['fp_needed']
@@ -728,11 +791,31 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 fp_needed = ''
                 fp_avg = ''
             print '{player_name}: {salary}, AVG PTS: {fp_avg}, PTS NEEDED: {fp_needed}'.format(player_name=player, salary=player_salary, fp_avg=fp_avg, fp_needed=fp_needed)
+
+            # name things
+            split_name = player.split('.')
+            if len(split_name) > 1:
+                player = "".join(split_name)
+
             if player in player_news:
                 for report in player_news[player]['report']:
                     print report
                 for news in player_news[player]['news']:
                     print news
+
+            # write to player log
+            write_to_csv(sqlfetch.full_player_log(player, '2015-10-27', today_date, 0, 0), 'player_logs', player)
+
+            # calc simple regression
+            simple_lr_data = nba_scrape_linear_regression.get_simple_player_log_regression(player)
+
+            print simple_lr_data
+
+            player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, player))
+            print 'PFD: ',player_pfd[0]['AVG_PFD']
+
+            player_pf = execute_query(sqlfetch.get_player_pf(FIRST_DATE_REG_SEASON, player))
+            print 'PF: ',player_pf[0]['AVG_PF']
 
             player_last_game = execute_query(sqlfetch.player_last_game(player, 1, False))
             try:
@@ -742,7 +825,6 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 print '{date}: vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(date=last_game['DATE'], team=last_game['TEAM_AGAINST'], min=last_game['MIN'], usg=last_game['USG_PCT'], dk=last_game['DK_POINTS'])
             except IndexError:
                 print 'Out of range'
-
 
             player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(oppo, player))
 
@@ -772,10 +854,9 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                                 game['MIN'] = process_playtime(0, game['MIN']) / 60
                                 min_list.append(game['MIN'])
 
-                print 'Last Time Against: %s' % oppo
-                print '{num_games} Games'.format(num_games=len(player_against_team_logs))
-                print 'USG - Max: {max_usg}, Min: {min_usg}, Deviation: {dev}'.format(max_usg=np.max(usg_list), min_usg=np.min(usg_list), dev=np.std(usg_list))
-                print 'FP - Max: {max_dk}, Min: {min_dk}, Deviation: {dev}'.format(max_dk=np.max(dk_list), min_dk=np.min(dk_list), dev=np.std(dk_list))
+                print 'Last Time Against: {oppo}, {num_games} Games'.format(oppo=oppo, num_games=len(player_against_team_logs))
+                print 'USG - Max: {max_usg}, Min: {min_usg}'.format(max_usg=np.max(usg_list), min_usg=np.min(usg_list))
+                print 'FP - Max: {max_dk}, Min: {min_dk}'.format(max_dk=np.max(dk_list), min_dk=np.min(dk_list))
                 print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(min_list), min_min=np.min(min_list))
-                print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}, Deviation: {dev_fpm}'.format(max_fpm=np.max(fp_min_list), min_fpm=np.min(fp_min_list), dev_fpm=np.std(fp_min_list))
-                print '\n'
+                print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}'.format(max_fpm=np.max(fp_min_list), min_fpm=np.min(fp_min_list))
+            print '\n'
