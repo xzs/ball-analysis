@@ -122,7 +122,6 @@ TEAMS_DICT = {
 }
 BASE_URL = 'http://www.basketball-reference.com'
 DEPTH_URL = 'http://www.rotoworld.com/teams/clubhouse/nba/'
-MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
 # order by minutes played
 LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.cgi?'\
             'request=1&player_id=&match=single&lineup_type=5-man&output=total&year_id=2017&is_playoffs=N&'\
@@ -168,37 +167,6 @@ def get_fantasy_news():
             logger.info('Writing news to json file: '+ team)
             json.dump(news_content, outfile)
 
-
-def get_vegas_lines(date):
-    url = urllib2.urlopen('http://www.covers.com/Sports/NBA/Matchups?selectedDate='+date)
-    soup = BeautifulSoup(url, 'html5lib')
-
-    game_list = soup.find_all('div', attrs={'class': 'cmg_matchups_list'})[0]
-    game_matchup = game_list.find_all('div', attrs={'class': 'cmg_matchup_game'})
-
-    vegas_lines = {}
-    for game in game_matchup:
-        # print game
-        open_odds = game.find('div', attrs={'class': 'cmg_team_opening_odds'})
-        odds_line = open_odds.find_all('span')
-        over_under = odds_line[1].text
-        advantage_team = odds_line[2].text
-        matchup = game.find_all('div', attrs={'class': 'cmg_team_name'})
-
-        for team in matchup:
-            teams = team.find_all(text=True, recursive=False)
-            for team in teams:
-                team_name = team.strip()
-                if team_name != '':
-                    if team_name in TRANSLATE_DICT:
-                        team_name = TRANSLATE_DICT[team_name]
-                    vegas_lines[team_name] = {
-                        'over_under': over_under,
-                        'advantage_team': advantage_team
-                    }
-    return vegas_lines
-
-get_vegas_lines('2016-11-03')
 
 def get_depth_chart():
 
@@ -721,7 +689,7 @@ pp = pprint.PrettyPrinter(indent=4)
 # get_player_log(PLAYERS_DICT)
 
 # get_depth_chart()
-get_fantasy_news()
+# get_fantasy_news()
 # get_team_against_position()
 # get_team_stats()
 

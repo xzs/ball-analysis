@@ -12,7 +12,6 @@ import json
 import csv
 from datetime import date, timedelta
 
-
 import warnings
 # explictly not show warnings
 warnings.filterwarnings("ignore")
@@ -623,8 +622,6 @@ def lineups_from_pbp():
         # i need to also count by most actions
         # pp.pprint(by_lineup_pct)
 
-
-
 # lineups_from_pbp()
 
 # CJ McCollum
@@ -654,7 +651,8 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     all_teams = []
     opponents = {}
     fantasy_lab_news = news_scraper.get_fantasy_lab_news()
-    vegas_lines = news_scraper.get_vegas_lines(today_date)
+    vegas_lines = news_scraper.get_vegas_lines(str(today_date))
+    # print vegas_lines
     dk_money_obj = {}
     with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
         try:
@@ -686,6 +684,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     team_synergy_ranks = execute_query(sqlfetch.get_team_synergy_ranks(today_date))
     team_possessions_ranks = execute_query(sqlfetch.get_team_possessions_per_game(today_date))
     team_foul_ranks = execute_query(sqlfetch.get_team_fouls(FIRST_DATE_REG_SEASON))
+    player_daily_status = news_scraper.player_daily_status()
     for (team, oppo) in opponents.iteritems():
         team_players[team] = {
             'oppo': oppo,
@@ -746,8 +745,16 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 oppo_poss=oppo_possession_rank['AVG_NUM_POSS'], \
                 oppo_poss_rank=oppo_possession_rank['POSSG_RANK'])
 
-        print vegas_lines[team]
-        print vegas_lines[oppo]
+        if team == 'BKN':
+            vegas_team = 'BK'
+        elif team == 'PHX':
+            vegas_team = 'PHO'
+        elif team == 'CHA':
+            vegas_team = 'CHO'
+        else:
+            vegas_team = team
+
+        print 'Spread: ' + vegas_lines[vegas_team]['advantage_team'], vegas_lines[vegas_team]['over_under']
 
         print '{oppo} Fouls: {fouls} ({fouls_rank})'.format(
                 oppo=oppo, fouls=oppo_foul_rank['AVG_FOULS'], \
@@ -768,6 +775,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             oppo = 'PHO'
         elif oppo == 'CHA':
             oppo = 'CHO'
+
         with open('../scrape/misc/fantasy_stats/'+oppo+'.json') as data_file:
             data = json.load(data_file)
             positions = ['G', 'F', 'C']
@@ -794,7 +802,11 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 fp_needed = dk_money_obj[player]['fp_needed']
                 fp_avg = dk_money_obj[player]['fp_avg']
 
-                print '{player_name}: {salary}, AVG PTS: {fp_avg}, PTS NEEDED: {fp_needed}'.format(player_name=player, salary=player_salary, fp_avg=fp_avg, fp_needed=fp_needed)
+                if player in player_daily_status:
+                    print 'Status: ' + player_daily_status[player]
+
+                print '{player_name}: {salary}, AVG PTS: {fp_avg}, PTS NEEDED: {fp_needed}'.format(
+                        player_name=player, salary=player_salary, fp_avg=fp_avg, fp_needed=fp_needed)
 
                 # name things
                 split_name = player.split('.')
@@ -803,17 +815,17 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
                 if player in player_news:
                     for report in player_news[player]['report']:
-                        print report
+                        print report.strip()
                     for news in player_news[player]['news']:
-                        print news
+                        print news.strip()
 
-                # write to player log
-                write_to_csv(sqlfetch.full_player_log(player, '2015-10-27', today_date, 0, 0), 'player_logs', player)
+                # # write to player log
+                # write_to_csv(sqlfetch.full_player_log(player, '2015-10-27', today_date, 0, 0), 'player_logs', player)
 
-                # calc simple regression
-                simple_lr_data = nba_scrape_linear_regression.get_simple_player_log_regression(player)
+                # # calc simple regression
+                # simple_lr_data = nba_scrape_linear_regression.get_simple_player_log_regression(player)
 
-                print simple_lr_data
+                # print simple_lr_data
 
                 player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, player))
                 print 'PFD: ',player_pfd[0]['AVG_PFD']
