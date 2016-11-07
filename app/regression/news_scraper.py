@@ -122,6 +122,9 @@ REVERSE_TEAMS_DICT = {
 NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
 MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
 
+def two_decimals(num):
+    return float('{0:.2f}'.format(num))
+
 def get_fantasy_news():
 
     for team, name in NEWS_DICT.iteritems():
@@ -330,6 +333,15 @@ def construct_api_url(team, on_players, off_players, start_date, end_date):
         {
             'name': 'reb',
             'link': 'reb/q/'
+        },
+        {
+            # free throw trips
+            'name': 'fta',
+            'link': 'fta/q/'
+        },
+        {
+            'name': 'ast',
+            'link': 'ast/q/'
         }
     ]
 
@@ -388,7 +400,7 @@ def player_on_off(team, on_players, off_players, start_date, end_date):
 
                 player_obj['players'][player_name] = {
                     'poss': player['poss'],
-                    'time': player['time'] / 60
+                    'min': player['time'] / 60
                 }
 
         if stat['stat'] == 'lineups':
@@ -396,13 +408,121 @@ def player_on_off(team, on_players, off_players, start_date, end_date):
                 player_obj['lineups'].append({
                     'lineup': lineup['_id']['name'],
                     'poss': lineup['poss'],
-                    'time': lineup['time'] / 60
+                    'min': lineup['time'] / 60
                 })
 
-        if stat['stat'] == 'tov' or stat['stat'] == 'fga' or stat['stat'] == 'reb':
+        if stat['stat'] == 'tov' \
+            or stat['stat'] == 'reb' \
+            or stat['stat'] == 'ast':
             process_stat_api(player_obj, data, stat['stat'])
 
+        if stat['stat'] == 'fga':
+            temp_obj = {}
+            for player in data:
+                player_info = player['_id']
+                player_name = player_info['name']
+                if player_name not in temp_obj:
+                    temp_obj[player_name] = {
+                        'fg2m': 0,
+                        'fg2x': 0,
+                        'fg3m': 0,
+                        'fg3x': 0
+                    }
+
+                if player_info['made'] == True and player_info['value'] == 2:
+                    temp_obj[player_name]['fg2m'] += player['count']
+                elif player_info['made'] == True and player_info['value'] == 3:
+                    temp_obj[player_name]['fg3m'] += player['count']
+                elif player_info['made'] == False and player_info['value'] == 2:
+                    temp_obj[player_name]['fg2x'] += player['count']
+                elif player_info['made'] == False and player_info['value'] == 3:
+                    temp_obj[player_name]['fg3x'] += player['count']
+
+
+            for (player, stat_name) in player_obj['players'].iteritems():
+                if player in temp_obj:
+                    player_obj['players'][player][stat['stat']] = temp_obj[player]
+                else:
+                    player_obj['players'][player][stat['stat']] = {
+                        'fg2m': 0,
+                        'fg2x': 0,
+                        'fg3m': 0,
+                        'fg3x': 0
+                    }
+
+        if stat['stat'] == 'fta':
+            temp_obj = {}
+            for player in data:
+                player_info = player['_id']
+                player_name = player_info['name']
+
+                if player_name not in temp_obj:
+                    temp_obj[player_name] = {
+                        'fta2m': 0,
+                        'fta2x': 0,
+                        'fta3m': 0,
+                        'fta3x': 0
+                    }
+
+                if player_info['made'] == True and player_info['out_of'] == 2:
+                    temp_obj[player_name]['fta2m'] += player['count']
+                elif player_info['made'] == True and player_info['out_of'] == 3:
+                    temp_obj[player_name]['fta3m'] += player['count']
+                elif player_info['made'] == False and player_info['out_of'] == 2:
+                    temp_obj[player_name]['fta2x'] += player['count']
+                elif player_info['made'] == False and player_info['out_of'] == 3:
+                    temp_obj[player_name]['fta3x'] += player['count']
+
+
+            for (player, stat_name) in player_obj['players'].iteritems():
+                if player in temp_obj:
+                    player_obj['players'][player][stat['stat']] = temp_obj[player]
+                else:
+                    player_obj['players'][player][stat['stat']] = {
+                        'fta2m': 0,
+                        'fta2x': 0,
+                        'fta3m': 0,
+                        'fta3x': 0
+                    }
+
+
+    for (player, stats) in player_obj['players'].iteritems():
+        # definitions from nbawowy
+        fta_made = stats['fta']['fta2m'] + stats['fta']['fta3m']
+        fta_missed = stats['fta']['fta2x'] + stats['fta']['fta3x']
+        fga_made = stats['fga']['fg2m'] + stats['fga']['fg3m']
+        fga_missed = stats['fga']['fg2x'] + stats['fga']['fg3x']
+
+        fga = fga_made + fga_missed
+        fta = fta_made + fta_missed
+
+        fta_2 = stats['fta']['fta2m'] + stats['fta']['fta2x']
+        fta_3 = stats['fta']['fta3m'] + stats['fta']['fta3x']
+
+        usg = ((fga + (0.44 * fta) + stats['tov']) / stats['poss'] * 100)
+        plays = fga + (0.5 * fta) + stats['tov'] + stats['ast']
+        pace = 48 * stats['poss'] / stats['min']
+        tsa = fga + 0.5 * (fta_2) + (1/3) * (fta_3)
+
+        ppp = (2* stats['fga']['fg2m'] + 3 * stats['fga']['fg3m'] + fta_made) \
+            / (stats['fga']['fg2m'] + 0.7 * fga_missed \
+            + stats['fga']['fg3m'] + stats['tov'] + 0.44 * fta)
+        scoring_index = (1 + ((-0.9 + 0.89 * ((fga_made + 0.73 * (fga_missed) \
+            + 0.5 * fta_2 + (1/3) * fta_3 + stats['tov']) \
+            / stats['poss']) + 0.5 * (2 * stats['fga']['fg2m'] \
+            + 3 * stats['fga']['fg3m'] + fta_made)\
+            / (fga + 0.5 * fta_2 + (1/3)* fta_3)) / 1.33) / 0.136)
+
+        stats['complied_stats'] = {
+            'usg': two_decimals(usg),
+            'plays': two_decimals(plays),
+            'pace': two_decimals(pace),
+            'tsa': two_decimals(tsa),
+            'ppp': two_decimals(ppp),
+            'scoring_index': two_decimals(scoring_index)
+        }
     print player_obj
+    return player_obj
 
 def process_stat_api(player_obj, data, stat):
     temp_obj = {}
@@ -418,16 +538,16 @@ def process_stat_api(player_obj, data, stat):
         else:
             temp_obj[player_name] = player[count]
 
-    for (player, fga) in temp_obj.iteritems():
-        if player in player_obj['players']:
-            player_obj['players'][player][stat] = fga
+    for (player, stat_name) in player_obj['players'].iteritems():
+        if player in temp_obj:
+            player_obj['players'][player][stat] = temp_obj[player]
         else:
             player_obj['players'][player][stat] = 0
 
     return player_obj
 
 
-player_on_off('Cavaliers', ['Iman Shumpert', 'LeBron James'], [], '2015-10-01', '2016-11-03')
+player_on_off('Cavaliers', ['Iman Shumpert', 'LeBron James'], [], '2016-10-01', '2016-11-04')
 
 # player_on_off('Nuggets', ['Jameer Nelson'], False, '2015-10-01', '2016-11-03')
 # get_fantasy_news()
