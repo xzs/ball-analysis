@@ -125,6 +125,7 @@ MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
 def two_decimals(num):
     return float('{0:.2f}'.format(num))
 
+
 def get_fantasy_news():
 
     for team, name in NEWS_DICT.iteritems():
@@ -289,29 +290,44 @@ def player_daily_status():
     url = urllib2.urlopen('https://basketballmonster.com/playernews.aspx')
     soup = BeautifulSoup(url, 'html5lib')
 
-    today_news = soup.find('div', attrs={'class': 'daily-status-updates'})
+    today_news = soup.find_all('div', attrs={'class': 'daily-status-updates'})
+    player_status = today_news[0].find_all('div', attrs={'class': 'daily-status-player'})
+    projected_returns = today_news[1].find_all('div', attrs={'class': 'daily-status-player'})
 
-    player_status = today_news.find_all('div', attrs={'class': 'daily-status-player'})
-    daily_status_player = {}
+    daily_status_player = {
+        'today': {},
+        'all': {},
+    }
     for player in player_status:
         player_status = player.find_all('a')
         try:
             status = player_status[0].text.split('-')[0].strip()
             player_name = player_status[1].text
-            daily_status_player[player_name] = status
+            daily_status_player['today'][player_name] = status
         except IndexError:
             LOGGER.debug('No news')
+
+    for player in projected_returns:
+        player_status = player.find_all('a')
+        try:
+            player_name = player_status[0].text
+            daily_status_player['all'][player_name] = 'Out'
+        except IndexError:
+            LOGGER.debug('No news')
+
     return daily_status_player
 
-
-def construct_api_url(team, on_players, off_players, start_date, end_date):
+def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date):
     base_url = 'http://nbawowy-52108.onmodulus.net/api/'
 
-    vs_teams = '[76ers,Bobcats,Bucks,Bulls,Cavaliers,Celtics,Clippers,'\
-                'Grizzlies,Hawks,Heat,Hornets,Jazz,Kings,Knicks,Lakers,'\
-                'Magic,Mavericks,Nets,Nuggets,Pacers,Pelicans,Pistons,'\
-                'Raptors,Rockets,Spurs,Suns,Thunder,Timberwolves,'\
-                'Trail Blazers,Warriors,Wizards]'
+    if vs_teams == 'all':
+        vs_teams = '[76ers,Bobcats,Bucks,Bulls,Cavaliers,Celtics,Clippers,'\
+                    'Grizzlies,Hawks,Heat,Hornets,Jazz,Kings,Knicks,Lakers,'\
+                    'Magic,Mavericks,Nets,Nuggets,Pacers,Pelicans,Pistons,'\
+                    'Raptors,Rockets,Spurs,Suns,Thunder,Timberwolves,'\
+                    'Trail Blazers,Warriors,Wizards]'
+    else:
+        vs_teams = '[%s]' % ','.join(map(str, vs_teams))
 
     link_list = [
         {
@@ -380,10 +396,9 @@ def construct_api_url(team, on_players, off_players, start_date, end_date):
 
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/47.0.2526.73 Chrome/47.0.2526.73 Safari/537.36"
 
-def player_on_off(team, on_players, off_players, start_date, end_date):
+def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date):
 
-    url_list = construct_api_url(team, on_players, off_players, start_date, end_date)
-
+    url_list = construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date)
     player_obj = {
         'players': {},
         'lineups': [],
@@ -499,19 +514,33 @@ def player_on_off(team, on_players, off_players, start_date, end_date):
         fta_2 = stats['fta']['fta2m'] + stats['fta']['fta2x']
         fta_3 = stats['fta']['fta3m'] + stats['fta']['fta3x']
 
-        usg = ((fga + (0.44 * fta) + stats['tov']) / stats['poss'] * 100)
+        try:
+            usg = ((fga + (0.44 * fta) + stats['tov']) / stats['poss'] * 100)
+        except ZeroDivisionError:
+            usg = 0
+        try:
+            pace = 48 * stats['poss'] / stats['min']
+        except ZeroDivisionError:
+            pace = 0
+
         plays = fga + (0.5 * fta) + stats['tov'] + stats['ast']
-        pace = 48 * stats['poss'] / stats['min']
         tsa = fga + 0.5 * (fta_2) + (1/3) * (fta_3)
 
-        ppp = (2* stats['fga']['fg2m'] + 3 * stats['fga']['fg3m'] + fta_made) \
-            / (stats['fga']['fg2m'] + 0.7 * fga_missed \
-            + stats['fga']['fg3m'] + stats['tov'] + 0.44 * fta)
-        scoring_index = (1 + ((-0.9 + 0.89 * ((fga_made + 0.73 * (fga_missed) \
-            + 0.5 * fta_2 + (1/3) * fta_3 + stats['tov']) \
-            / stats['poss']) + 0.5 * (2 * stats['fga']['fg2m'] \
-            + 3 * stats['fga']['fg3m'] + fta_made)\
-            / (fga + 0.5 * fta_2 + (1/3)* fta_3)) / 1.33) / 0.136)
+        try:
+            ppp = (2* stats['fga']['fg2m'] + 3 * stats['fga']['fg3m'] + fta_made) \
+                / (stats['fga']['fg2m'] + 0.7 * fga_missed \
+                + stats['fga']['fg3m'] + stats['tov'] + 0.44 * fta)
+        except ZeroDivisionError:
+            ppp = 0
+
+        try:
+            scoring_index = (1 + ((-0.9 + 0.89 * ((fga_made + 0.73 * (fga_missed) \
+                + 0.5 * fta_2 + (1/3) * fta_3 + stats['tov']) \
+                / stats['poss']) + 0.5 * (2 * stats['fga']['fg2m'] \
+                + 3 * stats['fga']['fg3m'] + fta_made)\
+                / (fga + 0.5 * fta_2 + (1/3)* fta_3)) / 1.33) / 0.136)
+        except ZeroDivisionError:
+            scoring_index = 0
 
         stats['complied_stats'] = {
             'usg': two_decimals(usg),
@@ -521,7 +550,7 @@ def player_on_off(team, on_players, off_players, start_date, end_date):
             'ppp': two_decimals(ppp),
             'scoring_index': two_decimals(scoring_index)
         }
-    print player_obj
+
     return player_obj
 
 def process_stat_api(player_obj, data, stat):
@@ -547,8 +576,6 @@ def process_stat_api(player_obj, data, stat):
     return player_obj
 
 
-player_on_off('Cavaliers', ['Iman Shumpert', 'LeBron James'], [], '2016-10-01', '2016-11-04')
 
-# player_on_off('Nuggets', ['Jameer Nelson'], False, '2015-10-01', '2016-11-03')
 # get_fantasy_news()
 # get_team_against_position()

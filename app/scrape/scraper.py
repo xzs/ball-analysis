@@ -130,44 +130,6 @@ LINEUP_URL = 'http://www.basketball-reference.com/play-index/plus/lineup_finder.
 
 YEAR = '2017'
 
-def get_fantasy_news():
-
-    for team, name in NEWS_DICT.iteritems():
-        # add the - to the team names
-        split_string = name.split()
-        new_string = ''
-        for string in split_string:
-            new_string += string +'-'
-        team_link = new_string[:-1]
-
-        logger.debug('Scraping news for: '+ team)
-        news_content = []
-        url = urllib2.urlopen(NEWS_URL+'/'+team+'/'+team_link)
-
-        soup = BeautifulSoup(url, 'html5lib')
-        news_holder = soup.find_all('div', attrs={'class':'RW_pn'})[1]
-        news = news_holder.find_all('div', attrs={'class':'pb'})
-
-        for info in news:
-            headline = info.find('div', attrs={'class':'headline'})
-            name = headline.find('a').text
-            news_report = info.find('div',attrs={'class':'report'}).find('p').text
-            news_impact = info.find('div',attrs={'class':'impact'}).text
-
-            news_content.append({
-                'player': name,
-                'report': news_report,
-                'impact': news_impact,
-            })
-
-        if team in TRANSLATE_DICT:
-            team = TRANSLATE_DICT[team]
-
-        with open('misc/news/'+team+'.json', 'w') as outfile:
-            logger.info('Writing news to json file: '+ team)
-            json.dump(news_content, outfile)
-
-
 def get_depth_chart():
 
     for team in NEWS_DICT:
@@ -458,80 +420,6 @@ def get_team_schedule(teams_dict):
                 writer.writerows(row for row in log_rows if row)
 
 
-def get_team_against_position():
-    pos_list = ['PG', 'SG', 'G', 'SF', 'PF', 'F', 'C']
-    site = 'DraftKings'
-    matchup_data = {}
-    matchup_data['league'] = {}
-    matchup_data['league']['position'] = {}
-    total_stats = {}
-    for position in pos_list:
-        logger.info('getting matchup information for: '+position)
-        url = urllib2.urlopen(MATCHUP_URL+'?site=%s&pos=%s' % (site, position))
-        soup = BeautifulSoup(url, 'html5lib')
-
-        table = soup.find('table', attrs={'class': 'footballproj-table'})
-        header = table.find('thead')
-        team_header = header.find_all('tr')[1].find_all('th')
-
-        table_body = table.find('tbody')
-        teams = table_body.find_all('tr')
-
-        team_rank = 0
-        matchup_data['league']['position'][position] = {}
-
-        total_stats[position] = {}
-        league_total = 0
-        # only stats i care about
-        valid_list = ['3PM', 'AST', 'BLK', 'FG%', 'PTS', 'REB', 'STL']
-        for stat in valid_list:
-            total_stats[position][stat] = 0
-
-        for team in teams:
-            team_stats = team.find_all('td')
-            tempname = str(team_stats[0].text)
-
-            team_name = REVERSE_TEAMS_DICT[tempname]
-
-            if team_name not in matchup_data:
-                matchup_data[team_name] = {}
-                # the rank is in ascending order
-            if position not in matchup_data[team_name]:
-                matchup_data[team_name][position] = {}
-                team_rank += 1
-                matchup_data[team_name][position]['rank'] = team_rank
-
-            # zip with the header so it runs in "parallel"
-            for header, stat in zip(team_header, team_stats):
-                category = str(header.text)
-                matchup_data[team_name][position][category] = str(stat.text)
-
-                # sum up totals for league average
-                if category == 'Season':
-                    league_total += float(stat.text)
-                if category in valid_list:
-                    total_stats[position][category] += float(stat.text)
-
-            matchup_data['league']['position'][position]['average'] = float(league_total / 30)
-
-        # parse each category
-        for cat, total in total_stats[position].iteritems():
-            total_stats[position][cat] = float(total / 30)
-
-    matchup_data['league']['category'] = total_stats
-    # loop each team
-    for team in TEAMS_DICT:
-        with open('misc/fantasy_stats/'+team+'.json', 'w') as outfile:
-            logger.info('Writing to fantasy_stats file:' +team)
-            json.dump(matchup_data[team], outfile)
-
-    # dump league avg separately
-    with open('misc/fantasy_stats/league.json', 'w') as outfile:
-        json.dump(matchup_data['league'], outfile)
-
-    return matchup_data
-
-
 def top_n_lineups(n, num_lineups):
     for team in TEAMS_DICT:
         if team == 'BRK':
@@ -688,7 +576,7 @@ pp = pprint.PrettyPrinter(indent=4)
 # PLAYERS_DICT = get_current_roster(teams_dict)
 # get_player_log(PLAYERS_DICT)
 
-# get_depth_chart()
+get_depth_chart()
 # get_fantasy_news()
 # get_team_against_position()
 # get_team_stats()

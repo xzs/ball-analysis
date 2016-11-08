@@ -1486,6 +1486,15 @@ def get_player_pf(date, player):
 
     return query
 
+def get_player_avg_usg(date_begin, date_end, player):
+    query = 'SELECT ub.PLAYER_NAME as NAME, ROUND(avg(ub.USG_PCT), 4)*100 as AVG_USG '\
+            'FROM usage_boxscores as ub '\
+            'LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
+            'WHERE ub.PLAYER_NAME = "%(player)s"  '\
+                'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" ' % {'date_format_year': DATE_FORMAT_YEAR, 'date_begin': date_begin, 'date_end': date_end, 'player': player}
+    return query
+
 # def get_
 # print get_synergy_wrt_dk('DeMar DeRozan')
 # print get_team_synergy_ranks()

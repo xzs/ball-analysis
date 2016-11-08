@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# _*_ coding:utf-8 _*_
+
 import MySQLdb
 import pprint
 import logging
@@ -10,7 +13,7 @@ import news_scraper
 import operator
 import json
 import csv
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import warnings
 # explictly not show warnings
@@ -541,6 +544,7 @@ TEAMS = {
 #     # print np.median(dk_points_list)
 #     # print np.average(dk_points_list)
 
+
 PLAYER_IDS = execute_query(sqlfetch.get_player_names())
 PLAYER_OBJ = {}
 for player in PLAYER_IDS:
@@ -642,6 +646,39 @@ TRANSLATE_DICT = {
     'PHO':'PHX',
 }
 
+WOWY_TEAMS = {
+    'ATL':'Hawks',
+    'BOS':'Celtics',
+    'BRK':'Nets',
+    'CHO':'Hornets',
+    'CHI':'Bulls',
+    'CLE':'Cavaliers',
+    'DAL':'Mavericks',
+    'DEN':'Nuggets',
+    'DET':'Pistons',
+    'GSW':'Warriors',
+    'HOU':'Rockets',
+    'IND':'Pacers',
+    'LAC':'Clippers',
+    'LAL':'Lakers',
+    'MEM':'Grizzlies',
+    'MIA':'Heat',
+    'MIL':'Bucks',
+    'MIN':'Timberwolves',
+    'NOP':'Pelicans',
+    'NYK':'Knicks',
+    'OKC':'Thunder',
+    'ORL':'Magic',
+    'PHI':'76ers',
+    'PHO':'Suns',
+    'POR':'Trail Blazers',
+    'SAC':'Kings',
+    'SAS':'Spurs',
+    'TOR':'Raptors',
+    'UTA':'Jazz',
+    'WAS':'Wizards'
+}
+
 # for all players playing in tomorrow's game we are going to get how they played in the preseason
 with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
     data = json.load(data_file)
@@ -652,8 +689,8 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     opponents = {}
     fantasy_lab_news = news_scraper.get_fantasy_lab_news()
     vegas_lines = news_scraper.get_vegas_lines(str(today_date))
-    # print vegas_lines
     dk_money_obj = {}
+
     with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
         try:
             next(csv_file, None)
@@ -685,6 +722,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     team_possessions_ranks = execute_query(sqlfetch.get_team_possessions_per_game(today_date))
     team_foul_ranks = execute_query(sqlfetch.get_team_fouls(FIRST_DATE_REG_SEASON))
     player_daily_status = news_scraper.player_daily_status()
+
     for (team, oppo) in opponents.iteritems():
         team_players[team] = {
             'oppo': oppo,
@@ -724,6 +762,51 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
     for team, team_players in team_players.iteritems():
         oppo = team_players['oppo']
+
+        # reverse read the csv
+        # putting it here for the naming purpose
+        with open('../scrape/team_schedules/'+YEAR+'/'+team+'.csv', 'r') as outfile:
+            for row in reversed(list(csv.reader(outfile))):
+                if row[6]:
+                    # formate the time
+                    last_game = datetime.strptime(row[0], '%a, %b %d, %Y')
+                    last_game = last_game.strftime("%Y-%m-%d")
+                    break
+
+        # last game
+        team_wowy_obj = news_scraper.player_on_off(WOWY_TEAMS[team], 'all', [], [], str(last_game), str(today_date))
+
+        last_season_against_team = news_scraper.player_on_off(WOWY_TEAMS[team], [WOWY_TEAMS[oppo]], [], [], '2015-10-26' , str(today_date))
+
+        # print team_wowy_obj['lineups']
+        print 'Last Game'
+        for lineup in team_wowy_obj['lineups'][0:10:1]:
+            if lineup['poss'] >= 5:
+                print ', '.join(lineup['lineup'])
+                print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
+
+        print '\n'
+        print 'From Last Season vs ' + oppo
+
+        # sort by usg first, then remainder by poss
+        sorted_usg_list = sorted(last_season_against_team['players'], key=lambda x: (last_season_against_team['players'][x]['complied_stats']['usg']), reverse=True)
+        for player in sorted_usg_list:
+            player_name = player.encode('ascii', 'ignore')
+            player_obj = last_season_against_team['players'][player]
+
+            if player_obj['poss'] >= 20:
+                print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
+                    player=player_name, poss=player_obj['poss'], usg=player_obj['complied_stats']['usg'],\
+                    si=player_obj['complied_stats']['scoring_index'])
+
+        print '\n'
+
+        for lineup in last_season_against_team['lineups'][0:10:1]:
+            if lineup['poss'] >= 5:
+                print ', '.join(lineup['lineup'])
+                print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
+        print '\n'
+
         if oppo in TRANSLATE_DICT:
             oppo = TRANSLATE_DICT[oppo]
 
@@ -802,8 +885,58 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                 fp_needed = dk_money_obj[player]['fp_needed']
                 fp_avg = dk_money_obj[player]['fp_avg']
 
-                if player in player_daily_status:
-                    print 'Status: ' + player_daily_status[player]
+                if player in player_daily_status['today'] or player in player_daily_status['all']:
+                    if player in player_daily_status['today']:
+                        player_status = player_daily_status['today'][player]
+                    if player in player_daily_status['all']:
+                        player_status = player_daily_status['all'][player]
+
+                    print player + ' Status: ' + player_status
+
+                    if (player_status == 'Questionable' or \
+                        player_status == 'Out' or \
+                        player_status == 'Doubtful' or \
+                        player_status == 'Injured') \
+                        and fp_avg > 0:
+
+                        wow_team = team
+                        if team == 'BKN':
+                            wow_team = 'BRK'
+                        elif team == 'PHX':
+                            wow_team = 'PHO'
+                        elif team == 'CHA':
+                            wow_team = 'CHO'
+
+                        player_off_obj = news_scraper.player_on_off(WOWY_TEAMS[wow_team], 'all', [], [player], '2016-10-01', str(today_date))
+
+                        sorted_usg_list = sorted(player_off_obj['players'], key=lambda x: (player_off_obj['players'][x]['complied_stats']['usg']), reverse=True)
+                        for other_player in sorted_usg_list:
+                            other_player_name = other_player.encode('ascii', 'ignore')
+                            player_off_wowy_obj = player_off_obj['players'][other_player]
+
+                            if player_off_wowy_obj['poss'] >= 20:
+                                split_name = other_player_name.split('.')
+                                if len(split_name) > 1:
+                                    split_other_player_name = "".join(split_name)
+                                else:
+                                    split_name = other_player_name
+                                player_avg_usg = execute_query(sqlfetch.get_player_avg_usg('2016-10-01', today_date, split_name))
+
+                                if player_off_wowy_obj['complied_stats']['usg'] >= player_avg_usg[0]['AVG_USG']:
+                                    print '{other_player_name} has more usage when {player} is not on the floor'.format(
+                                        other_player_name=other_player_name, player=player)
+                                print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
+                                    player=other_player_name, poss=player_off_wowy_obj['poss'], usg=player_off_wowy_obj['complied_stats']['usg'],\
+                                    si=player_off_wowy_obj['complied_stats']['scoring_index'])
+
+                        print '\n'
+
+                        for lineup in player_off_obj['lineups'][0:10:1]:
+                            if lineup['poss'] >= 5:
+                                print ', '.join(lineup['lineup'])
+                                print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
+                        print '\n'
+                        # i need to get the lineups used for last time against oppo
 
                 print '{player_name}: {salary}, AVG PTS: {fp_avg}, PTS NEEDED: {fp_needed}'.format(
                         player_name=player, salary=player_salary, fp_avg=fp_avg, fp_needed=fp_needed)
@@ -820,12 +953,17 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                         print news.strip()
 
                 # # write to player log
-                # write_to_csv(sqlfetch.full_player_log(player, '2015-10-27', today_date, 0, 0), 'player_logs', player)
+                # player_log = sqlfetch.full_player_log(player, FIRST_DATE_REG_SEASON, today_date, 0, 0)
+                # full_player_log = execute_query(player_log)
+                # write_to_csv(player_log, 'player_logs', player)
 
                 # # calc simple regression
                 # simple_lr_data = nba_scrape_linear_regression.get_simple_player_log_regression(player)
 
                 # print simple_lr_data
+
+                if player == 'JJ Barea':
+                    player = 'Jose Juan Barea'
 
                 player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, player))
                 print 'PFD: ',player_pfd[0]['AVG_PFD']
@@ -838,7 +976,10 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                     last_game = player_last_game[0]
                     # we need a way to check whether or not they player in the previous game (instead of just getting the game date they played)
                     print 'Last Contest:'
-                    print '{date}: vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(date=last_game['DATE'], team=last_game['TEAM_AGAINST'], min=last_game['MIN'], usg=last_game['USG_PCT'], dk=last_game['DK_POINTS'])
+                    print '{date}: vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(
+                        date=last_game['DATE'], team=last_game['TEAM_AGAINST'], \
+                        min=last_game['MIN'], usg=last_game['USG_PCT'], \
+                        dk=last_game['DK_POINTS'])
                 except IndexError:
                     print 'Out of range'
 
