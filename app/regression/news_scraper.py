@@ -1,12 +1,24 @@
 import urllib2
 import pprint
+import csv
 import logging
 import json
 import requests
+# import numpy as np
+import scipy.stats as ss
 from bs4 import BeautifulSoup
+from datetime import date, timedelta, datetime
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+
+YEAR = '2017'
+
+LAST_DATE_REG_SEASON = '2017-04-12'
+FIRST_DATE_REG_SEASON = '2016-10-25'
+
+FIRST_DATE_PRE_SEASON = '2016-10-01'
+LAST_DATE_PRE_SEASON = '2016-10-15'
 
 # some links dont transfer
 SCRAPE_TRANSLATE_DICT = {
@@ -395,10 +407,10 @@ def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_d
     return url_list
 
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/47.0.2526.73 Chrome/47.0.2526.73 Safari/537.36"
-
 def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date):
 
     url_list = construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date)
+
     player_obj = {
         'players': {},
         'lineups': [],
@@ -575,7 +587,234 @@ def process_stat_api(player_obj, data, stat):
 
     return player_obj
 
+WOWY_TEAMS = {
+    'ATL':'Hawks',
+    'BOS':'Celtics',
+    'BRK':'Nets',
+    'CHO':'Hornets',
+    'CHI':'Bulls',
+    'CLE':'Cavaliers',
+    'DAL':'Mavericks',
+    'DEN':'Nuggets',
+    'DET':'Pistons',
+    'GSW':'Warriors',
+    'HOU':'Rockets',
+    'IND':'Pacers',
+    'LAC':'Clippers',
+    'LAL':'Lakers',
+    'MEM':'Grizzlies',
+    'MIA':'Heat',
+    'MIL':'Bucks',
+    'MIN':'Timberwolves',
+    'NOP':'Pelicans',
+    'NYK':'Knicks',
+    'OKC':'Thunder',
+    'ORL':'Magic',
+    'PHI':'76ers',
+    'PHO':'Suns',
+    'POR':'Trail Blazers',
+    'SAC':'Kings',
+    'SAS':'Spurs',
+    'TOR':'Raptors',
+    'UTA':'Jazz',
+    'WAS':'Wizards'
+}
+POSITION_TRANSLATE_DICT = {
+    1: 'PG',
+    2: 'SG',
+    3: 'SF',
+    4: 'PF',
+    5: 'C'
+}
+
+REVERSE_POSITION_TRANSLATE_DICT = {
+     'PG': 1,
+     'SG': 2,
+     'SF': 3,
+     'PF': 4,
+     'C': 5
+}
+
+# just the lineup call
+def get_lineups_by_team(team, vs_teams, on_players, off_players, start_date, end_date):
+
+    base_url = 'http://nbawowy-52108.onmodulus.net/api/'
+
+    if vs_teams == 'all':
+        vs_teams = '[76ers,Bobcats,Bucks,Bulls,Cavaliers,Celtics,Clippers,'\
+                    'Grizzlies,Hawks,Heat,Hornets,Jazz,Kings,Knicks,Lakers,'\
+                    'Magic,Mavericks,Nets,Nuggets,Pacers,Pelicans,Pistons,'\
+                    'Raptors,Rockets,Spurs,Suns,Thunder,Timberwolves,'\
+                    'Trail Blazers,Warriors,Wizards]'
+    else:
+        vs_teams = '[%s]' % ','.join(map(str, vs_teams))
+
+    link_list = [
+        {
+            'name': 'lineups',
+            'link': 'lineups/q/'
+        }
+    ]
+
+    home_away = '/both/'
+
+    seasons = '[pre,regular,playoffs]'
+    quarters = '[1,2,3,4,0,5,6,7]'
+    # http://stackoverflow.com/questions/5445970/printing-list-in-python-properly
+    on_players = '[%s]' % ','.join(map(str, on_players))
+    off_players = '[%s]' % ','.join(map(str, off_players))
+
+    url_list = []
+    for stat in link_list:
+        url = '{base_url}{seasons}{home_away}{stat_link}{quarters}'\
+            '/team/{team}/vs/{vs_teams}/on/{on_players}/off/{off_players}'\
+            '/from/{start_date}/to/{end_date}'.format(
+                base_url=base_url,
+                seasons=seasons,
+                home_away=home_away,
+                stat_link=stat['link'],
+                quarters=quarters,
+                team=team,
+                vs_teams=vs_teams,
+                on_players=on_players,
+                off_players=off_players,
+                start_date=start_date,
+                end_date=end_date
+            )
+        url_list.append({
+            'stat': stat['name'],
+            'url': url
+        })
+
+    player_obj = {
+        'lineups': [],
+    }
+
+    for stat in url_list:
+        url = stat['url']
+        response = requests.get(url, headers={'User-Agent': USER_AGENT})
+        data = response.json()
+
+        if stat['stat'] == 'lineups':
+            for lineup in data:
+                player_obj['lineups'].append({
+                    'lineup': lineup['_id']['name'],
+                    'poss': lineup['poss'],
+                    'min': lineup['time'] / 60
+                })
+
+    return player_obj
 
 
+def get_all_teams_playing_today():
+    # for all players playing in tomorrow's game we are going to get how they played in the preseason
+    with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
+        data = json.load(data_file)
+        today_date = date.today()
+        formatted_date = today_date.strftime("%a, %b %-d, %Y")
+
+        all_teams = []
+
+        for game in data[formatted_date]:
+            all_teams.append(game['team'])
+            all_teams.append(game['opp'])
+
+    return all_teams
+
+
+def process_depth_charts():
+    player_obj = {}
+    for team in TEAMS_DICT:
+        with open('../scrape/misc/depth_chart/'+team+'.json') as data_file:
+            data = json.load(data_file)
+            positions = ['PG', 'SG', 'SF', 'PF', 'C']
+            for position in positions:
+                depth = data[position]
+                for player in depth:
+                    player_obj[player['player']] = position
+
+    return player_obj
+
+def get_all_lineups():
+    all_teams = get_all_teams_playing_today()
+    depth_chart_obj = process_depth_charts()
+
+    for team in all_teams:
+        # lineup analysis
+        print 'AGAINST ' + team
+        team_wowy_obj = get_lineups_by_team(WOWY_TEAMS[team], 'all', [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+        temp_lineup_obj = {}
+        for lineup in team_wowy_obj['lineups'][0:10:1]:
+            if lineup['poss'] >= 5:
+                print ', '.join(lineup['lineup'])
+                print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
+
+        # lets get the teams that have already played them
+        for abbrev, wowy_team in WOWY_TEAMS.iteritems():
+            print wowy_team
+            team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+
+            temp_lineup_obj = {}
+            lineup_sum_list = []
+            for lineup in team_against_wowy_obj['lineups'][0:10:1]:
+                lineup_sum = 0
+                print ', '.join(lineup['lineup'])
+                for idx, player in enumerate(lineup['lineup']):
+                    try:
+                        player_lineup_position = POSITION_TRANSLATE_DICT[idx+1]
+
+                        if player in temp_lineup_obj:
+                            temp_player = temp_lineup_obj[player]
+                            temp_player['num_lineups'] += 1
+                            temp_player['poss'] += lineup['poss']
+                            temp_player['min'] += lineup['min']
+
+                            # check for additional positions played
+                            if player_lineup_position in temp_player['positions']:
+                                temp_player['positions'][player_lineup_position] += lineup['poss']
+                            else:
+                                temp_player['positions'][player_lineup_position] = lineup['poss']
+                        else:
+                            # print depth_chart_obj[player]
+                            if player in depth_chart_obj:
+                                player_index = REVERSE_POSITION_TRANSLATE_DICT[depth_chart_obj[player]]
+                            else:
+                                player_index = idx+1
+                            # print player_index
+                            temp_lineup_obj[player] = {
+                                'poss': lineup['poss'],
+                                'num_lineups': 1,
+                                'min': lineup['min'],
+                                'positions': {
+                                   player_lineup_position: lineup['poss']
+                                },
+                                'posIdx': player_index
+                            }
+
+                        lineup_sum += temp_lineup_obj[player]['posIdx']
+
+                    except KeyError:
+                        LOGGER.debug('Too many players')
+
+                # sum of the lineup
+                print lineup_sum
+                lineup_sum_list.append(lineup_sum)
+
+            print 'PERCENT'
+            # i need to look at the 3pt attempts esp from the 4 & 5 position
+            if len(lineup_sum_list > 0):
+                print ss.percentileofscore(lineup_sum_list, 15, kind='strict')
+
+            sorted_temp_lineup_obj = sorted(temp_lineup_obj, key=lambda x: (temp_lineup_obj[x]['poss'], temp_lineup_obj[x]['num_lineups']), reverse=True)
+            for player in sorted_temp_lineup_obj:
+                player_name = player.encode('ascii', 'ignore')
+                player_obj = temp_lineup_obj[player]
+                print '{player} Poss: {poss}, Lineups: {num_lineups}'.format(
+                    player=player_name, poss=player_obj['poss'], num_lineups=player_obj['num_lineups'])
+
+                for positon, poss in player_obj['positions'].iteritems():
+                    print '{positions}: {poss}'.format(positions=positon, poss=poss)
+
+get_all_lineups()
 # get_fantasy_news()
 # get_team_against_position()

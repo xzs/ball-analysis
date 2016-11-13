@@ -44,6 +44,7 @@ NEWS_DICT = {
     'UTA':'Utah Jazz',
     'WAS':'Washington Wizards'
 }
+
 REVERSE_TEAMS_DICT = {
     'Atlanta Hawks': 'ATL',
     'Boston Celtics': 'BOS',
@@ -571,8 +572,8 @@ def get_team_stats():
 
 
 pp = pprint.PrettyPrinter(indent=4)
-# teams_dict = get_active_teams()
-# get_team_schedule(teams_dict)
+teams_dict = get_active_teams()
+get_team_schedule(teams_dict)
 # PLAYERS_DICT = get_current_roster(teams_dict)
 # get_player_log(PLAYERS_DICT)
 

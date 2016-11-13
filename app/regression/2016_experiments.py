@@ -679,6 +679,14 @@ WOWY_TEAMS = {
     'WAS':'Wizards'
 }
 
+POSITION_TRANSLATE_DICT = {
+    1: 'PG',
+    2: 'SG',
+    3: 'SF',
+    4: 'PF',
+    5: 'C'
+}
+
 # for all players playing in tomorrow's game we are going to get how they played in the preseason
 with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
     data = json.load(data_file)
@@ -688,7 +696,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     all_teams = []
     opponents = {}
     fantasy_lab_news = news_scraper.get_fantasy_lab_news()
-    vegas_lines = news_scraper.get_vegas_lines(str(today_date))
+    # vegas_lines = news_scraper.get_vegas_lines(str(today_date))
     dk_money_obj = {}
 
     with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
@@ -698,9 +706,11 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             for player in players:
                 name = player[1]
                 dk_money_obj[name] = {
+                    'positions': player[0].split('/'),
                     'salary': player[2],
                     'fp_avg': player[4],
-                    'fp_needed': float(player[2])*0.001*5.5
+                    'fp_needed': float(player[2])*0.001*5.5,
+                    'avg_val': float(player[4])/(0.001*float(player[2]))
                 }
 
         except csv.Error as e:
@@ -713,7 +723,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
         opponents[game['team']] = game['opp']
         opponents[game['opp']] = game['team']
 
-    team_players = {}
+    all_team_players = {}
     all_players = []
     player_news = {}
     players_string = ''
@@ -724,7 +734,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
     player_daily_status = news_scraper.player_daily_status()
 
     for (team, oppo) in opponents.iteritems():
-        team_players[team] = {
+        all_team_players[team] = {
             'oppo': oppo,
             'players': []
         }
@@ -755,12 +765,12 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             for position in positions:
                 depth = data[position]
                 for player in depth:
-                    team_players[team]['players'].append(player['player'])
+                    all_team_players[team]['players'].append(player['player'])
                 all_players.append(player['player'])
 
-            players_string = '","'.join(team_players[team])
+            players_string = '","'.join(all_team_players[team])
 
-    for team, team_players in team_players.iteritems():
+    for team, team_players in all_team_players.iteritems():
         oppo = team_players['oppo']
 
         # reverse read the csv
@@ -769,25 +779,82 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             for row in reversed(list(csv.reader(outfile))):
                 if row[6]:
                     # formate the time
-                    last_game = datetime.strptime(row[0], '%a, %b %d, %Y')
-                    last_game = last_game.strftime("%Y-%m-%d")
+                    last_game_date = datetime.strptime(row[0], '%a, %b %d, %Y')
+                    last_game_date = last_game_date.strftime("%Y-%m-%d")
+                    # "Sun, Nov 6, 2016",9:30p ET,,Box Score,@,Los Angeles Lakers,L,,108,119,2,5,L 1,
+
+                    if row[4] == '':
+                        row[4] = 'vs'
+
+                    last_game_info = {
+                        'date': last_game_date,
+                        'location': row[4],
+                        'oppo': row[5],
+                        'result': row[6],
+                        'score': row[8] + ' - ' + row[9],
+                        'streak': row[12]
+                    }
                     break
 
         # last game
-        team_wowy_obj = news_scraper.player_on_off(WOWY_TEAMS[team], 'all', [], [], str(last_game), str(today_date))
+        team_wowy_obj = news_scraper.player_on_off(WOWY_TEAMS[team], 'all', [], [], str(last_game_date), str(today_date))
 
         last_season_against_team = news_scraper.player_on_off(WOWY_TEAMS[team], [WOWY_TEAMS[oppo]], [], [], '2015-10-26' , str(today_date))
 
-        # print team_wowy_obj['lineups']
         print 'Last Game'
+        print '({result}) ({streak}) {date} {location} {oppo} [{score}]'.format(
+            result=last_game_info['result'], streak=last_game_info['streak'], date=last_game_info['date'],\
+            location=last_game_info['location'], oppo=last_game_info['oppo'], score=last_game_info['score'])
+
+        temp_lineup_obj = {}
         for lineup in team_wowy_obj['lineups'][0:10:1]:
             if lineup['poss'] >= 5:
+                for idx, player in enumerate(lineup['lineup']):
+                    # if player in dk_money_obj:
+                    #     player_lineup_position = dk_money_obj[player]['positions'][0]
+                    # else:
+                    player_lineup_position = POSITION_TRANSLATE_DICT[idx+1]
+
+                    if player in temp_lineup_obj:
+                        temp_player = temp_lineup_obj[player]
+                        temp_player['num_lineups'] += 1
+                        temp_player['poss'] += lineup['poss']
+                        temp_player['min'] += lineup['min']
+
+                        # check for additional positions played
+                        if player_lineup_position in temp_player['positions']:
+                            temp_player['positions'][player_lineup_position] += lineup['poss']
+                        else:
+                            temp_player['positions'][player_lineup_position] = lineup['poss']
+                    else:
+                        temp_lineup_obj[player] = {
+                            'poss': lineup['poss'],
+                            'num_lineups': 1,
+                            'min': lineup['min'],
+                            'positions': {
+                               player_lineup_position: lineup['poss']
+                            }
+                        }
+
                 print ', '.join(lineup['lineup'])
                 print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
 
         print '\n'
-        print 'From Last Season vs ' + oppo
+        print 'Last Game Lineup Summary:'
 
+
+        sorted_temp_lineup_obj = sorted(temp_lineup_obj, key=lambda x: (temp_lineup_obj[x]['poss'], temp_lineup_obj[x]['num_lineups']), reverse=True)
+        for player in sorted_temp_lineup_obj:
+            player_name = player.encode('ascii', 'ignore')
+            player_obj = temp_lineup_obj[player]
+            print '{player} Poss: {poss}, Lineups: {num_lineups}'.format(
+                player=player_name, poss=player_obj['poss'], num_lineups=player_obj['num_lineups'])
+
+            for positon, poss in player_obj['positions'].iteritems():
+                print '{positions}: {poss}'.format(positions=positon, poss=poss)
+
+        print '\n'
+        print 'From Last Season vs ' + oppo
         # sort by usg first, then remainder by poss
         sorted_usg_list = sorted(last_season_against_team['players'], key=lambda x: (last_season_against_team['players'][x]['complied_stats']['usg']), reverse=True)
         for player in sorted_usg_list:
@@ -795,17 +862,17 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
             player_obj = last_season_against_team['players'][player]
 
             if player_obj['poss'] >= 20:
-                print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
-                    player=player_name, poss=player_obj['poss'], usg=player_obj['complied_stats']['usg'],\
-                    si=player_obj['complied_stats']['scoring_index'])
+                if player in all_team_players[team]['players']:
+                    print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
+                        player=player_name, poss=player_obj['poss'], usg=player_obj['complied_stats']['usg'],\
+                        si=player_obj['complied_stats']['scoring_index'])
 
         print '\n'
-
-        for lineup in last_season_against_team['lineups'][0:10:1]:
-            if lineup['poss'] >= 5:
-                print ', '.join(lineup['lineup'])
-                print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
-        print '\n'
+        # for lineup in last_season_against_team['lineups'][0:10:1]:
+        #     if lineup['poss'] >= 5:
+        #         print ', '.join(lineup['lineup'])
+        #         print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
+        # print '\n'
 
         if oppo in TRANSLATE_DICT:
             oppo = TRANSLATE_DICT[oppo]
@@ -837,7 +904,7 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
         else:
             vegas_team = team
 
-        print 'Spread: ' + vegas_lines[vegas_team]['advantage_team'], vegas_lines[vegas_team]['over_under']
+        # print 'Spread: ' + vegas_lines[vegas_team]['advantage_team'], vegas_lines[vegas_team]['over_under']
 
         print '{oppo} Fouls: {fouls} ({fouls_rank})'.format(
                 oppo=oppo, fouls=oppo_foul_rank['AVG_FOULS'], \
@@ -879,10 +946,12 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
         print '\n'
 
+
         for player in team_players['players']:
             if player in dk_money_obj:
                 player_salary = dk_money_obj[player]['salary']
                 fp_needed = dk_money_obj[player]['fp_needed']
+                avg_val = dk_money_obj[player]['avg_val']
                 fp_avg = dk_money_obj[player]['fp_avg']
 
                 if player in player_daily_status['today'] or player in player_daily_status['all']:
@@ -923,23 +992,24 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
                                 player_avg_usg = execute_query(sqlfetch.get_player_avg_usg('2016-10-01', today_date, split_name))
 
                                 if player_off_wowy_obj['complied_stats']['usg'] >= player_avg_usg[0]['AVG_USG']:
-                                    print '{other_player_name} has more usage when {player} is not on the floor'.format(
-                                        other_player_name=other_player_name, player=player)
-                                print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
-                                    player=other_player_name, poss=player_off_wowy_obj['poss'], usg=player_off_wowy_obj['complied_stats']['usg'],\
-                                    si=player_off_wowy_obj['complied_stats']['scoring_index'])
+                                    if player in all_team_players[wow_team]['players']:
+                                        # print '{other_player_name} has higher usage when {player} is not on the floor'.format(
+                                        #     other_player_name=other_player_name, player=player)
+                                        print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
+                                            player=other_player_name, poss=player_off_wowy_obj['poss'], usg=player_off_wowy_obj['complied_stats']['usg'],\
+                                            si=player_off_wowy_obj['complied_stats']['scoring_index'])
 
                         print '\n'
 
-                        for lineup in player_off_obj['lineups'][0:10:1]:
-                            if lineup['poss'] >= 5:
-                                print ', '.join(lineup['lineup'])
-                                print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
-                        print '\n'
-                        # i need to get the lineups used for last time against oppo
+                        # for lineup in player_off_obj['lineups'][0:10:1]:
+                        #     if lineup['poss'] >= 5:
+                        #         print ', '.join(lineup['lineup'])
+                        #         print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
+                        # print '\n'
 
-                print '{player_name}: {salary}, AVG PTS: {fp_avg}, PTS NEEDED: {fp_needed}'.format(
-                        player_name=player, salary=player_salary, fp_avg=fp_avg, fp_needed=fp_needed)
+                print '{player_name} {position}: {salary}, AVG PTS: {fp_avg}, VAL: {avg_val}, PTS NEEDED: {fp_needed}'.format(
+                        player_name=player, position=dk_money_obj[player]['positions'], \
+                        salary=player_salary, fp_avg=fp_avg, avg_val=avg_val, fp_needed=fp_needed)
 
                 # name things
                 split_name = player.split('.')
@@ -948,9 +1018,11 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
                 if player in player_news:
                     for report in player_news[player]['report']:
-                        print report.strip()
+                        if report:
+                            print report.strip()
                     for news in player_news[player]['news']:
-                        print news.strip()
+                        if news:
+                            print news.strip()
 
                 # # write to player log
                 # player_log = sqlfetch.full_player_log(player, FIRST_DATE_REG_SEASON, today_date, 0, 0)
@@ -964,6 +1036,8 @@ with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) 
 
                 if player == 'JJ Barea':
                     player = 'Jose Juan Barea'
+                if player == 'Tim Hardaway Jr':
+                    player = 'Tim Hardaway Jr.'
 
                 player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, player))
                 print 'PFD: ',player_pfd[0]['AVG_PFD']
