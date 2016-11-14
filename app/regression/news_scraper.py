@@ -1,13 +1,19 @@
-import urllib2
+import time, urllib2
 import pprint
 import csv
 import logging
+import sqlfetch
 import json
 import requests
-# import numpy as np
+import numpy as np
 import scipy.stats as ss
 from bs4 import BeautifulSoup
 from datetime import date, timedelta, datetime
+
+import warnings
+# explictly not show warnings
+warnings.filterwarnings("ignore")
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -737,14 +743,14 @@ def process_depth_charts():
 
 def get_all_lineups():
     all_teams = get_all_teams_playing_today()
-    depth_chart_obj = process_depth_charts()
+    # depth_chart_obj = process_depth_charts()
 
     for team in all_teams:
         # lineup analysis
         print 'AGAINST ' + team
         team_wowy_obj = get_lineups_by_team(WOWY_TEAMS[team], 'all', [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
-        temp_lineup_obj = {}
-        for lineup in team_wowy_obj['lineups'][0:10:1]:
+        # temp_lineup_obj = {}
+        for lineup in team_wowy_obj['lineups'][0:5:1]:
             if lineup['poss'] >= 5:
                 print ', '.join(lineup['lineup'])
                 print 'Poss: {poss}, Min: {min}'.format(poss=lineup['poss'], min=lineup['min'])
@@ -752,16 +758,49 @@ def get_all_lineups():
         # lets get the teams that have already played them
         for abbrev, wowy_team in WOWY_TEAMS.iteritems():
             print wowy_team
+            with open('../scrape/misc/depth_chart/'+abbrev+'.json') as data_file:
+                data = json.load(data_file)
+                player_depth_positions = data['all']
+
             team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
             temp_lineup_obj = {}
-            lineup_sum_list = []
-            for lineup in team_against_wowy_obj['lineups'][0:10:1]:
+            small_ball_sum = []
+            lineup_poss = []
+            small_ball_poss = []
+            for lineup in team_against_wowy_obj['lineups']:
+                # if lineup['poss'] >= 5:
+                lineup_poss.append(lineup['poss'])
                 lineup_sum = 0
                 print ', '.join(lineup['lineup'])
+                last_two_players = []
                 for idx, player in enumerate(lineup['lineup']):
                     try:
-                        player_lineup_position = POSITION_TRANSLATE_DICT[idx+1]
+                        if idx+1 == 4 or idx+1 == 5:
+                            position_player = player
+                            split_name = player.split('.')
+                            if len(split_name) > 1:
+                                player = "".join(split_name)
+                            last_two_players.append(player)
+
+                        split_name = player.split('.')
+                        split_name_two = player.split("'")
+                        split_name_three = player.split("-")
+                        if len(split_name) > 1 or \
+                            len(split_name_two) > 1 or \
+                            len(split_name_three) > 1:
+                            if len(split_name) > 1:
+                                player = "".join(split_name)
+                            if len(split_name_two) > 1:
+                                player = "".join(split_name_two)
+                            if len(split_name_three) > 1:
+                                player = " ".join(split_name_three)
+
+                            if player in player_depth_positions:
+                                player_lineup_position = player_depth_positions[player]
+                        else:
+                            if player in player_depth_positions:
+                                player_lineup_position = player_depth_positions[player]
 
                         if player in temp_lineup_obj:
                             temp_player = temp_lineup_obj[player]
@@ -775,12 +814,12 @@ def get_all_lineups():
                             else:
                                 temp_player['positions'][player_lineup_position] = lineup['poss']
                         else:
-                            # print depth_chart_obj[player]
-                            if player in depth_chart_obj:
-                                player_index = REVERSE_POSITION_TRANSLATE_DICT[depth_chart_obj[player]]
+
+                            if player in player_depth_positions:
+                                player_index = REVERSE_POSITION_TRANSLATE_DICT[player_lineup_position]
                             else:
                                 player_index = idx+1
-                            # print player_index
+
                             temp_lineup_obj[player] = {
                                 'poss': lineup['poss'],
                                 'num_lineups': 1,
@@ -796,25 +835,88 @@ def get_all_lineups():
                     except KeyError:
                         LOGGER.debug('Too many players')
 
-                # sum of the lineup
-                print lineup_sum
-                lineup_sum_list.append(lineup_sum)
+                last_two_players = '", "'.join(last_two_players)
+                # look at the % for the 4 & 5 position
+                player_fg3a = sqlfetch.execute_query(sqlfetch.get_avg_fg3a_by_player(FIRST_DATE_REG_SEASON, last_two_players))
+                player_reb_pct = sqlfetch.execute_query(sqlfetch.get_avg_reb_pct_by_player(FIRST_DATE_REG_SEASON, last_two_players))
 
-            print 'PERCENT'
-            # i need to look at the 3pt attempts esp from the 4 & 5 position
-            if len(lineup_sum_list > 0):
-                print ss.percentileofscore(lineup_sum_list, 15, kind='strict')
+                print 'POSS: {poss}, DEPTH_SUM: {lineup_sum}, PF_C_TOTAL_REB_PCT: {TOTAL_REB_PCT}, PF_C_TOTAL_FG3A: {TOTAL_FG3A}'.format(
+                    poss=lineup['poss'], lineup_sum=lineup_sum, TOTAL_REB_PCT=player_reb_pct[0]['TOTAL_REB_PCT'], TOTAL_FG3A=player_fg3a[0]['TOTAL_FG3A'])
 
-            sorted_temp_lineup_obj = sorted(temp_lineup_obj, key=lambda x: (temp_lineup_obj[x]['poss'], temp_lineup_obj[x]['num_lineups']), reverse=True)
-            for player in sorted_temp_lineup_obj:
-                player_name = player.encode('ascii', 'ignore')
-                player_obj = temp_lineup_obj[player]
-                print '{player} Poss: {poss}, Lineups: {num_lineups}'.format(
-                    player=player_name, poss=player_obj['poss'], num_lineups=player_obj['num_lineups'])
+                small_ball_sum.append(lineup_sum)
 
-                for positon, poss in player_obj['positions'].iteritems():
-                    print '{positions}: {poss}'.format(positions=positon, poss=poss)
+                if lineup_sum < 15:
+                    small_ball_poss.append(lineup['poss'])
 
+            if len(small_ball_sum) > 0:
+                # i need to know the percentages of posessions the small ball line ups take
+                percentile_small_lineups = ss.percentileofscore(small_ball_sum, 15, kind='strict')
+                small_ball_poss = np.sum(small_ball_poss)
+                lineup_poss = np.sum(lineup_poss)
+                percentile_small_poss = float(small_ball_poss) / float(lineup_poss) * 100
+
+                print 'Small Ball Lineup (%): {percentile_small_lineups}'.format(percentile_small_lineups=percentile_small_lineups)
+                print 'Small Ball Poss (%): {percentile_small_poss}'.format(percentile_small_poss=percentile_small_poss)
+
+            # sorted_temp_lineup_obj = sorted(temp_lineup_obj, key=lambda x: (temp_lineup_obj[x]['poss'], temp_lineup_obj[x]['num_lineups']), reverse=True)
+            # for player in sorted_temp_lineup_obj:
+            #     player_name = player.encode('ascii', 'ignore')
+            #     player_obj = temp_lineup_obj[player]
+            #     print '{player} Poss: {poss}, Lineups: {num_lineups}'.format(
+            #         player=player_name, poss=player_obj['poss'], num_lineups=player_obj['num_lineups'])
+
+            #     for positon, poss in player_obj['positions'].iteritems():
+            #         print '{positions}: {poss}'.format(positions=positon, poss=poss)
+
+
+
+def get_updated_depth_chart():
+
+    url = urllib2.urlopen('http://basketball.realgm.com/nba/teams/Depth_Charts').read()
+    soup = BeautifulSoup(url, 'html5lib')
+
+    # TEAMS_DICT ordering
+
+    # get id of the table
+    # no PORTLAND or DENVER
+    tables = soup.find_all('table', attrs={'class':'basketball'})
+    if len(tables) == 30:
+        teams = ['ATL', 'BOS', 'BRK', 'CHO', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 'MIA', 'MIL', 'MIN', 'NOP', 'NYK', 'OKC', 'ORL', 'PHI', 'PHO', 'POR', 'SAC', 'SAS', 'TOR', 'UTA', 'WAS']
+
+        for idx, table in enumerate(tables):
+            current_starters = {
+                'all': {}
+            }
+            table_body = table.find('tbody')
+            rows = table_body.find_all('tr')
+            for row in rows:
+                players = row.find_all('td')
+
+                for player in players[1:]:
+                    player_position = player['data-th']
+                    player_info = player.find('a')
+                    if player_info:
+                        player_link = player_info.get('href')
+                        player_name = str(player_link.split('/')[2])
+                        player_name = player_name.replace("-", " ")
+                        current_starters['all'][player_name] = player_position
+                        if player_position in current_starters:
+                            current_starters[player_position].append({
+                                "player": player_name
+                            })
+                        else:
+                            current_starters[player_position] = [{
+                                "player": player_name
+                            }]
+            print teams[idx]
+            print current_starters
+            with open('../scrape/misc/depth_chart/'+teams[idx]+'.json', 'w') as outfile:
+                LOGGER.info('Writing to depth chart file:'+ teams[idx])
+                json.dump(current_starters, outfile)
+
+    # return current_starters
+
+# get_updated_depth_chart()
 get_all_lineups()
 # get_fantasy_news()
 # get_team_against_position()
