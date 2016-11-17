@@ -1497,7 +1497,7 @@ def get_player_avg_usg(date_begin, date_end, player):
 
 def get_avg_fg3a_by_player(date_begin, players):
 
-    query = 'SELECT SUM(AVG_FG3A) as TOTAL_FG3A '\
+    query = 'SELECT ROUND(AVG(AVG_FG3A), 2) as TOTAL_FG3A '\
             'FROM ( '\
                 'SELECT ub.PLAYER_NAME as NAME, avg(ub.FG3A) as AVG_FG3A '\
                     'FROM traditional_boxscores as ub '\
@@ -1511,7 +1511,7 @@ def get_avg_fg3a_by_player(date_begin, players):
 
 def get_avg_reb_pct_by_player(date_begin, players):
 
-    query = 'SELECT SUM(AVG_REB_PCT) as TOTAL_REB_PCT '\
+    query = 'SELECT ROUND(AVG(AVG_REB_PCT)*100, 2) as TOTAL_REB_PCT '\
             'FROM ( '\
                 'SELECT ub.PLAYER_NAME as NAME, avg(ub.REB_PCT) as AVG_REB_PCT '\
                     'FROM advanced_boxscores as ub '\
