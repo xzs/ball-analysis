@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# _*_ coding:utf-8 _*_
+
 import time, urllib2
 import pprint
 import csv
@@ -426,7 +429,6 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
         url = stat['url']
         response = requests.get(url, headers={'User-Agent': USER_AGENT})
         data = response.json()
-
         if stat['stat'] == 'poss':
             for player in data:
                 player_name = player['_id']['name']
@@ -642,10 +644,34 @@ REVERSE_POSITION_TRANSLATE_DICT = {
      'C': 5
 }
 
+
+def get_all_wowy_players():
+    all_wowy_players = []
+    base_url = 'http://nbawowy-52108.onmodulus.net/api/players/'
+
+    vs_teams = ['76ers','Bobcats','Bucks','Bulls','Cavaliers','Celtics','Clippers',
+                'Grizzlies','Hawks','Heat','Hornets','Jazz','Kings','Knicks','Lakers',
+                'Magic','Mavericks','Nets','Nuggets','Pacers','Pelicans','Pistons',
+                'Raptors','Rockets','Spurs','Suns','Thunder','Timberwolves',
+                'Trail Blazers','Warriors','Wizards']
+
+    for team in vs_teams:
+        url = base_url + team
+        response = requests.get(url, headers={'User-Agent': USER_AGENT})
+        data = response.json()
+
+        for player in data['players']:
+            all_wowy_players.append(player)
+
+    return all_wowy_players
+
+# get_all_wowy_players()
 # just the lineup call
 def get_lineups_by_team(team, vs_teams, on_players, off_players, start_date, end_date):
 
     base_url = 'http://nbawowy-52108.onmodulus.net/api/'
+
+    # http://nbawowy-52108.onmodulus.net/api/players/76ers/
 
     if vs_teams == 'all':
         vs_teams = '[76ers,Bobcats,Bucks,Bulls,Cavaliers,Celtics,Clippers,'\
@@ -727,21 +753,6 @@ def get_all_teams_playing_today():
             all_teams.append(game['opp'])
 
     return all_teams
-
-
-def process_depth_charts():
-    player_obj = {}
-    for team in TEAMS_DICT:
-        with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
-            data = json.load(data_file)
-            positions = ['PG', 'SG', 'SF', 'PF', 'C']
-            for position in positions:
-                depth = data[position]
-                for player in depth:
-                    player_obj[player['player']] = position
-
-    return player_obj
-
 
 def process_line_up_sums(lineup, temp_lineup_obj, player_depth_positions):
     lineup_sum = 0
@@ -965,10 +976,6 @@ def get_updated_depth_chart():
     url = urllib2.urlopen('http://basketball.realgm.com/nba/teams/Depth_Charts').read()
     soup = BeautifulSoup(url, 'html5lib')
 
-    # TEAMS_DICT ordering
-
-    # get id of the table
-    # no PORTLAND or DENVER
     tables = soup.find_all('table', attrs={'class':'basketball'})
     if len(tables) == 30:
         teams = ['ATL', 'BOS', 'BRK', 'CHO', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 'MIA', 'MIL', 'MIN', 'NOP', 'NYK', 'OKC', 'ORL', 'PHI', 'PHO', 'POR', 'SAC', 'SAS', 'TOR', 'UTA', 'WAS']
@@ -1011,44 +1018,156 @@ def get_updated_depth_chart():
 # get_all_lineups()
 # get_deiviation_lineups()
 
-# def process_dk_file():
-#     teams = []
-#     with open('../scrape/csv/2016-11-14.csv',) as csv_file:
-#         try:
-#             next(csv_file, None)
-#             players = csv.reader(csv_file)
-#             for player in players:
-#                 name = player[5]
-#                 if name not in teams:
-#                     teams.append(name)
+DEPTH_TO_DK_TRANSLATE = {
+    "Matt Dellavedova": "Matthew Dellavedova",
+    "James McAdoo": "James Michael McAdoo",
+    "John Lucas": "John Lucas III",
+    "Karl Anthony Towns": "Karl-Anthony Towns",
+    "Tim Hardaway Jr": "Tim Hardaway Jr.",
+    "DeAndre Bembry": "DeAndre' Bembry",
+    "Kentavious Caldwell Pope": "Kentavious Caldwell-Pope",
+    "Kyle OQuinn": "Kyle O'Quinn",
+    "Willy Hernangomez": "Guillermo Hernangomez",
+    "JJ Barea": "J.J. Barea",
+    "Dorian Finney Smith": "Dorian Finney-Smith",
+    "AJ Hammons": "A.J. Hammons",
+    "CJ McCollum": "C.J. McCollum",
+    "Al Farouq Aminu": "Al-Farouq Aminu",
+    "Domas Sabonis": "Domantas Sabonis",
+    "JR Smith": "J.R. Smith",
+    "Raulzinho Neto": "Raul Neto",
+    "Michael Carter Williams": "Michael Carter-Williams",
+    "RJ Hunter": "R.J. Hunter",
+    "Michael Kidd Gilchrist": "Michael Kidd-Gilchrist",
+    "KJ McDaniels": "K.J. McDaniels",
+    "Maybyner Nene": "Nene Hilario",
+    "Kelly Oubre Jr": "Kelly Oubre Jr.",
+    "DAngelo Russell": "D'Angelo Russell",
+    "Marcelinho Huertas": "Marcelo Huertas",
+    "Larry Nance Jr": "Larry Nance Jr.",
+    "TJ McConnell": "T.J. McConnell",
+    "Timothe Luwawu Cabarrot": "Timothe Luwawu-Cabarrot",
+    "TJ Warren": "T.J. Warren",
+    "PJ Tucker": "P.J. Tucker",
+    "Derrick Jones": "Derrick Jones Jr.",
+    "JJ Redick": "J.J. Redick",
+    "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
+    "Willie Cauley Stein": "Willie Cauley-Stein",
+    "George Papagiannis": "Georgios Papagiannis",
+    "DJ Augustin": "D.J. Augustin",
+    "CJ Watson": "C.J. Watson",
+    "CJ Wilcox": "C.J. Wilcox",
+    "Stephen Zimmerman": "Stephen Zimmerman Jr.",
+    "Rondae Hollis Jefferson": "Rondae Hollis-Jefferson",
+    "CJ Miles": "C.J. Miles",
+    "Glenn Robinson": "Glenn Robinson III",
+    "ETwaun Moore": "E'Twaun Moore"
+}
 
-#         except csv.Error as e:
-#             sys.exit('file %s: %s' % (csv_file, e))
-#     with open('../scrape/csv/2016-11-15.csv',) as csv_file:
-#         try:
-#             next(csv_file, None)
-#             players = csv.reader(csv_file)
-#             for player in players:
-#                 name = player[5]
-#                 if name not in teams:
-#                     teams.append(name)
+DK_TO_DEPTH_TRANSLATE = dict((v,k) for k,v in DEPTH_TO_DK_TRANSLATE.iteritems())
 
-#         except csv.Error as e:
-#             sys.exit('file %s: %s' % (csv_file, e))
+def get_dk_player_names():
+    today_date = date.today()
+    yesterday_date = today_date - timedelta(days=5)
 
-#     with open('../scrape/csv/2016-11-16.csv',) as csv_file:
-#         try:
-#             next(csv_file, None)
-#             players = csv.reader(csv_file)
-#             for player in players:
-#                 name = player[5]
-#                 if name not in teams:
-#                     teams.append(name)
+    delta = today_date - yesterday_date
 
-#         except csv.Error as e:
-#             sys.exit('file %s: %s' % (csv_file, e))
+    # for the range of the past week
+    dk_players = []
+    for i in range(delta.days + 1):
+        prev_date = yesterday_date + timedelta(days=i)
+        with open('../scrape/csv/'+str(prev_date)+'.csv',) as csv_file:
+            try:
+                next(csv_file, None)
+                players = csv.reader(csv_file)
+                for player in players:
+                    name = player[1]
+                    if name not in dk_players:
+                        dk_players.append(name)
 
-#     for team in teams:
-#         print team
+            except csv.Error as e:
+                sys.exit('file %s: %s' % (csv_file, e))
 
-# process_dk_file()
+    return dk_players
+
+def process_depth_charts():
+    depth_players = []
+    for team in TEAMS_DICT:
+        with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
+            data = json.load(data_file)
+            positions = ['PG', 'SG', 'SF', 'PF', 'C']
+            for position in positions:
+                depth = data[position]
+                for player in depth:
+                    depth_players.append(player['player'])
+
+    return depth_players
+
+def compare_players():
+    depth_players = process_depth_charts()
+    dk_players = get_dk_player_names()
+    for player in depth_players:
+        if player not in dk_players and player not in DEPTH_TO_DK_TRANSLATE:
+            print "missed"
+
+def get_sql_player_names():
+    sql_players = []
+    all_sql_players = sqlfetch.execute_query(sqlfetch.get_all_players_played(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON))
+    for players in all_sql_players:
+        sql_players.append(players['NAME'])
+
+    return sql_players
+
+def compare_sql_players():
+    dk_players = get_dk_player_names()
+    sql_players = get_sql_player_names()
+    for player in dk_players:
+        if player not in sql_players:
+            print player
+
+DK_TO_SQL_TRANSLATE = {
+    "C.J. McCollum": "CJ McCollum",
+    "DeAndre' Bembry": "DeAndre Bembry",
+    "R.J. Hunter": "RJ Hunter",
+    "T.J. Warren": "TJ Warren",
+    "J.J. Barea": "Jose Juan Barea",
+    "C.J. Miles": "CJ Miles",
+    "J.J. Redick": "JJ Redick",
+    "P.J. Tucker": "PJ Tucker",
+    "Nene Hilario": "Nene",
+    "Juancho Hernangomez": "Juan Hernangomez",
+    "A.J. Hammons": "AJ Hammons",
+    "Derrick Jones Jr.": "Derrick Jones, Jr.",
+    "K.J. McDaniels": "KJ McDaniels",
+    "C.J. Watson": "CJ Watson",
+    "C.J. Wilcox": "CJ Wilcox",
+    "Stephen Zimmerman Jr.": "Stephen Zimmerman",
+    "T.J. McConnell": "TJ McConnell",
+    "Kelly Oubre Jr.": "Kelly Oubre",
+    "Timothe Luwawu-Cabarrot": "Timothe Luwawu",
+    "Guillermo Hernangomez": "Willy Hernangomez",
+    "Glenn Robinson III": "Glenn Robinson",
+    "Wade Baldwin IV": "Wade Baldwin",
+    "Luc Richard Mbah a Moute": "Luc Mbah a Moute"
+}
+
+SQL_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_SQL_TRANSLATE.iteritems())
+
+DK_TO_WOWY_TRANSLATE = {
+    "Sergio Rodriguez": unicode("Sergio Rodríguez", "utf-8"),
+    "Alex Abrines": unicode("Álex Abrines", "utf-8"),
+    "Nicolas Laprovittola": unicode("Nicolás Laprovittola", "utf-8")
+}
+
+WOWY_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_WOWY_TRANSLATE.iteritems())
+
+def compare_wowy_players():
+    dk_players = get_dk_player_names()
+    wowy_players = get_all_wowy_players()
+    for player in dk_players:
+        if player not in wowy_players:
+            print player
+# compare_players()
+# compare_sql_players()
+# compare_wowy_players()
+

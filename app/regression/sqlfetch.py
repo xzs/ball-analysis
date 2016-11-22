@@ -1524,7 +1524,23 @@ def get_avg_reb_pct_by_player(date_begin, players):
     return query
 
 
-# def get_
+def get_all_players_played(date_begin, date_end):
+    query = 'SELECT ub.PLAYER_NAME as NAME '\
+            'FROM usage_boxscores as ub '\
+            'LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
+            'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+                'GROUP BY ub.PLAYER_NAME '\
+            'UNION '\
+            'SELECT CONCAT(ub.`FIRST_NAME`, " ", ub.`LAST_NAME`) as NAME '\
+            'FROM inactives as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
+            'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
+                'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
+                'GROUP BY NAME ' % {'date_format_year': DATE_FORMAT_YEAR, \
+                    'date_begin': date_begin, 'date_end': date_end}
+
+    return query
+
 # print get_synergy_wrt_dk('DeMar DeRozan')
 # print get_team_synergy_ranks()
 # get_data_against_based_on_position()
