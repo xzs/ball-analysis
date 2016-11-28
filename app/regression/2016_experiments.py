@@ -732,7 +732,7 @@ def get_daily_snapshot():
         dk_money_obj = {}
 
         dk_teams_list = []
-        with open('../scrape/csv/'+str(today_date)+'.csv',) as csv_file:
+        with open('../scrape/csv/'+str(today_date)+'-Late.csv',) as csv_file:
             try:
                 next(csv_file, None)
                 players = csv.reader(csv_file)
@@ -742,7 +742,7 @@ def get_daily_snapshot():
                         'positions': player[0].split('/'),
                         'salary': player[2],
                         'fp_avg': player[4],
-                        'fp_needed': float(player[2])*0.001*5.5,
+                        'fp_needed': float(player[2])*0.001*6,
                         'avg_val': float(player[4])/(0.001*float(player[2]))
                     }
                     dk_team_abbrev = DK_TEAMS[player[5]]
@@ -766,6 +766,9 @@ def get_daily_snapshot():
         team_synergy_ranks = execute_query(sqlfetch.get_team_synergy_ranks(today_date))
         team_possessions_ranks = execute_query(sqlfetch.get_team_possessions_per_game(today_date))
         team_foul_ranks = execute_query(sqlfetch.get_team_fouls(FIRST_DATE_REG_SEASON))
+        team_fga_ranks = execute_query(sqlfetch.get_team_fga_ranking(FIRST_DATE_REG_SEASON))
+        team_reb_ranks = execute_query(sqlfetch.get_team_reb_ranking(FIRST_DATE_REG_SEASON))
+        team_rating_ranks = execute_query(sqlfetch.get_team_ratings(FIRST_DATE_REG_SEASON))
         player_daily_status = news_scraper.player_daily_status()
 
         team_last_game_info_obj = {}
@@ -822,15 +825,19 @@ def get_daily_snapshot():
                 positions = ['PG', 'SG', 'SF', 'PF', 'C']
                 for position in positions:
                     depth = data[position]
-                    all_team_players[team]['players'][position] = []
+                    all_team_players[team]['players'][position] = {}
                     for player in depth:
                         player_name = player['player']
-
+                        player_role = player['role']
                         # translate name appropriately for DK
                         if player_name in news_scraper.DEPTH_TO_DK_TRANSLATE:
                             player_name = news_scraper.DEPTH_TO_DK_TRANSLATE[player_name]
 
-                        all_team_players[team]['players'][position].append(player_name)
+                        # all_team_players[team]['players'][position].append(player_name)
+                        all_team_players[team]['players'][position][player_name] = {
+                            'name': player_name,
+                            'role': player_role
+                        }
                         all_team_players[team]['all_players'].append(player_name)
 
                 players_string = '","'.join(all_team_players[team])
@@ -927,7 +934,7 @@ def get_daily_snapshot():
                 player_obj = last_season_against_team['players'][player]
 
                 if player_obj['poss'] >= 20:
-                    if player in all_team_players[team]['players']:
+                    if player in all_team_players[team]['all_players']:
                         print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
                             player=player_name, poss=player_obj['poss'], usg=player_obj['complied_stats']['usg'],\
                             si=player_obj['complied_stats']['scoring_index'])
@@ -945,6 +952,12 @@ def get_daily_snapshot():
             oppo_possession_rank = (item for item in team_possessions_ranks \
                 if item["TEAM_ABBREVIATION"] == oppo).next()
             oppo_foul_rank = (item for item in team_foul_ranks \
+                if item["TEAM"] == oppo).next()
+            oppo_fga_rank = (item for item in team_fga_ranks \
+                if item["TEAM"] == oppo).next()
+            oppo_reb_rank = (item for item in team_reb_ranks \
+                if item["TEAM"] == oppo).next()
+            oppo_rating_rank = (item for item in team_rating_ranks \
                 if item["TEAM"] == oppo).next()
             oppo_synergy_rank = (item for item in team_synergy_ranks \
                 if item["TEAM_NAME"] == oppo).next()
@@ -966,9 +979,24 @@ def get_daily_snapshot():
 
             # print 'Spread: ' + vegas_lines[vegas_team]['advantage_team'], vegas_lines[vegas_team]['over_under']
 
+            # fouls
             print '{oppo} Fouls: {fouls} ({fouls_rank})'.format(
                     oppo=oppo, fouls=oppo_foul_rank['AVG_FOULS'], \
                     fouls_rank=team_foul_ranks.index(oppo_foul_rank))
+            # fga
+            print '{oppo} FGA: {fga} ({fga_rank})'.format(
+                    oppo=oppo, fga=oppo_fga_rank['AVG_FGA'], \
+                    fga_rank=team_fga_ranks.index(oppo_fga_rank))
+
+            # reb
+            print '{oppo} REB: {reb} ({reb_rank})'.format(
+                    oppo=oppo, reb=oppo_reb_rank['AVG_REB'], \
+                    reb_rank=team_reb_ranks.index(oppo_reb_rank))
+
+            # rating
+            print '{oppo} Def. Rating: {rating} ({rating_rank})'.format(
+                    oppo=oppo, rating=oppo_rating_rank['AVG_DEF_RATING'], \
+                    rating_rank=team_rating_ranks.index(oppo_rating_rank))
 
             print oppo + ' Synergy Ranks'
             print 'PnR Handler: {roll_rank}, PnR Roller: {handler_rank}, SpotUp Shots: {spotup_rank}, ISO: {iso_rank}'.format(
@@ -978,7 +1006,6 @@ def get_daily_snapshot():
                 iso_rank=oppo_synergy_rank['ISO_RANK'])
 
             print '{oppo} DvP:'.format(oppo=oppo)
-
             if oppo == 'BKN':
                 oppo = 'BRK'
             elif oppo == 'PHX':
@@ -1001,9 +1028,16 @@ def get_daily_snapshot():
 
             print '\n'
 
+            # all_team_players[team]['players'][position][player_name] = {
+            #     'name': player_name,
+            #     'role': player_role
+            # }
+
             for position, position_players in team_players['players'].iteritems():
                 print position
-                for player in position_players:
+                for lineup_player, player_info in position_players.iteritems():
+                    player = player_info['name']
+                    player_role = player_info['role']
                     if player in dk_money_obj:
                         player_salary = dk_money_obj[player]['salary']
                         fp_needed = dk_money_obj[player]['fp_needed']
@@ -1016,8 +1050,12 @@ def get_daily_snapshot():
                             if player in player_daily_status['all']:
                                 player_status = player_daily_status['all'][player]
 
+
                             print player + ' Status: ' + player_status
 
+                            # if players are off the same role
+                            # we can try to grup them together and send it to the API
+                            # see what lineups were played when they are out (by poss)
                             if (player_status == 'Questionable' or \
                                 player_status == 'Out' or \
                                 player_status == 'Doubtful' or \
@@ -1054,7 +1092,6 @@ def get_daily_snapshot():
 
                                         # there needs to be a translate here
                                         player_avg_usg = execute_query(sqlfetch.get_player_avg_usg(FIRST_DATE_REG_SEASON, today_date, split_name))
-
                                         if player_off_wowy_obj['complied_stats']['usg'] >= player_avg_usg[0]['AVG_USG'] and \
                                             player_off_wowy_obj['complied_stats']['usg'] >= 15:
 
@@ -1075,17 +1112,42 @@ def get_daily_snapshot():
                         else:
                             dvp_against_player = oppo_dvp_obj['C']
 
-                        print '{player_name} {position}: {salary}, AVG PTS: {fp_avg}, '\
+                        print '{player_name} ({player_role}) {position}: {salary}, AVG PTS: {fp_avg}, '\
                                 'OPPO DvP: {dvp_against_player} ({dvp_against_player_rank}), '\
                                 'VAL: {avg_val}, PTS NEEDED: {fp_needed}'.format(
                                     player_name=player, position=dk_money_obj[player]['positions'], \
+                                    player_role=player_role, \
                                     salary=player_salary, dvp_against_player=dvp_against_player['Season'], \
                                     dvp_against_player_rank=dvp_against_player['rank'], fp_avg=fp_avg, \
                                     avg_val=news_scraper.two_decimals(avg_val), fp_needed=fp_needed)
 
                         # player matchups
-                        player_matchups = ', '.join(all_team_players[oppo]['players'][position])
-                        print 'Matchups: %s' % player_matchups
+                        if player in news_scraper.DK_TO_WOWY_TRANSLATE:
+                            wowy_player = news_scraper.DK_TO_WOWY_TRANSLATE[player]
+                        else:
+                            wowy_player = player
+
+                        # based on last game's positions
+                        player_matchups_list = []
+                        if wowy_player in temp_lineup_obj:
+                            player_obj = temp_lineup_obj[wowy_player]
+                            for player_obj_positon, poss in player_obj['positions'].iteritems():
+                                try:
+                                    poss_pct = float(poss)/float(player_obj['poss'])*100
+                                except ZeroDivisionError:
+                                    poss_pct = 0
+
+                                if poss_pct >= 20:
+                                    player_matchups_list = player_matchups_list + all_team_players[oppo]['players'][player_obj_positon].keys()
+                        else:
+                            # based on the natural positions
+                            # this can be based on the avg positions
+                            for position in dk_money_obj[player]['positions']:
+                                player_matchups_list = player_matchups_list + all_team_players[oppo]['players'][position].keys()
+
+                        player_matchups_string = ', '.join(player_matchups_list)
+
+                        print 'Potential Matchups: %s' % player_matchups_string
 
                         # name things
                         split_name = player.split('.')
@@ -1102,11 +1164,13 @@ def get_daily_snapshot():
                                     print news.strip()
 
                         if oppo == 'BRK':
-                            oppo = 'BKN'
+                            sql_oppo = 'BKN'
                         elif oppo == 'PHO':
-                            oppo = 'PHX'
+                            sql_oppo = 'PHX'
                         elif oppo == 'CHO':
-                            oppo = 'CHA'
+                            sql_oppo = 'CHA'
+                        else:
+                            sql_oppo = oppo
 
                         # # write to player log
                         # player_log = sqlfetch.full_player_log(player, FIRST_DATE_REG_SEASON, today_date, 0, 0)
@@ -1129,7 +1193,7 @@ def get_daily_snapshot():
                         player_pf = execute_query(sqlfetch.get_player_pf(FIRST_DATE_REG_SEASON, sql_player))
                         print 'PFD: {pfd}, PF: {pf}'.format(pfd=player_pfd[0]['AVG_PFD'], pf=player_pf[0]['AVG_PF'])
 
-                        player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(oppo, sql_player))
+                        player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(sql_oppo, sql_player))
 
                         # since the dict is already translated
                         wowy_player = ''
@@ -1149,16 +1213,20 @@ def get_daily_snapshot():
 
                         if played_last_game != 'DNP':
                             player_last_game = execute_query(sqlfetch.player_last_game(player, 1, False))
+
+                            # i should probably also try to fetch the last game for the player so i can get # of plays
+                            # fga + (0.5 * fta) + stats['tov'] + stats['ast']
                             try:
                                 if played_last_game != 'DNP':
                                     last_game = player_last_game[0]
+                                    players_plays = last_game['FGA'] + (0.5 * last_game['FTA']) + last_game['TO'] + last_game['AST']
                                     print 'Last Game'
                                     print '{date} vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(
                                         date=last_game['DATE'], team=last_game['TEAM_AGAINST'], \
                                         min=last_game['MIN'], usg=last_game['USG_PCT'], \
                                         dk=last_game['DK_POINTS'])
-                                    print 'Possessions Played: {poss_played} ({total_poss_pct}%)'.format(
-                                        poss_played=player_obj['poss'], total_poss_pct=news_scraper.two_decimals(total_poss_pct))
+                                    print 'Possessions Played: {poss_played} ({total_poss_pct}%) - {plays} Plays'.format(
+                                        poss_played=player_obj['poss'], total_poss_pct=news_scraper.two_decimals(total_poss_pct), plays=players_plays)
                                     for positon, poss in player_obj['positions'].iteritems():
                                         try:
                                             poss_pct = float(poss)/float(player_obj['poss'])*100

@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # _*_ coding:utf-8 _*_
-
+import MySQLdb
+import MySQLdb.converters
 import time, urllib2
 import pprint
 import csv
@@ -20,6 +21,19 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+
+conv = MySQLdb.converters.conversions.copy()
+conv[246] = float    # convert decimals to floats
+conv[10] = str       # convert dates to strings
+
+# Open database connection
+db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
+
+# prepare a cursor object using cursor() method
+cursor = db.cursor()
+
+pp = pprint.PrettyPrinter(indent=4)
+
 
 YEAR = '2017'
 
@@ -813,13 +827,52 @@ def process_line_up_sums(lineup, temp_lineup_obj, player_depth_positions):
 
     return lineup_sum
 
+SQL_TRANSLATE_DICT = {
+    'CHO':'CHA',
+    'BRK':'BKN',
+    'PHO':'PHX',
+}
+
+def get_sql_team_names():
+    team_obj = {}
+    query = """
+        SELECT TEAM_ID, TEAM_ABBREVIATION FROM all_game_ids GROUP BY TEAM_ID
+    """
+    all_teams = sqlfetch.execute_query(query)
+
+    for team in all_teams:
+        team_obj[team['TEAM_ABBREVIATION']] = {
+            'name': team['TEAM_ABBREVIATION'],
+            'team_id': team['TEAM_ID']
+        }
+
+    return team_obj
+
 def get_all_lineups():
     # all_teams = get_all_teams_playing_today()
     # depth_chart_obj = process_depth_charts()
 
-    # need to match with draftkings positions as well 
     # also account for duplicates in the small_ball.json
+
+    team_obj = get_sql_team_names()
+
+    cursor.execute("DROP TABLE IF EXISTS team_lineups")
+
+    sql = """CREATE TABLE team_lineups (
+              TEAM_ID varchar(255),
+              TEAM_NAME varchar(255),
+              PLAYER_1 varchar(255),
+              PLAYER_2 varchar(255),
+              PLAYER_3 varchar(255),
+              PLAYER_4 varchar(255),
+              PLAYER_5 varchar(255),
+              POSSESSIONS INT,
+              MINUTES_PLAYED INT)"""
+
+    cursor.execute(sql)
+
     all_teams = TEAMS_DICT.keys()
+    # all_teams = ['DAL']
 
     all_small_ball_lineup_obj = {}
     for team in all_teams:
@@ -827,18 +880,53 @@ def get_all_lineups():
             data = json.load(data_file)
             player_depth_positions = data['all']
 
+
+        if team in SQL_TRANSLATE_DICT:
+            sql_team_name = SQL_TRANSLATE_DICT[team]
+        else:
+            sql_team_name = team
+
         # lineup analysis
         print 'AGAINST ' + team
         temp_lineup_obj = {}
         # small_ball_sum = []
         lineup_poss = []
         small_ball_poss = []
+        sql_lineups = []
         team_wowy_obj = get_lineups_by_team(WOWY_TEAMS[team], 'all', [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
         for lineup in team_wowy_obj['lineups']:
 
             # if lineup['poss'] >= 5:
             lineup_poss.append(lineup['poss'])
             last_two_players = []
+            for idx, lineup_player in enumerate(lineup['lineup']):
+                try:
+                    # print lineup['lineup'][idx]
+                    if lineup['lineup'][idx] in WOWY_TO_DK_TRANSLATE:
+                        lineup['lineup'][idx] = WOWY_TO_DK_TRANSLATE[lineup['lineup'][idx]]
+                        if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
+                            lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+
+                    if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
+                        lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+
+                    lineup['lineup'][idx] = lineup['lineup'][idx].encode("utf-8")
+                except IndexError:
+                    print "Index doesn't exist!"
+
+            team_id = team_obj[sql_team_name]['team_id']
+            # translate team to sql_team
+            try:
+                val_string = '("{team_id}", "{team_name}", "{player_1}", "{player_2}", "{player_3}", "{player_4}", "{player_5}",'\
+                    '"{possessions}", "{minutes_played}")'.format(
+                        team_id=team_id, team_name=sql_team_name, \
+                        player_1=lineup['lineup'][0], player_2=lineup['lineup'][1], player_3=lineup['lineup'][2], \
+                        player_4=lineup['lineup'][3], player_5=lineup['lineup'][4], \
+                        possessions=lineup['poss'], minutes_played=lineup['min']
+                    )
+                sql_lineups.append(val_string)
+            except IndexError:
+                print "Index doesn't exist!"
 
             # get last two players
             for player in lineup['lineup'][-2:]:
@@ -870,6 +958,13 @@ def get_all_lineups():
             print 'Small Ball Poss (%): {team_percentile_small_poss}'.format(team_percentile_small_poss=team_percentile_small_poss)
 
 
+        insert_players_string = ', '.join(sql_lineups)
+        # return sql_players
+        insert_sql = """INSERT INTO team_lineups VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
+
+        cursor.execute(insert_sql)
+        db.commit()
+
         # lets get the teams that have already played them
         for abbrev, wowy_team in WOWY_TEAMS.iteritems():
             with open('../scrape/misc/updated_depth_chart/'+abbrev+'.json') as data_file:
@@ -881,7 +976,6 @@ def get_all_lineups():
 
             if len(team_against_wowy_obj['lineups']) > 0:
                 print wowy_team
-                print abbrev
                 temp_lineup_obj = {}
                 # small_ball_sum = []
                 lineup_poss = []
@@ -907,10 +1001,10 @@ def get_all_lineups():
                     player_reb_pct = sqlfetch.execute_query(sqlfetch.get_avg_reb_pct_by_player(FIRST_DATE_REG_SEASON, last_two_players))
 
                     # if lineup['poss'] >= 5:
-                    #     print ', '.join(lineup['lineup'])
+                    # print ', '.join(lineup['lineup'])
 
-                    #     print 'POSS: {poss}, DEPTH_SUM: {lineup_sum}, PF_C_TOTAL_REB_PCT: {TOTAL_REB_PCT}, PF_C_TOTAL_FG3A: {TOTAL_FG3A}'.format(
-                    #         poss=lineup['poss'], lineup_sum=lineup_sum, TOTAL_REB_PCT=player_reb_pct[0]['TOTAL_REB_PCT'], TOTAL_FG3A=player_fg3a[0]['TOTAL_FG3A'])
+                    # print 'POSS: {poss}, DEPTH_SUM: {lineup_sum}, PF_C_TOTAL_REB_PCT: {TOTAL_REB_PCT}, PF_C_TOTAL_FG3A: {TOTAL_FG3A}'.format(
+                    #     poss=lineup['poss'], lineup_sum=lineup_sum, TOTAL_REB_PCT=player_reb_pct[0]['TOTAL_REB_PCT'], TOTAL_FG3A=player_fg3a[0]['TOTAL_FG3A'])
 
                     # small_ball_sum.append(lineup_sum)
 
@@ -949,8 +1043,8 @@ def get_deiviation_lineups():
         data = json.load(data_file)
 
         whatever_team_list = {}
+        analysis_obj = {}
         for team, small_ball in data.iteritems():
-            print team
             small_ball_deviated = []
             for oppo, oppo_small_ball in small_ball['against'].iteritems():
                 # negative = bigger, positive = smaller
@@ -963,13 +1057,15 @@ def get_deiviation_lineups():
                 # need to only account for the ones that are 2 standard deviations
                 small_ball_deviated.append(deviated_pct)
 
-            print np.median(small_ball_deviated)
-            print np.average(small_ball_deviated)
+            analysis_obj[team] = {
+                'avg': np.average(small_ball_deviated),
+                'median': np.median(small_ball_deviated)
+            }
 
-        # print whatever_team_list
-        # for team, small_ball_list in whatever_team_list.iteritems():
-        #     print team
-        #     print np.std(small_ball_list)
+        with open('../scrape/misc/updated_depth_chart/lineup_analysis.json', 'w') as outfile:
+            LOGGER.info('Writing to depth chart file: lineup_analysis')
+            json.dump(analysis_obj, outfile)
+
 
 def get_updated_depth_chart():
 
@@ -996,14 +1092,17 @@ def get_updated_depth_chart():
                         player_link = player_info.get('href')
                         player_name = str(player_link.split('/')[2])
                         player_name = player_name.replace("-", " ")
+                        rotation_role = players[0].text
                         current_starters['all'][player_name] = player_position
                         if player_position in current_starters:
                             current_starters[player_position].append({
-                                "player": player_name
+                                "player": player_name,
+                                "role": rotation_role
                             })
                         else:
                             current_starters[player_position] = [{
-                                "player": player_name
+                                "player": player_name,
+                                "role": rotation_role
                             }]
 
             with open('../scrape/misc/updated_depth_chart/'+teams[idx]+'.json', 'w') as outfile:
@@ -1011,12 +1110,6 @@ def get_updated_depth_chart():
                 json.dump(current_starters, outfile)
 
     # return current_starters
-
-# get_updated_depth_chart()
-# get_fantasy_news()
-# get_team_against_position()
-# get_all_lineups()
-# get_deiviation_lineups()
 
 DEPTH_TO_DK_TRANSLATE = {
     "Matt Dellavedova": "Matthew Dellavedova",
@@ -1068,7 +1161,7 @@ DK_TO_DEPTH_TRANSLATE = dict((v,k) for k,v in DEPTH_TO_DK_TRANSLATE.iteritems())
 
 def get_dk_player_names():
     today_date = date.today()
-    yesterday_date = today_date - timedelta(days=5)
+    yesterday_date = today_date - timedelta(days=2)
 
     delta = today_date - yesterday_date
 
@@ -1118,6 +1211,7 @@ def get_sql_player_names():
 
     return sql_players
 
+
 def compare_sql_players():
     dk_players = get_dk_player_names()
     sql_players = get_sql_player_names()
@@ -1156,7 +1250,8 @@ SQL_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_SQL_TRANSLATE.iteritems())
 DK_TO_WOWY_TRANSLATE = {
     "Sergio Rodriguez": unicode("Sergio Rodríguez", "utf-8"),
     "Alex Abrines": unicode("Álex Abrines", "utf-8"),
-    "Nicolas Laprovittola": unicode("Nicolás Laprovittola", "utf-8")
+    "Nicolas Laprovittola": unicode("Nicolás Laprovittola", "utf-8"),
+    "Dante Exum": unicode("Danté Exum", "utf-8")
 }
 
 WOWY_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_WOWY_TRANSLATE.iteritems())
@@ -1167,7 +1262,347 @@ def compare_wowy_players():
     for player in dk_players:
         if player not in wowy_players:
             print player
+
+# compare_wowy_players()
+
+def create_player_depth_table():
+    cursor.execute("DROP TABLE IF EXISTS player_depth")
+
+    sql = """CREATE TABLE player_depth (
+              PLAYER_ID varchar(255) PRIMARY KEY,
+              PLAYER_NAME varchar(255),
+              TEAM_ID varchar(255),
+              TEAM_NAME varchar(255),
+              POSITION_1 varchar(255),
+              POSITION_2 varchar(255),
+              DK_POSITION_1 varchar(255),
+              DK_POSITION_2 varchar(255),
+              ROLE varchar(255))"""
+
+    cursor.execute(sql)
+    # insert
+    try:
+        sql_players = []
+        all_sql_players = sqlfetch.execute_query(sqlfetch.get_all_players_played(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON))
+
+        sql_players_dict = {}
+        for players in all_sql_players:
+            sql_players_dict[players['NAME']] = {
+                'name': players['NAME'],
+                'player_id': players['PLAYER_ID'],
+                'team_id': players['TEAM_ID'],
+                'team_name': players['TEAM_ABBREVIATION']
+            }
+
+        # get all the players from the depth chart
+        teams = ['ATL', 'BOS', 'BRK', 'CHO', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 'MIA', 'MIL', 'MIN', 'NOP', 'NYK', 'OKC', 'ORL', 'PHI', 'PHO', 'POR', 'SAC', 'SAS', 'TOR', 'UTA', 'WAS']
+
+        for team in teams:
+            with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
+                data = json.load(data_file)
+                positions = ['PG', 'SG', 'SF', 'PF', 'C']
+                for position in positions:
+                    depth = data[position]
+                    for player in depth:
+                        player_name = player['player']
+                        player_role = player['role']
+
+                        # DEPTH TO SQL TRANSLATE
+                        if player_name in DEPTH_TO_DK_TRANSLATE:
+                            player_name = DEPTH_TO_DK_TRANSLATE[player_name]
+                            if player_name in DK_TO_SQL_TRANSLATE:
+                                player_name = DK_TO_SQL_TRANSLATE[player_name]
+
+                        if player_name in sql_players_dict:
+                            player_name = sql_players_dict[player_name]['name']
+                            player_id = sql_players_dict[player_name]['player_id']
+                            team_id = sql_players_dict[player_name]['team_id']
+                            team_name = sql_players_dict[player_name]['team_name']
+                            position_1 = position
+                            role = player_role
+
+                            val_string = '("{player_id}", "{player_name}", "{team_id}", "{team_name}", '\
+                                            '"{position_1}", NULL, NULL, NULL, "{role}")'.format(
+                                                player_id=player_id, player_name=player_name, \
+                                                team_id=team_id, team_name=team_name, \
+                                                position_1=position_1, role=role
+                                            )
+
+                            sql_players.append(val_string)
+
+            # if players['NAME'] in SQL_TO_DK_TRANSLATE
+        insert_players_string = ', '.join(sql_players)
+        # return sql_players
+        insert_sql = """INSERT INTO player_depth VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
+
+        cursor.execute(insert_sql)
+        db.commit()
+    except:
+        db.rollback()
+
+def create_oppo_stats_table():
+
+    # CREATE VIEW ALL_GAME_IDS AS
+    #     SELECT tbt.game_id, tbt.TEAM_ABBREVIATION, tbt.TEAM_ID FROM traditional_boxscores_team as tbt
+
+    # CREATE VIEW TEAM_FOULS AS
+    # SELECT
+    #     gl.`TEAM_ABBREVIATION` as TEAM,
+    #     gl.TEAM_ID,
+    #     ROUND(avg(tb.PF),
+    #     2) as AVG_FOULS
+    # FROM
+    #     `sportvu_defense_team_game_logs`as gl
+    # LEFT JOIN
+    #     traditional_boxscores_team as tb
+    #         ON tb.game_id = gl.game_id
+    #         AND tb.team_id = gl.team_id
+    # WHERE
+    #     gl.date >= "2016-10-25"
+    # GROUP BY
+    #     TEAM
+    cursor.execute("DROP TABLE IF EXISTS OPP_STATS_TABLE")
+
+    sql = """
+        CREATE TABLE OPP_STATS_TABLE AS SELECT
+            tb.TEAM_NAME as NAME,
+            tb.TEAM_ABBREVIATION as TEAM_NAME,
+            ROUND(avg(dr.OPP_OREB_PCT),
+            3) as AVG_OPP_OREB_PCT,
+            ROUND(avg(rgl.REB),
+            2) as NUM_REB_ALLOWED,
+            ROUND(avg(rgl.OREB_CHANCES),
+            2) as OPP_OREB_CHANCES,
+            ROUND(avg(rgl.DREB_CHANCES),
+            2) as OPP_DREB_CHANCES,
+            ROUND(avg(rgl.REB_CHANCES),
+            2) as OPP_REB_CHANCES,
+            ROUND(avg(rgl.REB_CHANCE_PCT_ADJ),
+            2) as OPP_REB_PCT_ADJ,
+            ROUND(avg(csl.CATCH_SHOOT_FGA),
+            3) as OPP_AVG_CATCH_SHOOT_FGA,
+            ROUND(avg(csl.CATCH_SHOOT_PTS),
+            3) as OPP_AVG_CATCH_SHOOT_PTS,
+            ROUND(avg(csl.CATCH_SHOOT_FG_PCT),
+            3) as OPP_CATCH_SHOOT_FG_PCT,
+            ROUND(avg(ptl.PAINT_TOUCHES),
+            3) as OPP_AVG_PAINT_TOUCHES,
+            ROUND(avg(ptl.PAINT_TOUCH_FGA),
+            3) as OPP_AVG_PAINT_TOUCH_FGA,
+            ROUND(avg(ptl.PAINT_TOUCH_PTS),
+            3) as OPP_PAINT_TOUCH_PTS,
+            ROUND(avg(potl.POST_TOUCHES),
+            3) as OPP_AVG_POST_TOUCHES,
+            ROUND(avg(potl.POST_TOUCH_FGA),
+            3) as OPP_AVG_POST_TOUCH_FGA,
+            ROUND(avg(potl.POST_TOUCH_PTS),
+            3) as OPP_POST_TOUCH_PTS,
+            ROUND(avg(drl.DRIVES),
+            2) as AVG_NUM_DRIVES_FACED,
+            ROUND(avg(drl.DRIVE_FGA),
+            2) as AVG_NUM_DRIVE_FGA_ALLOWED,
+            ROUND(avg(drl.DRIVE_FTA),
+            2) as AVG_NUM_DRIVE_FTA_ALLOWED,
+            ROUND(avg(drl.DRIVE_PTS),
+            2) as AVG_DRIVE_PTS_ALLOWED,
+            ROUND(avg(drl.DRIVE_PF),
+            2) as AVG_NUM_DRIVE_PF_COMMITED,
+            ROUND(avg(tb3.AVG_FOULS),
+            2) as AVG_FOULS
+        FROM
+            four_factors_boxscores_team as dr
+        LEFT JOIN
+            traditional_boxscores_team as tb
+                ON tb.TEAM_ID = dr.TEAM_ID
+                AND tb.GAME_ID = dr.GAME_ID
+        left join
+            game_summary as gs
+                on dr.game_id = gs.game_id
+        left join
+            sportvu_rebounding_team_game_logs as rgl
+                ON rgl.GAME_ID = dr.GAME_ID
+        left join
+            sportvu_catch_shoot_team_game_logs as csl
+                ON csl.GAME_ID = dr.GAME_ID
+        left join
+            sportvu_paint_touches_team_game_logs as ptl
+                ON ptl.GAME_ID = dr.GAME_ID
+        left join
+            sportvu_post_touches_team_game_logs as potl
+                ON potl.GAME_ID = dr.GAME_ID
+        left join
+            sportvu_drives_team_game_logs as drl
+                ON drl.GAME_ID = dr.GAME_ID
+        LEFT JOIN
+            team_fouls as tb3
+                on tb3.TEAM_ID = tb.TEAM_ID
+        LEFT JOIN
+            ALL_GAME_IDS as tb2
+                ON tb2.game_id = dr.GAME_ID
+                and tb2.TEAM_ID != tb.TEAM_ID
+        WHERE
+            gs.GAME_DATE_EST >= '2016-10-26'
+        GROUP BY
+            TEAM_NAME
+    """
+
+    cursor.execute(sql)
+
+
+# create_player_depth_table()
 # compare_players()
 # compare_sql_players()
 # compare_wowy_players()
+
+# get_updated_depth_chart()
+# create_player_depth_table()
+# create_oppo_stats_table
+# get_fantasy_news()
+# get_team_against_position()
+# get_all_lineups()
+# get_deiviation_lineups()
+
+
+def test_markov_jimmy():
+    query = """
+                SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, 
+                ub.MIN, ub.TEAM_ABBREVIATION as TEAM_NAME, 
+                tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS 
+                FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id 
+                LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id 
+                WHERE ub.PLAYER_NAME = "Kevin Love" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND ub.MIN >= 30 ORDER BY DATE
+            """
+    query_results = sqlfetch.execute_query(query)
+
+    # get the first game and set that as a starting avg
+    dk_avg = query_results[0]['DK_POINTS']
+
+    num_games = len(query_results)
+
+    prob_obj = {
+        'better_than': {
+            'in_std': {
+                'greater_than' : [],
+                'less_than' : []
+            },
+            'out_std': {
+                'greater_than' : [],
+                'less_than' : []
+            },
+            'equal_to' : []
+        },
+        'less_than': {
+            'in_std': {
+                'greater_than' : [],
+                'less_than' : []
+            },
+            'out_std': {
+                'greater_than' : [],
+                'less_than' : []
+            },
+            'equal_to' : []
+        }
+    }
+    dk_pts_list = []
+    total_sum = dk_avg
+
+    # within one deviation of the avg
+    for idx, game in enumerate(query_results):
+        current_game = game['DK_POINTS']
+
+        dk_pts_list.append(current_game)
+
+        current_std = np.std(dk_pts_list, dtype=np.float64, ddof=1)
+
+        # get the std
+        # comp_std = np.std(dk_pts_list)
+        # print current_std
+        try:
+            next_game = query_results[idx+1]['DK_POINTS']
+            within_deviation = (query_results[idx+1]['DK_POINTS'] - current_std) \
+                                <= dk_avg <= \
+                                (query_results[idx+1]['DK_POINTS'] + current_std)
+        except IndexError:
+            within_deviation = False
+
+        # print within_deviation
+        b_in_std = prob_obj['better_than']['in_std']
+        b_out_std = prob_obj['better_than']['out_std']
+        l_in_std = prob_obj['less_than']['in_std']
+        l_out_std = prob_obj['less_than']['out_std']
+
+        if current_game > dk_avg:
+            # within one deviation
+            # coming off a better than avg game was the next game better than this one ?
+            # coming off a better than avg game was the next game worse than this one?
+            # coming off a better than avg game was the next game same than this one?
+            try:
+                # print current_game
+                # print query_results[idx+1]['DK_POINTS']
+                if next_game > current_game:
+                    if within_deviation:
+                        b_in_std['greater_than'].append(next_game)
+                    else:
+                        b_out_std['greater_than'].append(next_game)
+
+                if next_game < current_game:
+                    if within_deviation:
+                        b_in_std['less_than'].append(next_game)
+                    else:
+                        b_out_std['less_than'].append(next_game)
+
+                # exclude logic for the last entry
+                if next_game == current_game and idx != len(query_results) - 1:
+                    prob_obj['better_than']['equal_to'].append(next_game)
+
+            except IndexError:
+                print 'no future games'
+
+        elif current_game <= dk_avg:
+            # coming off a less than avg game was the next game better than this one?
+            # coming off a less than avg game was the next game worse than this one?
+            # coming off a less than avg game was the next game same than this one?
+            try:
+                if next_game > current_game:
+                    if within_deviation:
+                        l_in_std['greater_than'].append(next_game)
+                    else:
+                        l_out_std['greater_than'].append(next_game)
+
+                if next_game < current_game:
+                    if within_deviation:
+                        l_in_std['less_than'].append(next_game)
+                    else:
+                        l_out_std['less_than'].append(next_game)
+
+                if next_game == current_game and idx != len(query_results) - 1:
+                    prob_obj['less_than']['equal_to'].append(next_game)
+            except IndexError:
+                print 'no future games'
+
+        total_sum += current_game
+        dk_avg = (total_sum) / (idx+1)
+
+
+    pp.pprint(prob_obj)
+
+    #
+    better_than_total = float(len(b_in_std['greater_than']) + len(b_in_std['less_than']) + len(b_out_std['greater_than']) + len(b_out_std['less_than']))
+    less_than_total = float(len(l_in_std['greater_than']) + len(l_in_std['less_than']) + len(l_out_std['greater_than']) + len(l_out_std['less_than']))
+
+    print float(len(b_in_std['greater_than'])) / better_than_total
+    print float(len(b_in_std['less_than'])) / better_than_total
+
+    print float(len(b_out_std['greater_than'])) / better_than_total
+    print float(len(b_out_std['less_than'])) / better_than_total
+
+    print float(len(l_in_std['greater_than'])) / less_than_total
+    print float(len(l_in_std['less_than'])) / less_than_total
+
+    print float(len(l_out_std['greater_than'])) / less_than_total
+    print float(len(l_out_std['less_than'])) / less_than_total
+
+
+
+test_markov_jimmy()
 

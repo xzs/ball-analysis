@@ -878,7 +878,6 @@ def shot_selection_type_detailed_team(name, shot_made, last_n):
         'GROUP BY SHOT_ZONE_AREA, SHOT_ZONE_BASIC, SHOT_TYPE '\
         'ORDER BY NUM_ACTIONS DESC' % {'name': name, 'shot_made': shot_made}
 
-    print shot_query
     return shot_query
 
 
@@ -1070,7 +1069,6 @@ def test():
     # When face against a BIG. For example, Rudy Gobert. Do drives, paint points affect player behavior?
     query = 'SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE,  gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") <= "2016-04-15" LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id WHERE tb2.TEAM_ABBREVIATION = "UTA" and ub.MIN >= 20 and ub.START_POSITION = "G" order by mb.PTS_PAINT DESC'
 
-    print query
     return query
 
 # test()
@@ -1525,15 +1523,15 @@ def get_avg_reb_pct_by_player(date_begin, players):
 
 
 def get_all_players_played(date_begin, date_end):
-    query = 'SELECT ub.PLAYER_NAME as NAME '\
+    query = 'SELECT ub.PLAYER_NAME as NAME, ub.PLAYER_ID, ub.TEAM_ABBREVIATION, ub.TEAM_ID '\
             'FROM usage_boxscores as ub '\
             'LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
             'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
                 'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
                 'GROUP BY ub.PLAYER_NAME '\
             'UNION '\
-            'SELECT CONCAT(ub.`FIRST_NAME`, " ", ub.`LAST_NAME`) as NAME '\
-            'FROM inactives as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
+            'SELECT CONCAT(ia.`FIRST_NAME`, " ", ia.`LAST_NAME`) as NAME, ia.PLAYER_ID, ia.TEAM_ABBREVIATION, ia.TEAM_ID '\
+            'FROM inactives as ia LEFT JOIN game_summary as gs ON gs.game_id = ia.game_id '\
             'WHERE STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") >= "%(date_begin)s" '\
                 'AND STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") <= "%(date_end)s" '\
                 'GROUP BY NAME ' % {'date_format_year': DATE_FORMAT_YEAR, \
@@ -1541,6 +1539,173 @@ def get_all_players_played(date_begin, date_end):
 
     return query
 
+def get_team_ratings(date_begin):
+    query = 'SELECT '\
+                '@rownum := @rownum + 1 AS RANK, '\
+                'T1.* '\
+            'FROM ( '\
+                'SELECT '\
+                    'mb.TEAM_ABBREVIATION as TEAM, '\
+                    'ROUND(avg(mb.DEF_RATING), '\
+                    '2) as AVG_DEF_RATING, '\
+                    'ROUND(avg(mb.OFF_RATING), '\
+                    '2) as AVG_OFF_RATING, '\
+                    'ROUND(avg(mb.NET_RATING), '\
+                    '2) as AVG_NET_RATING '\
+                'FROM '\
+                    'advanced_boxscores_team as mb '\
+                'LEFT JOIN '\
+                    'game_summary as gs  '\
+                        'on mb.game_id = gs.game_id  '\
+                'WHERE '\
+                    'gs.GAME_DATE_EST >= "%(date_begin)s"  '\
+                'GROUP BY '\
+                    'TEAM '\
+                'ORDER BY '\
+                    'AVG_DEF_RATING ASC '\
+            ') as T1, (SELECT @rownum := 0) AS r' % {
+                'date_begin': date_begin
+            }
+    return query
+
+def get_player_ratings(date_begin):
+    query = 'SELECT '\
+                '@rownum := @rownum + 1 AS RANK, '\
+                'T1.* '\
+            'FROM ( '\
+                'SELECT '\
+                    'mb.PLAYER_NAME as PLAYER_NAME, '\
+                    'ROUND(avg(mb.DEF_RATING), '\
+                    '2) as AVG_DEF_RATING, '\
+                    'ROUND(avg(mb.OFF_RATING), '\
+                    '2) as AVG_OFF_RATING, '\
+                    'ROUND(avg(mb.NET_RATING), '\
+                    '2) as AVG_NET_RATING '\
+                'FROM '\
+                    'advanced_boxscores as mb '\
+                'LEFT JOIN '\
+                    'game_summary as gs  '\
+                        'on mb.game_id = gs.game_id  '\
+                'WHERE '\
+                    'gs.GAME_DATE_EST >= "%(date_begin)s"  '\
+                'GROUP BY '\
+                    'PLAYER_NAME '\
+                'ORDER BY '\
+                    'AVG_DEF_RATING ASC '\
+            ') as T1, (SELECT @rownum := 0) AS r' % {
+                'date_begin': date_begin
+            }
+    return query
+
+def get_team_fga_ranking(date_begin):
+    query = 'SELECT '\
+                '@rownum := @rownum + 1 AS RANK, '\
+                'T1.* '\
+            'FROM ( '\
+                'select '\
+                    'mb.TEAM_ABBREVIATION as TEAM, '\
+                    'ROUND(avg(mb.FGA), '\
+                    '2) as AVG_FGA  '\
+                'from '\
+                    'traditional_boxscores_team as mb  '\
+                'left join '\
+                    'game_summary as gs  '\
+                        'on mb.game_id = gs.game_id  '\
+                'WHERE '\
+                    'gs.GAME_DATE_EST >= "%(date_begin)s"  '\
+                'GROUP BY '\
+                    'TEAM  '\
+                'ORDER BY '\
+                    'AVG_FGA DESC '\
+            ') as T1, (SELECT @rownum := 0) AS r' % {
+                'date_begin': date_begin
+            }
+    return query
+
+def get_team_reb_ranking(date_begin):
+    query = 'SELECT '\
+                '@rownum := @rownum + 1 AS RANK, '\
+                'T1.*  '\
+            'FROM '\
+                '( select '\
+                    'mb.TEAM_ABBREVIATION as TEAM, '\
+                    'ROUND(avg(mb.REB), '\
+                    '2) as AVG_REB  '\
+                'from '\
+                    'traditional_boxscores_team as mb  '\
+                'left join '\
+                    'game_summary as gs  '\
+                        'on mb.game_id = gs.game_id  '\
+                'WHERE '\
+                    'gs.GAME_DATE_EST >= "%(date_begin)s"  '\
+                'GROUP BY '\
+                    'TEAM  '\
+                'ORDER BY '\
+                    'AVG_REB DESC   '\
+            ') as T1, (SELECT @rownum := 0) AS r' % {
+                'date_begin': date_begin
+            }
+    return query
+
+def get_drive_team_against():
+    query = 'SELECT '\
+                'tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
+                'ROUND(avg(dr.DRIVES), '\
+                '2) as AVG_NUM_DRIVES_FACED, '\
+                'ROUND(avg(dr.DRIVE_FGA), '\
+                '2) as AVG_NUM_DRIVE_FGA_ALLOWED, '\
+                'ROUND(avg(dr.DRIVE_FTA), '\
+                '2) as AVG_NUM_DRIVE_FTA_ALLOWED, '\
+                'ROUND(avg(dr.DRIVE_PTS), '\
+                '2) as AVG_DRIVE_PTS_ALLOWED, '\
+                'ROUND(avg(dr.DRIVE_PF), '\
+                '2) as AVG_NUM_DRIVE_PF_COMMITED, '\
+                'ROUND(avg(tb.FTA), '\
+                '2) as AVG_FTA, '\
+                'ROUND(avg(tb3.AVG_FOULS), '\
+                '2) as AVG_FOULS  '\
+            'FROM '\
+                'sportvu_drives_team_game_logs as dr  '\
+            'LEFT JOIN '\
+                'traditional_boxscores_team as tb  '\
+                    'ON tb.TEAM_ID = dr.TEAM_ID  '\
+                    'AND tb.GAME_ID = dr.GAME_ID  '\
+            'INNER JOIN '\
+                '( '\
+                    'SELECT '\
+                        'tbt.game_id, '\
+                        'tbt.TEAM_ABBREVIATION  '\
+                    'FROM '\
+                        'traditional_boxscores_team as tbt '\
+                ') as tb2  '\
+                    'ON tb2.game_id = dr.GAME_ID  '\
+                    'and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION  '\
+            'inner join '\
+                '( '\
+                    'SELECT '\
+                        'gl.`TEAM_ABBREVIATION` as TEAM, '\
+                        'ROUND(avg(tb.PF), '\
+                        '2) as AVG_FOULS  '\
+                    'FROM '\
+                        '`sportvu_defense_team_game_logs`as gl  '\
+                    'LEFT JOIN '\
+                        'traditional_boxscores_team as tb  '\
+                            'ON tb.game_id = gl.game_id  '\
+                            'AND tb.team_id = gl.team_id  '\
+                    'WHERE '\
+                        'gl.date >= "2016-10-25"  '\
+                    'GROUP BY '\
+                        'TEAM '\
+                ') as tb3  '\
+                    'on tb3.TEAM = tb2.TEAM_ABBREVIATION  '\
+            'WHERE '\
+                'dr.IS_REGULAR_SEASON = 1  '\
+                'AND dr.DATE >= "2016-10-25"  '\
+            'GROUP BY '\
+                'TEAM_AGAINST'
+    return query
+# print get_team_fouls(FIRST_DATE_REG_SEASON)
+# print get_team_possessions_per_game(FIRST_DATE_REG_SEASON)
 # print get_synergy_wrt_dk('DeMar DeRozan')
 # print get_team_synergy_ranks()
 # get_data_against_based_on_position()
@@ -1582,7 +1747,7 @@ Can be used for visualization (not needed for now)
 # player_last_game('DeMar DeRozan', 3)
 # get_sportvu_game_logs('Jeremy Lin', 'player', 1, 1)
 # print get_sportvu_game_logs('Jeremy Lin', 'player', 1, 3)
-# get_sportvu_game_logs('DeMar DeRozan', 'player', 1, 0)
+# print get_sportvu_game_logs('DeMar DeRozan', 'player', 1, 0)
 # write_to_csv(get_sportvu_game_logs('DeMar DeRozan', 'player', 1, 0), 'player_sportvu', 'DeMar DeRozan')
 
 # print full_player_log('Brandon Knight', FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON, 0, 0)
