@@ -5,7 +5,12 @@ import numpy as np
 # this is the standard import if you're using "formula notation" (similar to R)
 import statsmodels.formula.api as smf
 from sklearn.linear_model import LinearRegression
+from sklearn.datasets import load_iris
 
+iris = load_iris()
+print iris.data
+print 4 * len(iris.data)
+print iris.target
 def get_simple_player_log_regression(player):
     # read data into a DataFrame
     data = pd.read_csv('nba_scrape/player_logs/'+player+'.csv', header=0)

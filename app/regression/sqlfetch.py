@@ -20,8 +20,8 @@ db = MySQLdb.connect("127.0.0.1","root","","nba_scrape", conv=conv)
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
 DATE = date.today() - timedelta(1)
-LAST_DATE_REG_SEASON = '2016-04-15'
-FIRST_DATE_REG_SEASON = '2015-10-27'
+LAST_DATE_REG_SEASON = '2017-04-12'
+FIRST_DATE_REG_SEASON = '2016-10-25'
 DATE_FORMAT_YEAR = str("%Y-%m-%d")
 
 POSITIONS = ['G', 'F', 'G-F', 'C']
@@ -1704,6 +1704,32 @@ def get_drive_team_against():
             'GROUP BY '\
                 'TEAM_AGAINST'
     return query
+
+def get_team_faced(team, oppo):
+
+    query = """SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, tb.TEAM_ABBREVIATION as TEAM, tb2.TEAM_ABBREVIATION as TEAM_AGAINST
+                FROM traditional_boxscores_team as tb
+                LEFT JOIN game_summary as gs
+                    ON gs.game_id = tb.game_id
+                INNER JOIN (
+                    SELECT tbt.game_id, tbt.TEAM_ABBREVIATION
+                    FROM traditional_boxscores_team as tbt) as tb2
+                    ON tb2.game_id = tb.game_id
+                    AND tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
+                INNER JOIN (
+                    SELECT game_id
+                    FROM traditional_boxscores_team
+                    WHERE TEAM_ABBREVIATION = "{oppo}"
+                    ORDER BY game_id) as tb3
+                    ON tb3.game_id = tb.game_id
+                WHERE tb2.TEAM_ABBREVIATION = "{oppo}"
+                    AND tb.TEAM_ABBREVIATION = "{team}"
+                    AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+                ORDER BY DATE ASC""".format(date_format_year=DATE_FORMAT_YEAR, date_begin=FIRST_DATE_REG_SEASON, team=team, oppo=oppo)
+
+    return query
+
+
 # print get_team_fouls(FIRST_DATE_REG_SEASON)
 # print get_team_possessions_per_game(FIRST_DATE_REG_SEASON)
 # print get_synergy_wrt_dk('DeMar DeRozan')

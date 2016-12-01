@@ -732,7 +732,7 @@ def get_daily_snapshot():
         dk_money_obj = {}
 
         dk_teams_list = []
-        with open('../scrape/csv/'+str(today_date)+'-Late.csv',) as csv_file:
+        with open('../scrape/csv/'+str(today_date)+'-Turbo.csv',) as csv_file:
             try:
                 next(csv_file, None)
                 players = csv.reader(csv_file)
@@ -1187,6 +1187,7 @@ def get_daily_snapshot():
                         else:
                             sql_player = player
 
+                        news_scraper.test_markov(sql_player)
                         # SQL stuff
                         player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, sql_player))
 
