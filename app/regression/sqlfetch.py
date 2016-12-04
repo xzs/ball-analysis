@@ -22,6 +22,9 @@ cursor = db.cursor()
 DATE = date.today() - timedelta(1)
 LAST_DATE_REG_SEASON = '2017-04-12'
 FIRST_DATE_REG_SEASON = '2016-10-25'
+TODAY_DATE = date.today()
+YESTERDAY_DATE = TODAY_DATE - timedelta(days=1)
+
 DATE_FORMAT_YEAR = str("%Y-%m-%d")
 
 POSITIONS = ['G', 'F', 'G-F', 'C']
@@ -1395,19 +1398,19 @@ def get_player_against_team_log(team, players):
             'LEFT JOIN synergy_pr_ball_handler_offense AS prho '\
             'ON prho.player_id = ub.player_id '\
             'AND prho.team_id = ub.team_id '\
-                    'AND prho.DATE = "2016-04-15" '\
+                    'AND prho.DATE = "%(date_end)s" '\
             'LEFT JOIN synergy_isolation_offense AS iso '\
             'ON iso.player_id = ub.player_id '\
             'AND iso.team_id = ub.team_id '\
-                    'AND iso.DATE = "2016-04-15" '\
+                    'AND iso.DATE = "%(date_end)s" '\
             'LEFT JOIN synergy_spot_up_offense AS spot '\
             'ON spot.player_id = ub.player_id '\
             'AND spot.team_id = ub.team_id '\
-                    'AND spot.DATE = "2016-04-15" '\
+                    'AND spot.DATE = "%(date_end)s" '\
             'LEFT JOIN synergy_off_screen_offense AS screen '\
             'ON screen.player_id = ub.player_id '\
             'AND screen.team_id = ub.team_id '\
-            'AND screen.DATE = "2016-04-15" '\
+            'AND screen.DATE = "%(date_end)s" '\
             'LEFT JOIN sportvu_catch_shoot_game_logs AS cs '\
             'ON cs.player_id = ub.player_id '\
             'AND cs.game_id = ub.game_id '\
@@ -1434,7 +1437,7 @@ def get_player_against_team_log(team, players):
             'ON tb2.game_id = ub.game_id '\
                     'AND tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION '\
                     'AND Str_to_date(gs.game_date_est, "%(date_format_year)s") >= "2015-10-27" '\
-                    'AND Str_to_date(gs.game_date_est, "%(date_format_year)s") <= "2016-04-15" '\
+                    'AND Str_to_date(gs.game_date_est, "%(date_format_year)s") <= "%(date_end)s" '\
             'LEFT JOIN sportvu_drives_game_logs AS dgl '\
             'ON dgl.game_id = ub.game_id '\
             'AND dgl.player_id = ub.player_id '\
@@ -1442,7 +1445,7 @@ def get_player_against_team_log(team, players):
             'AND ub.MIN >= 15 '\
             'AND ub.PLAYER_NAME in ("%(players)s") '\
             'AND ub.game_id NOT LIKE "%(season_id)s" '\
-        'ORDER  BY DK_POINTS DESC' % {'team': team, 'players': players, 'date_format_year': DATE_FORMAT_YEAR, 'season_id': '001%'}
+        'ORDER  BY DK_POINTS DESC' % {'team': team, 'players': players, 'date_format_year': DATE_FORMAT_YEAR, 'season_id': '001%', 'date_end':YESTERDAY_DATE}
 
     return query
 
@@ -1705,7 +1708,7 @@ def get_drive_team_against():
                 'TEAM_AGAINST'
     return query
 
-def get_team_faced(team, oppo):
+def get_team_faced(team, oppo, date):
 
     query = """SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, tb.TEAM_ABBREVIATION as TEAM, tb2.TEAM_ABBREVIATION as TEAM_AGAINST
                 FROM traditional_boxscores_team as tb
@@ -1725,11 +1728,83 @@ def get_team_faced(team, oppo):
                 WHERE tb2.TEAM_ABBREVIATION = "{oppo}"
                     AND tb.TEAM_ABBREVIATION = "{team}"
                     AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
-                ORDER BY DATE ASC""".format(date_format_year=DATE_FORMAT_YEAR, date_begin=FIRST_DATE_REG_SEASON, team=team, oppo=oppo)
+                ORDER BY DATE ASC""".format(date_format_year=DATE_FORMAT_YEAR, date_begin=date, team=team, oppo=oppo)
 
     return query
 
+def get_games_not_played_by_player(team, player_name, date):
+    query = """
+        SELECT tbt.game_id
+        FROM traditional_boxscores_team as tbt
+        LEFT JOIN game_summary as gs ON gs.game_id = tbt.game_id
+        WHERE tbt.TEAM_ABBREVIATION = '{team}'
+            AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+            AND tbt.game_id NOT IN (
+                SELECT tb.GAME_ID
+                    FROM traditional_boxscores as tb
+                    LEFT JOIN game_summary as gs
+                        ON gs.game_id = tb.game_id
+                        WHERE tb.PLAYER_NAME = "{player_name}"
+                        AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+                        AND tb.TEAM_ABBREVIATION = '{team}'
+            )""".format(date_format_year=DATE_FORMAT_YEAR, date_begin=date, team=team, player_name=player_name)
 
+    return query
+
+def get_player_lineup_stats_from_absence(team, player_name, player_position, date):
+
+    query = """
+        SELECT tbl.{player_position} AS PLAYER_NAME, sum(tbl.minutes_played) as TOTAL_MIN_PLAYED, sum(tbl.possessions) as TOTAL_POSS_PLAYED
+        FROM team_lineups_game_logs as tbl
+        INNER JOIN (SELECT tbt.game_id
+            FROM traditional_boxscores_team as tbt
+            LEFT JOIN game_summary as gs ON gs.game_id = tbt.game_id
+            WHERE tbt.TEAM_ABBREVIATION = '{team}'
+                AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+                AND tbt.game_id NOT IN (
+                    SELECT tb.GAME_ID
+                        FROM traditional_boxscores as tb
+                        LEFT JOIN game_summary as gs
+                            ON gs.game_id = tb.game_id
+                            WHERE tb.PLAYER_NAME = "{player_name}"
+                            AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+                            AND tb.TEAM_ABBREVIATION = '{team}'
+                )
+        ) as gm
+        ON gm.game_id = tbl.game_id
+        WHERE tbl.team_name = '{team}'
+        GROUP BY tbl.{player_position}
+        ORDER BY TOTAL_POSS_PLAYED""".format(date_format_year=DATE_FORMAT_YEAR, date_begin=date, team=team, player_name=player_name, player_position=player_position)
+
+    return query
+
+def get_player_dk_points_log(player_name, date):
+    dk_points_query = """
+                SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.GAME_ID, ub.PLAYER_NAME as NAME,
+                ub.MIN, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST,
+                tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS
+                FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id
+                LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id
+                INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2
+                    ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION
+                WHERE ub.PLAYER_NAME = "{player_name}" AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+            """.format(player_name=player_name, date_format_year=DATE_FORMAT_YEAR, date_begin=date)
+
+    return dk_points_query
+
+def get_played_avg_min(player_name, date):
+    query ="""
+        SELECT ub.PLAYER_NAME as NAME, ROUND(avg(ub.MIN), 2) as AVG_MIN 
+        FROM usage_boxscores as ub 
+        LEFT JOIN game_summary as gs 
+            ON gs.game_id = ub.game_id 
+        WHERE ub.PLAYER_NAME = "{player_name}"
+            AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+    """.format(player_name=player_name, date_format_year=DATE_FORMAT_YEAR, date_begin=date)
+
+    return query
+
+# print get_player_lineup_stats_from_absence('SAS', 'Manu Ginobili', 'player_1', '2016-10-25')
 # print get_team_fouls(FIRST_DATE_REG_SEASON)
 # print get_team_possessions_per_game(FIRST_DATE_REG_SEASON)
 # print get_synergy_wrt_dk('DeMar DeRozan')

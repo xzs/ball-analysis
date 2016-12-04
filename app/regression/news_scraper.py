@@ -999,11 +999,11 @@ def get_all_lineups():
         db.commit()
 
         # lets get the teams that have already played them
+        # we only need to do this for the games that they played
         for abbrev, wowy_team in WOWY_TEAMS.iteritems():
             # team = team
             # wowy team = oppo
-            print '1',team
-            print '2',wowy_team
+            print wowy_team
 
             with open('../scrape/misc/updated_depth_chart/'+abbrev+'.json') as data_file:
                 data = json.load(data_file)
@@ -1018,28 +1018,21 @@ def get_all_lineups():
 
             # # translate to sql name
             # use today's date
-            get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name))
+            today_date = date.today()
+            yesterday_date = today_date - timedelta(days=1)
+            get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name, yesterday_date))
 
             if len(get_games_played) >= 1:
 
                 for games_played in get_games_played:
-                    # games_played['GAME_ID']
-
-                    # fetch the game for that date
-                    # games_played['DATE']
-
-                    # print games_played['DATE']
-                    # print wowy_team
-                    # print WOWY_TEAMS[team]
-
                     game_sql_lineups = []
 
                     team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], games_played['DATE'], games_played['DATE'])
-                    print len(team_against_wowy_obj['lineups'])
+                    # print len(team_against_wowy_obj['lineups'])
                     # team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
 
                     if len(team_against_wowy_obj['lineups']) > 0:
-                        print wowy_team
+                        # print wowy_team
                         temp_lineup_obj = {}
                         # small_ball_sum = []
                         lineup_poss = []
@@ -1566,33 +1559,31 @@ def create_oppo_stats_table():
 
 def test_markov(player_name):
 
+    DATE_FORMAT_YEAR = str("%Y-%m-%d")
     avg_min_query = """
         SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, avg(ub.MIN) as AVG_MIN
         FROM usage_boxscores as ub
         LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id
-        WHERE ub.PLAYER_NAME = "{player_name}" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27"
+        WHERE ub.PLAYER_NAME = "{player_name}" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-25"
     """.format(player_name=player_name)
 
     query_results = sqlfetch.execute_query(avg_min_query)
-    print query_results[0]
+    # print query_results[0]
     player_avg_min = query_results[0]['AVG_MIN']
 
     if player_avg_min == None:
         return 'None'
 
-    dk_points_query = """
-                SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME,
-                ub.MIN, ub.TEAM_ABBREVIATION as TEAM_NAME,
-                tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS
-                FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id
-                LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id
-                WHERE ub.PLAYER_NAME = "{player_name}" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND ub.MIN >= {player_avg_min} ORDER BY DATE
-            """.format(player_name=player_name, player_avg_min=player_avg_min)
+    dk_points_query = sqlfetch.get_player_dk_points_log(player_name, FIRST_DATE_REG_SEASON) + \
+        'AND ub.MIN >= {player_avg_min} ORDER BY DATE'.format(player_avg_min=player_avg_min)
 
     query_results = sqlfetch.execute_query(dk_points_query)
 
     # get the first game and set that as a starting avg
-    dk_avg = query_results[0]['DK_POINTS']
+    try:
+        dk_avg = query_results[0]['DK_POINTS']
+    except IndexError:
+        return 'None'
 
     num_games = len(query_results)
 
@@ -1729,7 +1720,7 @@ def test_markov(player_name):
 # create_oppo_stats_table
 # get_fantasy_news()
 # get_team_against_position()
-get_all_lineups()
+# get_all_lineups()
 # get_deiviation_lineups()
 # test_markov('Tristan Thompson')
 
