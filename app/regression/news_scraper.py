@@ -154,12 +154,265 @@ REVERSE_TEAMS_DICT = {
     'Washington Wizards': 'WAS'
 }
 
+DEPTH_TO_DK_TRANSLATE = {
+    "Matt Dellavedova": "Matthew Dellavedova",
+    "James McAdoo": "James Michael McAdoo",
+    "John Lucas": "John Lucas III",
+    "Karl Anthony Towns": "Karl-Anthony Towns",
+    "Tim Hardaway Jr": "Tim Hardaway Jr.",
+    "DeAndre Bembry": "DeAndre' Bembry",
+    "Kentavious Caldwell Pope": "Kentavious Caldwell-Pope",
+    "Kyle OQuinn": "Kyle O'Quinn",
+    "Willy Hernangomez": "Guillermo Hernangomez",
+    "JJ Barea": "J.J. Barea",
+    "Dorian Finney Smith": "Dorian Finney-Smith",
+    "AJ Hammons": "A.J. Hammons",
+    "CJ McCollum": "C.J. McCollum",
+    "Al Farouq Aminu": "Al-Farouq Aminu",
+    "Domas Sabonis": "Domantas Sabonis",
+    "JR Smith": "J.R. Smith",
+    "Raulzinho Neto": "Raul Neto",
+    "Michael Carter Williams": "Michael Carter-Williams",
+    "RJ Hunter": "R.J. Hunter",
+    "Michael Kidd Gilchrist": "Michael Kidd-Gilchrist",
+    "KJ McDaniels": "K.J. McDaniels",
+    "Maybyner Nene": "Nene Hilario",
+    "Kelly Oubre Jr": "Kelly Oubre Jr.",
+    "DAngelo Russell": "D'Angelo Russell",
+    "Marcelinho Huertas": "Marcelo Huertas",
+    "Larry Nance Jr": "Larry Nance Jr.",
+    "TJ McConnell": "T.J. McConnell",
+    "Timothe Luwawu Cabarrot": "Timothe Luwawu-Cabarrot",
+    "TJ Warren": "T.J. Warren",
+    "PJ Tucker": "P.J. Tucker",
+    "Derrick Jones": "Derrick Jones Jr.",
+    "JJ Redick": "J.J. Redick",
+    "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
+    "Willie Cauley Stein": "Willie Cauley-Stein",
+    "George Papagiannis": "Georgios Papagiannis",
+    "DJ Augustin": "D.J. Augustin",
+    "CJ Watson": "C.J. Watson",
+    "CJ Wilcox": "C.J. Wilcox",
+    "Stephen Zimmerman": "Stephen Zimmerman Jr.",
+    "Rondae Hollis Jefferson": "Rondae Hollis-Jefferson",
+    "CJ Miles": "C.J. Miles",
+    "Glenn Robinson": "Glenn Robinson III",
+    "ETwaun Moore": "E'Twaun Moore"
+}
+
+DK_TO_DEPTH_TRANSLATE = dict((v,k) for k,v in DEPTH_TO_DK_TRANSLATE.iteritems())
+
+WOWY_TEAMS = {
+    'ATL':'Hawks',
+    'BOS':'Celtics',
+    'BRK':'Nets',
+    'CHO':'Hornets',
+    'CHI':'Bulls',
+    'CLE':'Cavaliers',
+    'DAL':'Mavericks',
+    'DEN':'Nuggets',
+    'DET':'Pistons',
+    'GSW':'Warriors',
+    'HOU':'Rockets',
+    'IND':'Pacers',
+    'LAC':'Clippers',
+    'LAL':'Lakers',
+    'MEM':'Grizzlies',
+    'MIA':'Heat',
+    'MIL':'Bucks',
+    'MIN':'Timberwolves',
+    'NOP':'Pelicans',
+    'NYK':'Knicks',
+    'OKC':'Thunder',
+    'ORL':'Magic',
+    'PHI':'76ers',
+    'PHO':'Suns',
+    'POR':'Trail Blazers',
+    'SAC':'Kings',
+    'SAS':'Spurs',
+    'TOR':'Raptors',
+    'UTA':'Jazz',
+    'WAS':'Wizards'
+}
+
+REVERSE_WOWY_TEAMS_DICT = dict((v,k) for k,v in WOWY_TEAMS.iteritems())
+
+POSITION_TRANSLATE_DICT = {
+    1: 'PG',
+    2: 'SG',
+    3: 'SF',
+    4: 'PF',
+    5: 'C'
+}
+
+REVERSE_POSITION_TRANSLATE_DICT = {
+     'PG': 1,
+     'SG': 2,
+     'SF': 3,
+     'PF': 4,
+     'C': 5
+}
+
+SQL_TRANSLATE_DICT = {
+    'CHO':'CHA',
+    'BRK':'BKN',
+    'PHO':'PHX',
+}
+
+INTERNATIONAL_TEAMS = ['FCB', 'RMD', 'SLA', 'MAC', 'SDS']
+
+SQL_REVERSE_TRANSLATE = dict((v,k) for k,v in SQL_TRANSLATE_DICT.iteritems())
+
+DK_TO_SQL_TRANSLATE = {
+    "C.J. McCollum": "CJ McCollum",
+    "DeAndre' Bembry": "DeAndre Bembry",
+    "R.J. Hunter": "RJ Hunter",
+    "T.J. Warren": "TJ Warren",
+    "J.J. Barea": "Jose Juan Barea",
+    "C.J. Miles": "CJ Miles",
+    "J.J. Redick": "JJ Redick",
+    "P.J. Tucker": "PJ Tucker",
+    "Nene Hilario": "Nene",
+    "Juancho Hernangomez": "Juan Hernangomez",
+    "A.J. Hammons": "AJ Hammons",
+    "Derrick Jones Jr.": "Derrick Jones, Jr.",
+    "K.J. McDaniels": "KJ McDaniels",
+    "C.J. Watson": "CJ Watson",
+    "C.J. Wilcox": "CJ Wilcox",
+    "Stephen Zimmerman Jr.": "Stephen Zimmerman",
+    "T.J. McConnell": "TJ McConnell",
+    "Kelly Oubre Jr.": "Kelly Oubre",
+    "Timothe Luwawu-Cabarrot": "Timothe Luwawu",
+    "Guillermo Hernangomez": "Willy Hernangomez",
+    "Glenn Robinson III": "Glenn Robinson",
+    "Wade Baldwin IV": "Wade Baldwin",
+    "Luc Richard Mbah a Moute": "Luc Mbah a Moute"
+}
+
+SQL_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_SQL_TRANSLATE.iteritems())
+
+DK_TO_WOWY_TRANSLATE = {
+    "Sergio Rodriguez": unicode("Sergio Rodríguez", "utf-8"),
+    "Alex Abrines": unicode("Álex Abrines", "utf-8"),
+    "Nicolas Laprovittola": unicode("Nicolás Laprovittola", "utf-8"),
+    "Dante Exum": unicode("Danté Exum", "utf-8")
+}
+
+WOWY_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_WOWY_TRANSLATE.iteritems())
+
+
 NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
 MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/47.0.2526.73 Chrome/47.0.2526.73 Safari/537.36"
+
+def process_depth_charts():
+    depth_players = []
+    for team in TEAMS_DICT:
+        with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
+            data = json.load(data_file)
+            positions = ['PG', 'SG', 'SF', 'PF', 'C']
+            for position in positions:
+                depth = data[position]
+                for player in depth:
+                    depth_players.append(player['player'])
+
+    return depth_players
+
+def get_dk_player_names():
+    today_date = date.today()
+    yesterday_date = today_date - timedelta(days=2)
+
+    delta = today_date - yesterday_date
+
+    # for the range of the past week
+    dk_players = []
+    for i in range(delta.days + 1):
+        prev_date = yesterday_date + timedelta(days=i)
+        with open('../scrape/csv/'+str(prev_date)+'.csv',) as csv_file:
+            try:
+                next(csv_file, None)
+                players = csv.reader(csv_file)
+                for player in players:
+                    name = player[1]
+                    if name not in dk_players:
+                        dk_players.append(name)
+
+            except csv.Error as e:
+                sys.exit('file %s: %s' % (csv_file, e))
+
+    return dk_players
+
+def compare_players():
+    depth_players = process_depth_charts()
+    dk_players = get_dk_player_names()
+    for player in depth_players:
+        if player not in dk_players and player not in DEPTH_TO_DK_TRANSLATE:
+            print "missed"
+
+def get_sql_player_names():
+    sql_players = []
+    all_sql_players = sqlfetch.execute_query(sqlfetch.get_all_players_played(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON))
+    for players in all_sql_players:
+        sql_players.append(players['NAME'])
+
+    return sql_players
+
+
+def compare_sql_players():
+    dk_players = get_dk_player_names()
+    sql_players = get_sql_player_names()
+    for player in dk_players:
+        if player not in sql_players:
+            print player
+
+
+def compare_wowy_players():
+    dk_players = get_dk_player_names()
+    wowy_players = get_all_wowy_players()
+    for player in dk_players:
+        if player not in wowy_players:
+            print player
+
+# compare_wowy_players()
+def get_all_teams_playing_today():
+    # for all players playing in tomorrow's game we are going to get how they played in the preseason
+    with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
+        data = json.load(data_file)
+        today_date = date.today()
+        formatted_date = today_date.strftime("%a, %b %-d, %Y")
+
+        all_teams = []
+
+        for game in data[formatted_date]:
+            all_teams.append(game['team'])
+            all_teams.append(game['opp'])
+
+    return all_teams
+
+def get_sql_team_names():
+    team_obj = {}
+    query = """
+        SELECT TEAM_ID, TEAM_ABBREVIATION FROM all_game_ids GROUP BY TEAM_ID
+    """
+    all_teams = sqlfetch.execute_query(query)
+
+    for team in all_teams:
+        team_obj[team['TEAM_ABBREVIATION']] = {
+            'name': team['TEAM_ABBREVIATION'],
+            'team_id': team['TEAM_ID']
+        }
+
+    return team_obj
+
+def compare_wowy_team_to_sql():
+
+    sql_teams = get_sql_team_names()
+    for team in sql_teams:
+        if team not in TEAMS_DICT:
+            print team
 
 def two_decimals(num):
     return float('{0:.2f}'.format(num))
-
 
 def get_fantasy_news():
 
@@ -429,7 +682,6 @@ def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_d
 
     return url_list
 
-USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/47.0.2526.73 Chrome/47.0.2526.73 Safari/537.36"
 def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date):
 
     url_list = construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date)
@@ -610,57 +862,6 @@ def process_stat_api(player_obj, data, stat):
 
     return player_obj
 
-WOWY_TEAMS = {
-    'ATL':'Hawks',
-    'BOS':'Celtics',
-    'BRK':'Nets',
-    'CHO':'Hornets',
-    'CHI':'Bulls',
-    'CLE':'Cavaliers',
-    'DAL':'Mavericks',
-    'DEN':'Nuggets',
-    'DET':'Pistons',
-    'GSW':'Warriors',
-    'HOU':'Rockets',
-    'IND':'Pacers',
-    'LAC':'Clippers',
-    'LAL':'Lakers',
-    'MEM':'Grizzlies',
-    'MIA':'Heat',
-    'MIL':'Bucks',
-    'MIN':'Timberwolves',
-    'NOP':'Pelicans',
-    'NYK':'Knicks',
-    'OKC':'Thunder',
-    'ORL':'Magic',
-    'PHI':'76ers',
-    'PHO':'Suns',
-    'POR':'Trail Blazers',
-    'SAC':'Kings',
-    'SAS':'Spurs',
-    'TOR':'Raptors',
-    'UTA':'Jazz',
-    'WAS':'Wizards'
-}
-
-REVERSE_WOWY_TEAMS_DICT = dict((v,k) for k,v in WOWY_TEAMS.iteritems())
-
-POSITION_TRANSLATE_DICT = {
-    1: 'PG',
-    2: 'SG',
-    3: 'SF',
-    4: 'PF',
-    5: 'C'
-}
-
-REVERSE_POSITION_TRANSLATE_DICT = {
-     'PG': 1,
-     'SG': 2,
-     'SF': 3,
-     'PF': 4,
-     'C': 5
-}
-
 
 def get_all_wowy_players():
     all_wowy_players = []
@@ -756,20 +957,158 @@ def get_lineups_by_team(team, vs_teams, on_players, off_players, start_date, end
     return player_obj
 
 
-def get_all_teams_playing_today():
-    # for all players playing in tomorrow's game we are going to get how they played in the preseason
-    with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
-        data = json.load(data_file)
-        today_date = date.today()
-        formatted_date = today_date.strftime("%a, %b %-d, %Y")
+def get_all_lineups():
+    team_obj = get_sql_team_names()
 
-        all_teams = []
+    cursor.execute("DROP TABLE IF EXISTS team_lineups")
 
-        for game in data[formatted_date]:
-            all_teams.append(game['team'])
-            all_teams.append(game['opp'])
+    sql = """CREATE TABLE team_lineups (
+              TEAM_ID varchar(255),
+              TEAM_NAME varchar(255),
+              PLAYER_1 varchar(255),
+              PLAYER_2 varchar(255),
+              PLAYER_3 varchar(255),
+              PLAYER_4 varchar(255),
+              PLAYER_5 varchar(255),
+              POSSESSIONS INT,
+              MINUTES_PLAYED INT)"""
 
-    return all_teams
+    cursor.execute(sql)
+
+    all_teams = TEAMS_DICT.keys()
+    # we need to separate this by SEASON (ex. 15, 16), Preseason, Playoffs
+
+    for team in all_teams:
+
+        if team in SQL_TRANSLATE_DICT:
+            sql_team_name = SQL_TRANSLATE_DICT[team]
+        else:
+            sql_team_name = team
+
+        print 'AGAINST ' + team
+        sql_lineups = []
+        team_wowy_obj = get_lineups_by_team(WOWY_TEAMS[team], 'all', [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+        for lineup in team_wowy_obj['lineups']:
+
+            for idx, lineup_player in enumerate(lineup['lineup']):
+                try:
+                    # print lineup['lineup'][idx]
+                    if lineup['lineup'][idx] in WOWY_TO_DK_TRANSLATE:
+                        lineup['lineup'][idx] = WOWY_TO_DK_TRANSLATE[lineup['lineup'][idx]]
+                        if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
+                            lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+
+                    if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
+                        lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+
+                    lineup['lineup'][idx] = lineup['lineup'][idx].encode("utf-8")
+                except IndexError:
+                    print "Index doesn't exist!"
+
+            team_id = team_obj[sql_team_name]['team_id']
+            # translate team to sql_team
+            try:
+                val_string = '("{team_id}", "{team_name}", "{player_1}", "{player_2}", "{player_3}", "{player_4}", "{player_5}",'\
+                    '"{possessions}", "{minutes_played}")'.format(
+                        team_id=team_id, team_name=sql_team_name, \
+                        player_1=lineup['lineup'][0], player_2=lineup['lineup'][1], player_3=lineup['lineup'][2], \
+                        player_4=lineup['lineup'][3], player_5=lineup['lineup'][4], \
+                        possessions=lineup['poss'], minutes_played=lineup['min']
+                    )
+                sql_lineups.append(val_string)
+            except IndexError:
+                print "Index doesn't exist!"
+
+        insert_players_string = ', '.join(sql_lineups)
+        # return sql_players
+        insert_sql = """INSERT INTO team_lineups VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
+
+        cursor.execute(insert_sql)
+        db.commit()
+
+        # lets get the teams that have already played them
+        for abbrev, wowy_team in WOWY_TEAMS.iteritems():
+            # team = team
+            # wowy team = oppo
+            print wowy_team
+
+            # can reduce this call here if we do a check for if the wowy_team has played the oppo
+            if REVERSE_WOWY_TEAMS_DICT[wowy_team] in SQL_TRANSLATE_DICT:
+                team_against_sql_name = SQL_TRANSLATE_DICT[REVERSE_WOWY_TEAMS_DICT[wowy_team]]
+            else:
+                team_against_sql_name = REVERSE_WOWY_TEAMS_DICT[wowy_team]
+
+            # # translate to sql name
+            # use today's date
+            today_date = date.today()
+            yesterday_date = today_date - timedelta(days=1)
+            get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name, yesterday_date))
+
+            if len(get_games_played) >= 1:
+
+                for games_played in get_games_played:
+                    game_sql_lineups = []
+
+                    team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], games_played['DATE'], games_played['DATE'])
+                    # team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+
+                    if len(team_against_wowy_obj['lineups']) > 0:
+                        for lineup in team_against_wowy_obj['lineups']:
+
+                            for idx, lineup_player in enumerate(lineup['lineup']):
+                                try:
+                                    # print lineup['lineup'][idx]
+                                    if lineup['lineup'][idx] in WOWY_TO_DK_TRANSLATE:
+                                        lineup['lineup'][idx] = WOWY_TO_DK_TRANSLATE[lineup['lineup'][idx]]
+                                        if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
+                                            lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+
+                                    if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
+                                        lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+
+                                    lineup['lineup'][idx] = lineup['lineup'][idx].encode("utf-8")
+                                except IndexError:
+                                    print "Index doesn't exist!"
+
+                            team_id = team_obj[team_against_sql_name]['team_id']
+                            # translate team to sql_team
+                            try:
+                                val_string = '("{game_id}", "{team_id}", "{team_name}", "{player_1}", "{player_2}", "{player_3}", "{player_4}", "{player_5}",'\
+                                    '"{possessions}", "{minutes_played}", "{date}")'.format(
+                                        game_id=games_played['GAME_ID'],
+                                        team_id=team_id, team_name=team_against_sql_name, \
+                                        player_1=lineup['lineup'][0], player_2=lineup['lineup'][1], player_3=lineup['lineup'][2], \
+                                        player_4=lineup['lineup'][3], player_5=lineup['lineup'][4], \
+                                        possessions=lineup['poss'], minutes_played=lineup['min'], date=games_played['DATE']
+                                    )
+                                game_sql_lineups.append(val_string)
+                            except IndexError:
+                                print "Index doesn't exist!"
+
+                        insert_players_string = ', '.join(game_sql_lineups)
+                        insert_sql = """INSERT INTO team_lineups_game_logs VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
+                        cursor.execute(insert_sql)
+                        db.commit()
+
+
+def create_lineup_logs_table():
+    cursor.execute("DROP TABLE IF EXISTS team_lineups_game_logs")
+
+    sql = """CREATE TABLE team_lineups_game_logs (
+              GAME_ID varchar(255),
+              TEAM_ID varchar(255),
+              TEAM_NAME varchar(255),
+              PLAYER_1 varchar(255),
+              PLAYER_2 varchar(255),
+              PLAYER_3 varchar(255),
+              PLAYER_4 varchar(255),
+              PLAYER_5 varchar(255),
+              POSSESSIONS INT,
+              MINUTES_PLAYED INT,
+              DATE DATE)"""
+
+    cursor.execute(sql)
+
 
 def process_line_up_sums(lineup, temp_lineup_obj, player_depth_positions):
     lineup_sum = 0
@@ -830,307 +1169,130 @@ def process_line_up_sums(lineup, temp_lineup_obj, player_depth_positions):
 
     return lineup_sum
 
-SQL_TRANSLATE_DICT = {
-    'CHO':'CHA',
-    'BRK':'BKN',
-    'PHO':'PHX',
-}
+def process_lineup_lines(lineup, lineup_poss, small_ball_poss, temp_lineup_obj, player_depth_positions):
 
-SQL_REVERSE_TRANSLATE = dict((v,k) for k,v in SQL_TRANSLATE_DICT.iteritems())
+    last_two_players = []
+    lineup_poss.append(int(lineup['POSSESSIONS']))
+    lineup_obj = {
+        'lineup': [lineup['PLAYER_1'], lineup['PLAYER_2'], lineup['PLAYER_3'], lineup['PLAYER_4'], lineup['PLAYER_5']],
+        'min': int(lineup['MINUTES_PLAYED']),
+        'poss': int(lineup['POSSESSIONS'])
+    }
+    # get last two players
+    for player in lineup_obj['lineup'][-2:]:
+        split_name = player.split('.')
+        if len(split_name) > 1:
+            player = "".join(split_name)
+        last_two_players.append(player)
 
-def get_sql_team_names():
-    team_obj = {}
-    query = """
-        SELECT TEAM_ID, TEAM_ABBREVIATION FROM all_game_ids GROUP BY TEAM_ID
-    """
-    all_teams = sqlfetch.execute_query(query)
+    lineup_sum = process_line_up_sums(lineup_obj, temp_lineup_obj, player_depth_positions)
 
-    for team in all_teams:
-        team_obj[team['TEAM_ABBREVIATION']] = {
-            'name': team['TEAM_ABBREVIATION'],
-            'team_id': team['TEAM_ID']
-        }
+    last_two_players = '", "'.join(last_two_players)
+    # look at the % for the 4 & 5 position
+    # player_fg3a = sqlfetch.execute_query(sqlfetch.get_avg_fg3a_by_player(FIRST_DATE_REG_SEASON, last_two_players))
+    player_reb_pct = sqlfetch.execute_query(sqlfetch.get_avg_reb_pct_by_player(FIRST_DATE_REG_SEASON, last_two_players))
 
-    return team_obj
+    if lineup_sum < 15 or player_reb_pct[0]['TOTAL_REB_PCT'] < 10:
+        small_ball_poss.append(lineup_obj['poss'])
 
-def compare_wowy_team_to_sql():
+    return small_ball_poss
 
-    sql_teams = get_sql_team_names()
-    for team in sql_teams:
-        if team not in TEAMS_DICT:
-            print team
 
-# compare_wowy_team_to_sql()
-
-def get_all_lineups():
-    # all_teams = get_all_teams_playing_today()
-    # depth_chart_obj = process_depth_charts()
-
+def lineup_analysis():
+    team_obj = get_sql_team_names()
     # also account for duplicates in the small_ball.json
 
-    team_obj = get_sql_team_names()
-
-    cursor.execute("DROP TABLE IF EXISTS team_lineups")
-
-    sql = """CREATE TABLE team_lineups (
-              TEAM_ID varchar(255),
-              TEAM_NAME varchar(255),
-              PLAYER_1 varchar(255),
-              PLAYER_2 varchar(255),
-              PLAYER_3 varchar(255),
-              PLAYER_4 varchar(255),
-              PLAYER_5 varchar(255),
-              POSSESSIONS INT,
-              MINUTES_PLAYED INT)"""
-
-    cursor.execute(sql)
-
-    # cursor.execute("DROP TABLE IF EXISTS team_lineups_game_logs")
-
-    # sql = """CREATE TABLE team_lineups_game_logs (
-    #           GAME_ID varchar(255),
-    #           TEAM_ID varchar(255),
-    #           TEAM_NAME varchar(255),
-    #           PLAYER_1 varchar(255),
-    #           PLAYER_2 varchar(255),
-    #           PLAYER_3 varchar(255),
-    #           PLAYER_4 varchar(255),
-    #           PLAYER_5 varchar(255),
-    #           POSSESSIONS INT,
-    #           MINUTES_PLAYED INT,
-    #           DATE DATE)"""
-
-    # cursor.execute(sql)
-
-    all_teams = TEAMS_DICT.keys()
-    # all_teams = ['DAL']
-
-    # we need to separate this by SEASON (ex. 15, 16), Preseason, Playoffs
-
     all_small_ball_lineup_obj = {}
-    for team in all_teams:
-        with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
-            data = json.load(data_file)
-            player_depth_positions = data['all']
 
+    for team in team_obj:
+        if team not in INTERNATIONAL_TEAMS:
+            print team
+            temp_lineup_obj = {}
+            lineup_poss = []
+            small_ball_poss = []
+            games_played_oppo_obj = {}
 
-        if team in SQL_TRANSLATE_DICT:
-            sql_team_name = SQL_TRANSLATE_DICT[team]
-        else:
-            sql_team_name = team
+            # translate here
+            if team in SQL_REVERSE_TRANSLATE:
+                team_file_name = SQL_REVERSE_TRANSLATE[team]
+            else:
+                team_file_name = team
 
-        # lineup analysis
-        print 'AGAINST ' + team
-        temp_lineup_obj = {}
-        # small_ball_sum = []
-        lineup_poss = []
-        small_ball_poss = []
-        sql_lineups = []
-        team_wowy_obj = get_lineups_by_team(WOWY_TEAMS[team], 'all', [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
-        for lineup in team_wowy_obj['lineups']:
-
-            # if lineup['poss'] >= 5:
-            lineup_poss.append(lineup['poss'])
-            last_two_players = []
-            for idx, lineup_player in enumerate(lineup['lineup']):
-                try:
-                    # print lineup['lineup'][idx]
-                    if lineup['lineup'][idx] in WOWY_TO_DK_TRANSLATE:
-                        lineup['lineup'][idx] = WOWY_TO_DK_TRANSLATE[lineup['lineup'][idx]]
-                        if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
-                            lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
-
-                    if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
-                        lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
-
-                    lineup['lineup'][idx] = lineup['lineup'][idx].encode("utf-8")
-                except IndexError:
-                    print "Index doesn't exist!"
-
-            team_id = team_obj[sql_team_name]['team_id']
-            # translate team to sql_team
-            try:
-                val_string = '("{team_id}", "{team_name}", "{player_1}", "{player_2}", "{player_3}", "{player_4}", "{player_5}",'\
-                    '"{possessions}", "{minutes_played}")'.format(
-                        team_id=team_id, team_name=sql_team_name, \
-                        player_1=lineup['lineup'][0], player_2=lineup['lineup'][1], player_3=lineup['lineup'][2], \
-                        player_4=lineup['lineup'][3], player_5=lineup['lineup'][4], \
-                        possessions=lineup['poss'], minutes_played=lineup['min']
-                    )
-                sql_lineups.append(val_string)
-            except IndexError:
-                print "Index doesn't exist!"
-
-            # get last two players
-            for player in lineup['lineup'][-2:]:
-                split_name = player.split('.')
-                if len(split_name) > 1:
-                    player = "".join(split_name)
-                last_two_players.append(player)
-
-            lineup_sum = process_line_up_sums(lineup, temp_lineup_obj, player_depth_positions)
-
-            last_two_players = '", "'.join(last_two_players)
-            # look at the % for the 4 & 5 position
-            player_fg3a = sqlfetch.execute_query(sqlfetch.get_avg_fg3a_by_player(FIRST_DATE_REG_SEASON, last_two_players))
-            player_reb_pct = sqlfetch.execute_query(sqlfetch.get_avg_reb_pct_by_player(FIRST_DATE_REG_SEASON, last_two_players))
-
-            # small_ball_sum.append(lineup_sum)
-
-            if lineup_sum < 15 or player_reb_pct[0]['TOTAL_REB_PCT'] < 10:
-                small_ball_poss.append(lineup['poss'])
-
-        if len(small_ball_poss) > 0:
-            # i need to know the percentages of posessions the small ball line ups take
-            # percentile_small_lineups = ss.percentileofscore(small_ball_sum, 15, kind='strict')
-            small_ball_poss = np.sum(small_ball_poss)
-            lineup_poss = np.sum(lineup_poss)
-            team_percentile_small_poss = float(small_ball_poss) / float(lineup_poss) * 100
-
-            # print 'Small Ball Lineup (Positions) (%): {percentile_small_lineups}'.format(percentile_small_lineups=percentile_small_lineups)
-            print 'Small Ball Poss (%): {team_percentile_small_poss}'.format(team_percentile_small_poss=team_percentile_small_poss)
-
-
-        insert_players_string = ', '.join(sql_lineups)
-        # return sql_players
-        insert_sql = """INSERT INTO team_lineups VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
-
-        cursor.execute(insert_sql)
-        db.commit()
-
-        # lets get the teams that have already played them
-        # we only need to do this for the games that they played
-        for abbrev, wowy_team in WOWY_TEAMS.iteritems():
-            # team = team
-            # wowy team = oppo
-            print wowy_team
-
-            with open('../scrape/misc/updated_depth_chart/'+abbrev+'.json') as data_file:
+            with open('../scrape/misc/updated_depth_chart/'+team_file_name+'.json') as data_file:
                 data = json.load(data_file)
                 player_depth_positions = data['all']
 
-            # can reduce this call here if we do a check for if the wowy_team has played the oppo
-            REVERSE_WOWY_TEAMS_DICT
-            if REVERSE_WOWY_TEAMS_DICT[wowy_team] in SQL_TRANSLATE_DICT:
-                team_against_sql_name = SQL_TRANSLATE_DICT[REVERSE_WOWY_TEAMS_DICT[wowy_team]]
-            else:
-                team_against_sql_name = REVERSE_WOWY_TEAMS_DICT[wowy_team]
+            # call to get lineups against them
+            games_played_by_team = sqlfetch.execute_query(sqlfetch.get_games_played_by_team(team, FIRST_DATE_REG_SEASON))
+            games_played_list = []
 
-            # # translate to sql name
-            # use today's date
-            today_date = date.today()
-            yesterday_date = today_date - timedelta(days=1)
-            get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name, yesterday_date))
+            for games_played in games_played_by_team:
+                if games_played['TEAM_AGAINST'] not in games_played_oppo_obj:
+                    games_played_oppo_obj[games_played['TEAM_AGAINST']] = {
+                        'game_id': [games_played['GAME_ID']]
+                    }
+                else:
+                    games_played_oppo_obj[games_played['TEAM_AGAINST']]['game_id'].append(games_played['GAME_ID'])
 
-            if len(get_games_played) >= 1:
+                games_played_list.append(games_played['GAME_ID'])
 
-                for games_played in get_games_played:
-                    game_sql_lineups = []
+            game_ids = '", "'.join(games_played_list)
 
-                    team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], games_played['DATE'], games_played['DATE'])
-                    # print len(team_against_wowy_obj['lineups'])
-                    # team_against_wowy_obj = get_lineups_by_team(wowy_team, [WOWY_TEAMS[team]], [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+            lineups_played = sqlfetch.execute_query(sqlfetch.get_lineup_by_team(game_ids, team))
 
-                    if len(team_against_wowy_obj['lineups']) > 0:
-                        # print wowy_team
-                        temp_lineup_obj = {}
-                        # small_ball_sum = []
-                        lineup_poss = []
-                        small_ball_poss = []
-                        for lineup in team_against_wowy_obj['lineups']:
-                            # if lineup['poss'] >= 5:
-                            lineup_poss.append(lineup['poss'])
-                            lineup_sum = 0
-                            last_two_players = []
+            for lineup in lineups_played:
+                small_ball_poss = process_lineup_lines(lineup, lineup_poss, small_ball_poss, temp_lineup_obj, player_depth_positions)
 
-                            for idx, lineup_player in enumerate(lineup['lineup']):
-                                try:
-                                    # print lineup['lineup'][idx]
-                                    if lineup['lineup'][idx] in WOWY_TO_DK_TRANSLATE:
-                                        lineup['lineup'][idx] = WOWY_TO_DK_TRANSLATE[lineup['lineup'][idx]]
-                                        if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
-                                            lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+            # print small_ball_poss
+            if len(small_ball_poss) > 0:
+                # i need to know the percentages of posessions the small ball line ups take
+                small_ball_poss = np.sum(small_ball_poss)
+                lineup_poss = np.sum(lineup_poss)
+                team_percentile_small_poss = float(small_ball_poss) / float(lineup_poss) * 100
 
-                                    if lineup['lineup'][idx] in DK_TO_SQL_TRANSLATE:
-                                        lineup['lineup'][idx] = DK_TO_SQL_TRANSLATE[lineup['lineup'][idx]]
+                print 'Small Ball Poss (%): {team_percentile_small_poss}'.format(
+                    team_percentile_small_poss=two_decimals(team_percentile_small_poss)
+                )
 
-                                    lineup['lineup'][idx] = lineup['lineup'][idx].encode("utf-8")
-                                except IndexError:
-                                    print "Index doesn't exist!"
+            for team_oppo, games_played_info in games_played_oppo_obj.iteritems():
+                print 'OPPO:', team_oppo
+                temp_lineup_obj = {}
+                lineup_poss = []
+                small_ball_poss = []
+                game_ids = '", "'.join(games_played_info['game_id'])
+                lineup_played_against_team = sqlfetch.execute_query(sqlfetch.get_lineup_played_against_team(game_ids, team))
 
-                            team_id = team_obj[team_against_sql_name]['team_id']
-                            # translate team to sql_team
-                            try:
-                                val_string = '("{game_id}", "{team_id}", "{team_name}", "{player_1}", "{player_2}", "{player_3}", "{player_4}", "{player_5}",'\
-                                    '"{possessions}", "{minutes_played}", "{date}")'.format(
-                                        game_id=games_played['GAME_ID'],
-                                        team_id=team_id, team_name=team_against_sql_name, \
-                                        player_1=lineup['lineup'][0], player_2=lineup['lineup'][1], player_3=lineup['lineup'][2], \
-                                        player_4=lineup['lineup'][3], player_5=lineup['lineup'][4], \
-                                        possessions=lineup['poss'], minutes_played=lineup['min'], date=games_played['DATE']
-                                    )
-                                game_sql_lineups.append(val_string)
-                            except IndexError:
-                                print "Index doesn't exist!"
+                for lineup in lineup_played_against_team:
+                    small_ball_poss = process_lineup_lines(lineup, lineup_poss, small_ball_poss, temp_lineup_obj, player_depth_positions)
 
-                            # get last two players
-                            for player in lineup['lineup'][-2:]:
-                                split_name = player.split('.')
-                                if len(split_name) > 1:
-                                    player = "".join(split_name)
-                                last_two_players.append(player)
+                if len(small_ball_poss) > 0:
+                    print small_ball_poss
+                    # i need to know the percentages of posessions the small ball line ups take
+                    small_ball_poss = np.sum(small_ball_poss)
+                    lineup_poss = np.sum(lineup_poss)
+                    oppo_percentile_small_poss = float(small_ball_poss) / float(lineup_poss) * 100
 
-                            lineup_sum = process_line_up_sums(lineup, temp_lineup_obj, player_depth_positions)
+                    print 'Small Ball Poss (%): {oppo_percentile_small_poss}'.format(
+                        oppo_percentile_small_poss=two_decimals(oppo_percentile_small_poss)
+                    )
 
-                            last_two_players = '", "'.join(last_two_players)
-                            # look at the % for the 4 & 5 position
-                            player_fg3a = sqlfetch.execute_query(sqlfetch.get_avg_fg3a_by_player(FIRST_DATE_REG_SEASON, last_two_players))
-                            player_reb_pct = sqlfetch.execute_query(sqlfetch.get_avg_reb_pct_by_player(FIRST_DATE_REG_SEASON, last_two_players))
+                if team in all_small_ball_lineup_obj:
+                    all_small_ball_lineup_obj[team]['oppo'][team_oppo] = two_decimals(oppo_percentile_small_poss)
+                else:
+                    all_small_ball_lineup_obj[team] = {
+                        'own': two_decimals(team_percentile_small_poss),
+                        'oppo': {
+                            team_oppo: two_decimals(oppo_percentile_small_poss)
+                        }
+                    }
 
-                            # if lineup['poss'] >= 5:
-                            # print ', '.join(lineup['lineup'])
-
-                            # print 'POSS: {poss}, DEPTH_SUM: {lineup_sum}, PF_C_TOTAL_REB_PCT: {TOTAL_REB_PCT}, PF_C_TOTAL_FG3A: {TOTAL_FG3A}'.format(
-                            #     poss=lineup['poss'], lineup_sum=lineup_sum, TOTAL_REB_PCT=player_reb_pct[0]['TOTAL_REB_PCT'], TOTAL_FG3A=player_fg3a[0]['TOTAL_FG3A'])
-
-                            # small_ball_sum.append(lineup_sum)
-
-                            if lineup_sum < 15 or player_reb_pct[0]['TOTAL_REB_PCT'] < 10:
-                                small_ball_poss.append(lineup['poss'])
+        # # print all_small_ball_lineup_obj
+        # how much did they deviate from their avg lineup
+        with open('../scrape/misc/updated_depth_chart/small_ball.json', 'w') as outfile:
+            LOGGER.info('Writing to depth chart file: small_ball')
+            json.dump(all_small_ball_lineup_obj, outfile)
 
 
-                        insert_players_string = ', '.join(game_sql_lineups)
-                        # return sql_players
-                        print game_sql_lineups
-                        insert_sql = """INSERT INTO team_lineups_game_logs VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
-                        cursor.execute(insert_sql)
-                        db.commit()
-
-                        if len(small_ball_poss) > 0:
-                            # i need to know the percentages of posessions the small ball line ups take
-                            # percentile_small_lineups = ss.percentileofscore(small_ball_sum, 15, kind='strict')
-                            small_ball_poss = np.sum(small_ball_poss)
-                            lineup_poss = np.sum(lineup_poss)
-                            percentile_small_poss = float(small_ball_poss) / float(lineup_poss) * 100
-
-                            # print 'Small Ball Lineup (%): {percentile_small_lineups}'.format(percentile_small_lineups=percentile_small_lineups)
-                            print 'Small Ball Poss (%): {percentile_small_poss}'.format(percentile_small_poss=percentile_small_poss)
-
-                        if team in all_small_ball_lineup_obj:
-                            all_small_ball_lineup_obj[team]['oppo'][abbrev] = two_decimals(percentile_small_poss)
-                        else:
-                            all_small_ball_lineup_obj[team] = {
-                                'own': two_decimals(team_percentile_small_poss),
-                                'oppo': {
-                                    abbrev: two_decimals(percentile_small_poss)
-                                }
-                            }
-
-    # print all_small_ball_lineup_obj
-    # how much did they deviate from their avg lineup
-    with open('../scrape/misc/updated_depth_chart/small_ball.json', 'w') as outfile:
-        LOGGER.info('Writing to depth chart file: small_ball')
-        json.dump(all_small_ball_lineup_obj, outfile)
 
 def get_deiviation_lineups():
 
@@ -1206,159 +1368,6 @@ def get_updated_depth_chart():
 
     # return current_starters
 
-DEPTH_TO_DK_TRANSLATE = {
-    "Matt Dellavedova": "Matthew Dellavedova",
-    "James McAdoo": "James Michael McAdoo",
-    "John Lucas": "John Lucas III",
-    "Karl Anthony Towns": "Karl-Anthony Towns",
-    "Tim Hardaway Jr": "Tim Hardaway Jr.",
-    "DeAndre Bembry": "DeAndre' Bembry",
-    "Kentavious Caldwell Pope": "Kentavious Caldwell-Pope",
-    "Kyle OQuinn": "Kyle O'Quinn",
-    "Willy Hernangomez": "Guillermo Hernangomez",
-    "JJ Barea": "J.J. Barea",
-    "Dorian Finney Smith": "Dorian Finney-Smith",
-    "AJ Hammons": "A.J. Hammons",
-    "CJ McCollum": "C.J. McCollum",
-    "Al Farouq Aminu": "Al-Farouq Aminu",
-    "Domas Sabonis": "Domantas Sabonis",
-    "JR Smith": "J.R. Smith",
-    "Raulzinho Neto": "Raul Neto",
-    "Michael Carter Williams": "Michael Carter-Williams",
-    "RJ Hunter": "R.J. Hunter",
-    "Michael Kidd Gilchrist": "Michael Kidd-Gilchrist",
-    "KJ McDaniels": "K.J. McDaniels",
-    "Maybyner Nene": "Nene Hilario",
-    "Kelly Oubre Jr": "Kelly Oubre Jr.",
-    "DAngelo Russell": "D'Angelo Russell",
-    "Marcelinho Huertas": "Marcelo Huertas",
-    "Larry Nance Jr": "Larry Nance Jr.",
-    "TJ McConnell": "T.J. McConnell",
-    "Timothe Luwawu Cabarrot": "Timothe Luwawu-Cabarrot",
-    "TJ Warren": "T.J. Warren",
-    "PJ Tucker": "P.J. Tucker",
-    "Derrick Jones": "Derrick Jones Jr.",
-    "JJ Redick": "J.J. Redick",
-    "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
-    "Willie Cauley Stein": "Willie Cauley-Stein",
-    "George Papagiannis": "Georgios Papagiannis",
-    "DJ Augustin": "D.J. Augustin",
-    "CJ Watson": "C.J. Watson",
-    "CJ Wilcox": "C.J. Wilcox",
-    "Stephen Zimmerman": "Stephen Zimmerman Jr.",
-    "Rondae Hollis Jefferson": "Rondae Hollis-Jefferson",
-    "CJ Miles": "C.J. Miles",
-    "Glenn Robinson": "Glenn Robinson III",
-    "ETwaun Moore": "E'Twaun Moore"
-}
-
-DK_TO_DEPTH_TRANSLATE = dict((v,k) for k,v in DEPTH_TO_DK_TRANSLATE.iteritems())
-
-def get_dk_player_names():
-    today_date = date.today()
-    yesterday_date = today_date - timedelta(days=2)
-
-    delta = today_date - yesterday_date
-
-    # for the range of the past week
-    dk_players = []
-    for i in range(delta.days + 1):
-        prev_date = yesterday_date + timedelta(days=i)
-        with open('../scrape/csv/'+str(prev_date)+'.csv',) as csv_file:
-            try:
-                next(csv_file, None)
-                players = csv.reader(csv_file)
-                for player in players:
-                    name = player[1]
-                    if name not in dk_players:
-                        dk_players.append(name)
-
-            except csv.Error as e:
-                sys.exit('file %s: %s' % (csv_file, e))
-
-    return dk_players
-
-def process_depth_charts():
-    depth_players = []
-    for team in TEAMS_DICT:
-        with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
-            data = json.load(data_file)
-            positions = ['PG', 'SG', 'SF', 'PF', 'C']
-            for position in positions:
-                depth = data[position]
-                for player in depth:
-                    depth_players.append(player['player'])
-
-    return depth_players
-
-def compare_players():
-    depth_players = process_depth_charts()
-    dk_players = get_dk_player_names()
-    for player in depth_players:
-        if player not in dk_players and player not in DEPTH_TO_DK_TRANSLATE:
-            print "missed"
-
-def get_sql_player_names():
-    sql_players = []
-    all_sql_players = sqlfetch.execute_query(sqlfetch.get_all_players_played(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON))
-    for players in all_sql_players:
-        sql_players.append(players['NAME'])
-
-    return sql_players
-
-
-def compare_sql_players():
-    dk_players = get_dk_player_names()
-    sql_players = get_sql_player_names()
-    for player in dk_players:
-        if player not in sql_players:
-            print player
-
-DK_TO_SQL_TRANSLATE = {
-    "C.J. McCollum": "CJ McCollum",
-    "DeAndre' Bembry": "DeAndre Bembry",
-    "R.J. Hunter": "RJ Hunter",
-    "T.J. Warren": "TJ Warren",
-    "J.J. Barea": "Jose Juan Barea",
-    "C.J. Miles": "CJ Miles",
-    "J.J. Redick": "JJ Redick",
-    "P.J. Tucker": "PJ Tucker",
-    "Nene Hilario": "Nene",
-    "Juancho Hernangomez": "Juan Hernangomez",
-    "A.J. Hammons": "AJ Hammons",
-    "Derrick Jones Jr.": "Derrick Jones, Jr.",
-    "K.J. McDaniels": "KJ McDaniels",
-    "C.J. Watson": "CJ Watson",
-    "C.J. Wilcox": "CJ Wilcox",
-    "Stephen Zimmerman Jr.": "Stephen Zimmerman",
-    "T.J. McConnell": "TJ McConnell",
-    "Kelly Oubre Jr.": "Kelly Oubre",
-    "Timothe Luwawu-Cabarrot": "Timothe Luwawu",
-    "Guillermo Hernangomez": "Willy Hernangomez",
-    "Glenn Robinson III": "Glenn Robinson",
-    "Wade Baldwin IV": "Wade Baldwin",
-    "Luc Richard Mbah a Moute": "Luc Mbah a Moute"
-}
-
-SQL_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_SQL_TRANSLATE.iteritems())
-
-DK_TO_WOWY_TRANSLATE = {
-    "Sergio Rodriguez": unicode("Sergio Rodríguez", "utf-8"),
-    "Alex Abrines": unicode("Álex Abrines", "utf-8"),
-    "Nicolas Laprovittola": unicode("Nicolás Laprovittola", "utf-8"),
-    "Dante Exum": unicode("Danté Exum", "utf-8")
-}
-
-WOWY_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_WOWY_TRANSLATE.iteritems())
-
-def compare_wowy_players():
-    dk_players = get_dk_player_names()
-    wowy_players = get_all_wowy_players()
-    for player in dk_players:
-        if player not in wowy_players:
-            print player
-
-# compare_wowy_players()
 
 def create_player_depth_table():
     cursor.execute("DROP TABLE IF EXISTS player_depth")
@@ -1551,12 +1560,6 @@ def create_oppo_stats_table():
 
     cursor.execute(sql)
 
-
-# create_player_depth_table()
-# compare_players()
-# compare_sql_players()
-# compare_wowy_players()
-
 def test_markov(player_name):
 
     DATE_FORMAT_YEAR = str("%Y-%m-%d")
@@ -1631,7 +1634,6 @@ def test_markov(player_name):
             next_game = 0
             within_deviation = False
 
-        # print within_deviation
         b_in_std = prob_obj['better_than']['in_std']
         b_out_std = prob_obj['better_than']['out_std']
         l_in_std = prob_obj['less_than']['in_std']
@@ -1692,8 +1694,11 @@ def test_markov(player_name):
     better_than_total = float(len(b_in_std['greater_than']) + len(b_in_std['less_than']) + len(b_out_std['greater_than']) + len(b_out_std['less_than']))
     less_than_total = float(len(l_in_std['greater_than']) + len(l_in_std['less_than']) + len(l_out_std['greater_than']) + len(l_out_std['less_than']))
 
-    # [better_than, better_than_out, less_than, less_than_out]
-    # need better handelling of zero
+    if better_than_total == 0:
+        better_than_total = 1
+    if less_than_total == 0:
+        less_than_total = 1
+
     try:
         prob_trans_matrix = np.matrix([[float(len(b_in_std['greater_than'])) / better_than_total, float(len(b_out_std['greater_than'])) / better_than_total, float(len(b_in_std['less_than'])) / better_than_total, float(len(b_out_std['less_than'])) / better_than_total],
                [float(len(l_in_std['greater_than'])) / less_than_total, float(len(l_in_std['less_than'])) / less_than_total, float(len(l_out_std['greater_than'])) / less_than_total, float(len(l_out_std['less_than'])) / less_than_total]])
@@ -1710,6 +1715,8 @@ def test_markov(player_name):
 
     prob_result_matrix = np.matmul(known_vector, prob_trans_matrix)
 
+    # there is an issue where sometimes it is displaying the current std as nan
+
     print '% next game score > avg and within {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 0) * 100))
     print '% next game score > avg and outside {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 1) * 100))
     print '% next game score <= avg and within {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 2) * 100))
@@ -1721,6 +1728,7 @@ def test_markov(player_name):
 # get_fantasy_news()
 # get_team_against_position()
 # get_all_lineups()
+# lineup_analysis()
 # get_deiviation_lineups()
-# test_markov('Tristan Thompson')
+# test_markov('Lance Thomas')
 

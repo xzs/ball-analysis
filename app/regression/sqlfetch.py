@@ -102,7 +102,7 @@ def default_player_box_query():
         'tb.FGA, tb.FG_PCT, tb.FG3M, tb.FG3A, tb.FG3_PCT, '\
         'tb.FTA, tb.FT_PCT, tb.REB, tb.AST, tb.STL, '\
         'tb.BLK, tb.TO, tb.PF, tb.PTS, tb.PLUS_MINUS, '\
-        'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
+        'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
         'ptb.RBC as REB_CHANCES, ptb.TCHS as TOUCHES, ptb.PASS, '\
         'ptb.AST/ptb.PASS as AST_PER_PASS, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, '\
         'ab.OFF_RATING, ab.DEF_RATING, ab.NET_RATING, '\
@@ -143,7 +143,7 @@ def default_team_query():
         'tb.FGA, tb.FG_PCT, tb.FG3M, tb.FG3A, tb.FG3_PCT, '\
         'tb.FTA, tb.FT_PCT, tb.REB, tb.AST, tb.STL, '\
         'tb.BLK, tb.TO, tb.PF, tb.PTS, tb.PLUS_MINUS,'\
-        'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
+        'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, '\
         'ptb.RBC as REB_CHANCES, ptb.TCHS as TOUCHES, ptb.PASS, ptb.AST/ptb.PASS as AST_PER_PASS, '\
         'ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, '\
         'ab.OFF_RATING, ab.DEF_RATING, ab.NET_RATING, '\
@@ -408,7 +408,7 @@ def get_sportvu_game_logs(name, query_type, is_regular_season, last_n):
                     'reb.DREB_CHANCE_PCT, reb.DREB_CHANCE_DEFER, reb.DREB_CHANCE_PCT_ADJ, reb.AVG_DREB_DIST, reb.REB, reb.REB_CONTEST, reb.REB_UNCONTEST, '\
                     'reb.REB_CONTEST_PCT, reb.REB_CHANCES, reb.REB_CHANCE_PCT, reb.REB_CHANCE_DEFER, reb.REB_CHANCE_PCT_ADJ, reb.AVG_REB_DIST, '\
                     'sp.DIST_FEET, sp.DIST_MILES, sp.DIST_MILES_OFF, sp.DIST_MILES_DEF, sp.AVG_SPEED, sp.AVG_SPEED_OFF, sp.AVG_SPEED_DEF, '\
-                    'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+                    'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.50 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
                     'FROM sportvu_catch_shoot%(query_type)s_game_logs as cs  '\
                     'LEFT JOIN sportvu_defense%(query_type)s_game_logs as def ON def.%(query_id)s = cs.%(query_id)s AND def.GAME_ID = cs.GAME_ID '\
                     'LEFT JOIN sportvu_drives%(query_type)s_game_logs as dr ON dr.%(query_id)s = cs.%(query_id)s AND dr.GAME_ID = cs.GAME_ID '\
@@ -439,7 +439,7 @@ def get_sportvu_game_logs(name, query_type, is_regular_season, last_n):
 def get_sportvu_team_logs(name, stat, is_regular_season):
 
     sportvu_query = 'SELECT * FROM sportvu_%(stat)s_team_game_logs as sl '\
-                    'INNER JOIN (SELECT tb.GAME_ID, tb.TEAM_ABBREVIATION, tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+                    'INNER JOIN (SELECT tb.GAME_ID, tb.TEAM_ABBREVIATION, tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.50 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
                         'FROM traditional_boxscores_team AS tb) AS tb ON tb.GAME_ID = sl.GAME_ID and tb.TEAM_ABBREVIATION = sl.TEAM_ABBREVIATION '\
                     'WHERE sl.TEAM_ABBREVIATION = "%(name)s" AND sl.IS_REGULAR_SEASON = %(is_regular_season)s' % {
                         'stat': stat, 'name': name, 'is_regular_season': is_regular_season
@@ -460,7 +460,7 @@ def get_synergy_player(name, date_1, date_2, last_n):
             'syn.PUT_BACK_PossG, syn.PUT_BACK_PPP, syn.PUT_BACK_FG, '\
             'syn.SPOT_UP_PossG, syn.SPOT_UP_PPP, syn.SPOT_UP_FG, '\
             'syn.TRANS_PossG, syn.TRANS_PPP, syn.TRANS_FG, '\
-            'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
+            'tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.50 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1 as DK_POINTS '\
             'FROM usage_boxscores AS ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
             'LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
             'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION '\
@@ -641,7 +641,7 @@ def player_game_queries(date_1, date_2, is_player, teams):
             'ROUND(avg(tb.FG3_PCT), 4) as FG3_PCT, ROUND(avg(tb.FTA), 4) as FTA, ROUND(avg(tb.FT_PCT), 4) as FT_PCT, ROUND(avg(tb.FG3M), 4) as FG3M, '\
             'ROUND(avg(tb.REB), 4) as REB, ROUND(avg(tb.AST), 4) as AST, ROUND(avg(tb.STL), 4) as STL, ROUND(avg(tb.BLK), 4) as BLK, '\
             'ROUND(avg(tb.TO), 4) as TOV, ROUND(avg(tb.PF), 4) as PF, ROUND(avg(tb.PTS), 4) as PTS, ROUND(avg(tb.PLUS_MINUS), 4) as PLUS_MINUS, '\
-            'ROUND(avg(tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1), 4) as DK_POINTS, '\
+            'ROUND(avg(tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.50 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1), 4) as DK_POINTS, '\
             'ROUND(avg(ptb.RBC), 4) as REB_CHANCES, ROUND(avg(ptb.TCHS), 4) as TOUCHES, ROUND(avg(ptb.PASS), 4) as PASS, '\
             'ROUND(avg(ptb.AST) / avg(ptb.PASS), 4) as AST_PER_PASS, ROUND(avg(ptb.CFGA), 4) as CONTESTED_FGA, '\
             'ROUND(avg(ptb.CFG_PCT), 4) as CONTESTED_FG_PCT, ROUND(avg(ptb.FG_PCT), 4) as FG_PCT, '\
@@ -1070,7 +1070,7 @@ def test():
     # query = 'select ptb.MIN, ptb.REB, ptb.OREB, ptb.OREB_CHANCES, ptb.OREB_CHANCE_PCT_ADJ, ptb.REB_CHANCES, ptb.REB_CHANCE_PCT_ADJ, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, tb4.avgFGA, ab.avgPace from `sportvu_rebounding_game_logs` as ptb INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ptb.game_id and tb2.TEAM_ABBREVIATION != ptb.TEAM_ABBREVIATION INNER JOIN (select tb.TEAM_ABBREVIATION as TEAM, avg(tb.FGA) as avgFGA FROM `traditional_boxscores_team` as tb GROUP BY TEAM) as tb4 ON tb4.TEAM = tb2.TEAM_ABBREVIATION INNER JOIN (select ab.TEAM_ABBREVIATION as TEAM, avg(ab.pace) as avgPace FROM `advanced_boxscores_team` as ab GROUP BY TEAM) as ab on ab.TEAM = tb2.TEAM_ABBREVIATION where ptb.player_name = "Bismack Biyombo" and ptb.MIN <= 30 and ptb.MIN >= 20'
 
     # When face against a BIG. For example, Rudy Gobert. Do drives, paint points affect player behavior?
-    query = 'SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE,  gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") <= "2016-04-15" LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id WHERE tb2.TEAM_ABBREVIATION = "UTA" and ub.MIN >= 20 and ub.START_POSITION = "G" order by mb.PTS_PAINT DESC'
+    query = 'SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE,  gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id LEFT JOIN player_tracking_boxscores as ptb ON ptb.game_id = ub.game_id AND ptb.player_id = ub.player_id LEFT JOIN advanced_boxscores as ab ON ab.game_id = ub.game_id AND ab.player_id = ub.player_id LEFT JOIN scoring_boxscores as sb ON sb.game_id = ub.game_id AND sb.player_id = ub.player_id LEFT JOIN four_factors_boxscores as ff ON ff.game_id = ub.game_id AND ff.player_id = ub.player_id LEFT JOIN misc_boxscores as mb ON mb.game_id = ub.game_id AND mb.player_id = ub.player_id INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = ub.game_id and tb2.TEAM_ABBREVIATION != ub.TEAM_ABBREVIATION AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-27" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") <= "2016-04-15" LEFT JOIN sportvu_drives_game_logs as dgl ON dgl.game_id = ub.game_id AND dgl.player_id = ub.player_id WHERE tb2.TEAM_ABBREVIATION = "UTA" and ub.MIN >= 20 and ub.START_POSITION = "G" order by mb.PTS_PAINT DESC'
 
     return query
 
@@ -1085,7 +1085,7 @@ def get_data_against_based_on_position():
         for position in POSITIONS:
             query = 'SELECT STR_TO_DATE(gs.game_date_est,"%(date_format_year)s") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST, '\
             'ub.START_POSITION, ub.MIN, ub.USG_PCT, ub.PCT_FTA, ub.PCT_PTS, tb.FGA, tb.FG_PCT, tb.FG3A, tb.FTA, tb.FT_PCT,tb.PTS, tb.PLUS_MINUS, '\
-            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, '\
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS, mb.PTS_PAINT, mb.PFD, dgl.DRIVES, ptb.TCHS as TOUCHES, '\
             'ptb.CFGA as CONTESTED_FGA, ptb.CFG_PCT as CONTESTED_FG_PCT, ab.OFF_RATING, ab.DEF_RATING, ab.PACE, sb.PCT_PTS_PAINT, sb.PCT_AST_FGM, sb.PCT_UAST_FGM, mb.PTS_2ND_CHANCE, '\
             'gs.NATL_TV_BROADCASTER_ABBREVIATION as NATIONAL_TV FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id '\
             'LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id '\
@@ -1111,7 +1111,7 @@ def get_synergy_wrt_dk(name):
             'smtd.PossG as MISC_PossG, smtd.PPP as MISC_PPP, smtd.FG as MISC_FG, '\
             'sostd.PossG as OFF_SCREEN_PossG, sostd.PPP as OFF_SCREEN_PPP, sostd.FG as OFF_SCREEN_FG, '\
             'sputd.PossG as POST_UP_PossG, sputd.PPP as POST_UP_PPP, sputd.FG as POST_UP_FG, '\
-            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS FROM `traditional_boxscores` as tb  '\
+            'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS FROM `traditional_boxscores` as tb  '\
             'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = tb.game_id and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION '\
             'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
                 'FROM synergy_cut_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as sctd ON sctd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
@@ -1133,7 +1133,7 @@ def get_synergy_wrt_dk(name):
                 'spbtd.PossG as PUT_BACK_PossG, spbtd.PPP as PUT_BACK_PPP, spbtd.FG as PUT_BACK_FG , '\
                 'ssutd.PossG as SPOT_UP_PossG, ssutd.PPP as SPOT_UP_PPP, ssutd.FG as SPOT_UP_FG, '\
                 'sttd.PossG as TRANS_PossG, sttd.PPP as TRANS_PPP, sttd.FG as TRANS_FG, '\
-                'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS FROM `traditional_boxscores` as tb  '\
+                'tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS FROM `traditional_boxscores` as tb  '\
                 'INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2 ON tb2.game_id = tb.game_id and tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION '\
                 'INNER JOIN (SELECT TeamName as NAME, TeamNameAbbreviation as TEAM_NAME, GP, ROUND(PossG,2) as POSSG, ROUND(PPP,4) as PPP, ROUND(FG,2) as FG, BetterPPP+1 as PPP_RANK '\
                     'FROM synergy_pr_ball_handler_team_defense as V WHERE DATE = "2016-04-15" ORDER BY PossG DESC) as spbhtd ON spbhtd.TEAM_NAME = tb2.TEAM_ABBREVIATION '\
@@ -1782,7 +1782,7 @@ def get_player_dk_points_log(player_name, date):
     dk_points_query = """
                 SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.GAME_ID, ub.PLAYER_NAME as NAME,
                 ub.MIN, ub.TEAM_ABBREVIATION as TEAM_NAME, tb2.TEAM_ABBREVIATION as TEAM_AGAINST,
-                tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS
+                tb.FG3M*0.5 + tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 as DK_POINTS
                 FROM usage_boxscores as ub LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id
                 LEFT JOIN traditional_boxscores as tb ON tb.game_id = ub.game_id AND tb.player_id = ub.player_id
                 INNER JOIN (SELECT tbt.game_id, tbt.TEAM_ABBREVIATION FROM traditional_boxscores_team as tbt) as tb2
@@ -1792,7 +1792,7 @@ def get_player_dk_points_log(player_name, date):
 
     return dk_points_query
 
-def get_played_avg_min(player_name, date):
+def get_player_avg_min(player_name, date):
     query ="""
         SELECT ub.PLAYER_NAME as NAME, ROUND(avg(ub.MIN), 2) as AVG_MIN 
         FROM usage_boxscores as ub 
@@ -1803,6 +1803,44 @@ def get_played_avg_min(player_name, date):
     """.format(player_name=player_name, date_format_year=DATE_FORMAT_YEAR, date_begin=date)
 
     return query
+
+def get_games_played_by_team(team, date):
+    query = """
+        SELECT gs.GAME_ID, STR_TO_DATE(gs.game_date_est,"{date_format_year}") as DATE, tb2.TEAM_ABBREVIATION as TEAM_AGAINST
+        FROM traditional_boxscores_team as tb
+        LEFT JOIN game_summary as gs
+            ON gs.game_id = tb.game_id
+        INNER JOIN (
+            SELECT tbt.game_id, tbt.TEAM_ABBREVIATION
+            FROM traditional_boxscores_team as tbt) as tb2
+            ON tb2.game_id = tb.game_id
+            AND tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
+        WHERE tb.TEAM_ABBREVIATION = "{team}"
+            AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
+        ORDER BY DATE ASC
+    """.format(team=team, date_format_year=DATE_FORMAT_YEAR, date_begin=date)
+
+    return query
+
+def get_lineup_played_against_team(game_id, team_against):
+    query = """
+        SELECT * FROM team_lineups_game_logs
+        WHERE GAME_ID IN ("{game_id}")
+        AND TEAM_NAME != "{team_against}"
+    """.format(game_id=game_id, team_against=team_against)
+
+    return query
+
+def get_lineup_by_team(game_id, team):
+    query = """
+        SELECT * FROM team_lineups_game_logs
+        WHERE GAME_ID IN ("{game_id}")
+        AND TEAM_NAME = "{team}"
+    """.format(game_id=game_id, team=team)
+
+    return query
+
+
 
 # print get_player_lineup_stats_from_absence('SAS', 'Manu Ginobili', 'player_1', '2016-10-25')
 # print get_team_fouls(FIRST_DATE_REG_SEASON)

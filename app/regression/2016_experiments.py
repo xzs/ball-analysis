@@ -145,7 +145,7 @@ def get_player_college():
 '''
 def get_all_players():
     query = 'SELECT tb.player_name, '\
-            'avg(tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.25 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1) as dk_points '\
+            'avg(tb.FG3M*0.5 + tb.REB*1.25 + tb.AST*1.50 + tb.STL*2 + tb.BLK*2 + tb.TO*-0.5 + tb.PTS*1) as dk_points '\
             'FROM traditional_boxscores AS tb '\
             'GROUP BY tb.PLAYER_NAME '\
             'ORDER BY dk_points ASC'
@@ -723,8 +723,8 @@ def get_daily_snapshot():
     # for all players playing in tomorrow's game we are going to get how they played in the preseason
     with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
         data = json.load(data_file)
-        # today_date = date.today()
-        today_date = date.today() - timedelta(days=1)
+        today_date = date.today()
+        # today_date = date.today() - timedelta(days=1)
         formatted_date = today_date.strftime("%a, %b %-d, %Y")
 
         opponents = {}
@@ -1134,7 +1134,7 @@ def get_daily_snapshot():
                         player_games_log = sqlfetch.execute_query(sqlfetch.get_player_dk_points_log(sql_player, FIRST_DATE_REG_SEASON))
                         num_games_played = len(player_games_log)
 
-                        get_player_avg_min = sqlfetch.execute_query(sqlfetch.get_played_avg_min(sql_player, FIRST_DATE_REG_SEASON))
+                        get_player_avg_min = sqlfetch.execute_query(sqlfetch.get_player_avg_min(sql_player, FIRST_DATE_REG_SEASON))
                         try:
                             played_avg_min = get_player_avg_min[0]['AVG_MIN']
                         except IndexError:
@@ -1154,7 +1154,7 @@ def get_daily_snapshot():
                         # how recent were these (what was the latest date?)
 
                         dk_points_query = sqlfetch.get_player_dk_points_log(sql_player, FIRST_DATE_REG_SEASON) + \
-                            'AND tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.25+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 >= {fp_needed} '\
+                            'AND tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 >= {fp_needed} '\
                             'ORDER BY DATE'.format(fp_needed=fp_needed)
                         have_reached_value = sqlfetch.execute_query(dk_points_query)
                         num_times_reached_value = len(have_reached_value)
@@ -1175,6 +1175,7 @@ def get_daily_snapshot():
                             wowy_player = player
 
                         # based on last game's positions
+                        # based on the combination of both last game as well as the DK positions
                         player_matchups_list = []
                         if wowy_player in temp_lineup_obj:
                             player_obj = temp_lineup_obj[wowy_player]
@@ -1261,7 +1262,6 @@ def get_daily_snapshot():
                                 if len(player_off_lineup) >= 1:
                                     temp_player_replace_obj = {}
                                     for position in dk_money_obj[player]['positions']:
-                                        print position
                                         player_off_lineup = sqlfetch.execute_query(sqlfetch.get_player_lineup_stats_from_absence(team, sql_player, sql_positions[position], FIRST_DATE_REG_SEASON))
                                         for replace_player in player_off_lineup:
                                             if replace_player['PLAYER_NAME'] not in temp_player_replace_obj:
@@ -1274,9 +1274,17 @@ def get_daily_snapshot():
                                                 temp_player_replace_obj[replace_player['PLAYER_NAME']]['poss'] += replace_player['TOTAL_POSS_PLAYED']
                                             # print replace_player['PLAYER_NAME'], replace_player['TOTAL_MIN_PLAYED'], replace_player['TOTAL_POSS_PLAYED']
 
-                                    for replace_player_name, replace_player_info in temp_player_replace_obj.iteritems():
+                                    sorted_player_replace_obj = sorted(temp_player_replace_obj, key=lambda x: (temp_player_replace_obj[x]['poss']), reverse=True)
+
+                                    for replacement_player in sorted_player_replace_obj:
+                                        # print replacement_player
+                                        # # replacement_player_name = replacement_player.encode("utf-8")
+                                        # print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
+                                        #     player=player_name, poss=player_obj['poss'], usg=player_obj['complied_stats']['usg'],\
+                                        #     si=player_obj['complied_stats']['scoring_index'])
+
                                         print '{player_name}, MIN: {min} POSS: {poss}'.format(
-                                            player_name=replace_player_name, min=replace_player_info['min'], poss=replace_player_info['poss']
+                                            player_name=replacement_player, min=temp_player_replace_obj[replacement_player]['min'], poss=temp_player_replace_obj[replacement_player]['poss']
                                         )
 
                         # print player_off_obj
