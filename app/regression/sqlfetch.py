@@ -1840,8 +1840,23 @@ def get_lineup_by_team(game_id, team):
 
     return query
 
+def get_lineup_from_absence(players, team):
 
+    query = "SELECT * FROM team_lineups WHERE "
 
+    players = players.split(", ")
+    for player in players:
+        query += "PLAYER_1 != '{player}' AND "\
+            "PLAYER_2 != '{player}' AND "\
+            "PLAYER_3 != '{player}' AND "\
+            "PLAYER_4 != '{player}' AND "\
+            "PLAYER_5 != '{player}' AND ".format(player=player)
+
+    query += "TEAM_NAME = '{team}' LIMIT 10".format(team=team)
+
+    return query
+
+# print get_lineup_from_absence('Jerryd Bayless, Joel Embiid, Robert Covington', 'PHI')
 # print get_player_lineup_stats_from_absence('SAS', 'Manu Ginobili', 'player_1', '2016-10-25')
 # print get_team_fouls(FIRST_DATE_REG_SEASON)
 # print get_team_possessions_per_game(FIRST_DATE_REG_SEASON)

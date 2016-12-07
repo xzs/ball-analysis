@@ -483,7 +483,6 @@ def get_vegas_lines(date):
     return vegas_lines
 
 def get_fantasy_lab_news():
-
     # http://www.fantasylabs.com/api/players/news/2/
     url = 'http://www.fantasylabs.com/api/players/news/2/'
     response = requests.get(url)
@@ -1286,11 +1285,11 @@ def lineup_analysis():
                         }
                     }
 
-        # # print all_small_ball_lineup_obj
-        # how much did they deviate from their avg lineup
-        with open('../scrape/misc/updated_depth_chart/small_ball.json', 'w') as outfile:
-            LOGGER.info('Writing to depth chart file: small_ball')
-            json.dump(all_small_ball_lineup_obj, outfile)
+    # # print all_small_ball_lineup_obj
+    # how much did they deviate from their avg lineup
+    with open('../scrape/misc/updated_depth_chart/small_ball.json', 'w') as outfile:
+        LOGGER.info('Writing to depth chart file: small_ball')
+        json.dump(all_small_ball_lineup_obj, outfile)
 
 
 
