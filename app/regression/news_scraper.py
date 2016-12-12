@@ -10,6 +10,7 @@ import sqlfetch
 import json
 import requests
 import numpy as np
+import urllib
 import scipy.stats as ss
 from bs4 import BeautifulSoup
 from datetime import date, timedelta, datetime
@@ -272,6 +273,7 @@ DK_TO_SQL_TRANSLATE = {
     "C.J. Miles": "CJ Miles",
     "J.J. Redick": "JJ Redick",
     "P.J. Tucker": "PJ Tucker",
+    "J.R. Smith": "JR Smith",
     "Nene Hilario": "Nene",
     "Juancho Hernangomez": "Juan Hernangomez",
     "A.J. Hammons": "AJ Hammons",
@@ -292,11 +294,45 @@ DK_TO_SQL_TRANSLATE = {
 SQL_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_SQL_TRANSLATE.iteritems())
 
 DK_TO_WOWY_TRANSLATE = {
-    "Sergio Rodriguez": unicode("Sergio Rodríguez", "utf-8"),
-    "Alex Abrines": unicode("Álex Abrines", "utf-8"),
-    "Nicolas Laprovittola": unicode("Nicolás Laprovittola", "utf-8"),
-    "Dante Exum": unicode("Danté Exum", "utf-8")
+    # urllib.quote(u"Danté Exum".encode("utf-8"))
+    "Sergio Rodriguez": urllib.quote(u"Sergio Rodríguez".encode("utf-8")),
+    "Alex Abrines": urllib.quote(u"Álex Abrines".encode("utf-8")),
+    "Nicolas Laprovittola": urllib.quote(u"Nicolás Laprovittola".encode("utf-8")),
+    "Dante Exum": urllib.quote(u"Danté Exum".encode("utf-8"))
 }
+
+SQL_TO_WOWY_TRANSLATE = {
+    "Sergio Rodriguez": u"Sergio Rodríguez".encode("utf-8"),
+    "Alex Abrines": u"Álex Abrines".encode("utf-8"),
+    "Nicolas Laprovittola": u"Nicolás Laprovittola".encode("utf-8"),
+    "Dante Exum": u"Danté Exum".encode("utf-8"),
+    "AJ Hammons": "A.J. Hammons",
+    "Alex Abrines": u"Álex Abrines".encode("utf-8"),
+    "CJ McCollum": "C.J. McCollum",
+    "CJ Miles": "C.J. Miles",
+    "CJ Watson": "C.J. Watson",
+    "CJ Wilcox": "C.J. Wilcox",
+    "DeAndre Bembry": "DeAndre' Bembry",
+    "Derrick Jones, Jr.": "Derrick Jones Jr.",
+    "Edy Tavares": "Walter Tavares",
+    "Glenn Robinson": "Glenn Robinson III",
+    "JJ Redick": "J.J. Redick",
+    "Jose Juan Barea": "J.J. Barea",
+    "JR Smith": "J.R. Smith",
+    "Juan Hernangomez": "Juancho Hernangomez",
+    "Willy Hernangomez": "Guillermo Hernangomez",
+    "Kelly Oubre": "Kelly Oubre Jr.",
+    "KJ McDaniels": "K.J. McDaniels",
+    "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
+    "PJ Tucker": "P.J. Tucker",
+    "RJ Hunter": "R.J. Hunter",
+    "Stephen Zimmerman": "Stephen Zimmerman Jr.",
+    "Timothe Luwawu": "Timothe Luwawu-Cabarrott",
+    "TJ McConnell": "T.J. McConnell",
+    "TJ Warren": "T.J. Warren",
+    "Wade Baldwin": "Wade Baldwin IV"
+}
+
 
 WOWY_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_WOWY_TRANSLATE.iteritems())
 
@@ -373,7 +409,7 @@ def compare_wowy_players():
         if player not in wowy_players:
             print player
 
-# compare_wowy_players()
+
 def get_all_teams_playing_today():
     # for all players playing in tomorrow's game we are going to get how they played in the preseason
     with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
@@ -604,6 +640,7 @@ def player_daily_status():
 
     return daily_status_player
 
+
 def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date):
     base_url = 'http://nbawowy-52108.onmodulus.net/api/'
 
@@ -696,7 +733,12 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
         data = response.json()
         if stat['stat'] == 'poss':
             for player in data:
-                player_name = player['_id']['name']
+                player_name = player['_id']['name'].encode('utf-8')
+
+                # if player_name in ACCENT_TO_NONE:
+                #     player_name = ACCENT_TO_NONE[player_name]
+                # else:
+                #     player_name = player_name
 
                 player_obj['players'][player_name] = {
                     'poss': player['poss'],
@@ -705,6 +747,10 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
 
         if stat['stat'] == 'lineups':
             for lineup in data:
+                for idx, player_name in enumerate(lineup['_id']['name']):
+                    lineup['_id']['name'][idx] = player_name.encode('utf-8')
+                    # print player_name
+
                 player_obj['lineups'].append({
                     'lineup': lineup['_id']['name'],
                     'poss': lineup['poss'],
@@ -720,7 +766,13 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
             temp_obj = {}
             for player in data:
                 player_info = player['_id']
-                player_name = player_info['name']
+                player_name = player_info['name'].encode('utf-8')
+
+                # if player_info['name'] in ACCENT_TO_NONE:
+                #     player_name = ACCENT_TO_NONE[player_info['name']]
+                # else:
+                #     player_name = player_info['name']
+
                 if player_name not in temp_obj:
                     temp_obj[player_name] = {
                         'fg2m': 0,
@@ -754,7 +806,12 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
             temp_obj = {}
             for player in data:
                 player_info = player['_id']
-                player_name = player_info['name']
+                player_name = player_info['name'].encode('utf-8')
+
+                # if player_info['name'] in ACCENT_TO_NONE:
+                #     player_name = ACCENT_TO_NONE[player_info['name']]
+                # else:
+                #     player_name = player_info['name']
 
                 if player_name not in temp_obj:
                     temp_obj[player_name] = {
@@ -828,7 +885,7 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
             scoring_index = 0
 
         # (2*stats.fg2m+3*stats.fg3m+stats.fta2m + stats.fta3m+stats.and1m + stats.techm+0.5*stats.fg3m+1.25*(stats.oreb+stats.dreb) + 1.5*(stats.ast2+stats.ast3) + 2 * stats.stl + 2 * stats.blk - 0.5 * stats.tov)/stats.min
-        stats['complied_stats'] = {
+        stats['compiled_stats'] = {
             'usg': two_decimals(usg),
             'plays': two_decimals(plays),
             'pace': two_decimals(pace),
@@ -837,6 +894,7 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
             'scoring_index': two_decimals(scoring_index)
         }
 
+    # pp.pprint(player_obj)
     return player_obj
 
 def process_stat_api(player_obj, data, stat):
@@ -846,7 +904,7 @@ def process_stat_api(player_obj, data, stat):
         count = 'tov'
 
     for player in data:
-        player_name = player['_id']['name']
+        player_name = player['_id']['name'].encode('utf-8')
 
         if player_name in temp_obj:
             temp_obj[player_name] += player[count]
@@ -882,7 +940,15 @@ def get_all_wowy_players():
 
     return all_wowy_players
 
-# get_all_wowy_players()
+
+def compare_sql_to_wowy_players():
+    sql_players = get_sql_player_names()
+    wowy_players = get_all_wowy_players()
+
+    for player in wowy_players:
+        if player not in sql_players:
+            print player
+
 # just the lineup call
 def get_lineups_by_team(team, vs_teams, on_players, off_players, start_date, end_date):
 
@@ -1706,7 +1772,7 @@ def test_markov(player_name):
 
     # better than avg, less than avg
     # look at the last entry
-    # pp.pprint(prob_obj)
+    # pp.pprint(prob_obj)   
     if query_results[num_games-1]['DK_POINTS'] > dk_avg:
         known_vector = np.matrix([[1, 0]])
     else:

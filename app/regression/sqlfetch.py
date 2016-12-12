@@ -1794,10 +1794,10 @@ def get_player_dk_points_log(player_name, date):
 
 def get_player_avg_min(player_name, date):
     query ="""
-        SELECT ub.PLAYER_NAME as NAME, ROUND(avg(ub.MIN), 2) as AVG_MIN 
-        FROM usage_boxscores as ub 
-        LEFT JOIN game_summary as gs 
-            ON gs.game_id = ub.game_id 
+        SELECT ub.PLAYER_NAME as NAME, ROUND(avg(ub.MIN), 2) as AVG_MIN
+        FROM usage_boxscores as ub
+        LEFT JOIN game_summary as gs
+            ON gs.game_id = ub.game_id
         WHERE ub.PLAYER_NAME = "{player_name}"
             AND STR_TO_DATE(gs.game_date_est,"{date_format_year}") >= "{date_begin}"
     """.format(player_name=player_name, date_format_year=DATE_FORMAT_YEAR, date_begin=date)
@@ -1842,20 +1842,70 @@ def get_lineup_by_team(game_id, team):
 
 def get_lineup_from_absence(players, team):
 
-    query = "SELECT * FROM team_lineups WHERE "
+    query = 'SELECT * FROM team_lineups WHERE '
 
     players = players.split(", ")
     for player in players:
-        query += "PLAYER_1 != '{player}' AND "\
-            "PLAYER_2 != '{player}' AND "\
-            "PLAYER_3 != '{player}' AND "\
-            "PLAYER_4 != '{player}' AND "\
-            "PLAYER_5 != '{player}' AND ".format(player=player)
+        query += 'PLAYER_1 != "{player}" AND '\
+            'PLAYER_2 != "{player}" AND '\
+            'PLAYER_3 != "{player}" AND '\
+            'PLAYER_4 != "{player}" AND '\
+            'PLAYER_5 != "{player}" AND '.format(player=player)
 
-    query += "TEAM_NAME = '{team}' LIMIT 10".format(team=team)
+    query += 'TEAM_NAME = "{team}" LIMIT 10'.format(team=team)
 
     return query
 
+def get_blowout_loses_by_team(team, date):
+
+    query = """
+        SELECT tb.PLAYER_NAME, ROUND(AVG(tb.MIN), 2) as AVG_MIN,
+            ROUND(MAX(CAST(tb.min AS DECIMAL(6,2))), 2) as MAX_MIN,
+            ROUND(MIN(CAST(tb.min AS DECIMAL(6,2))), 2) as MIN_MIN,
+            ROUND(AVG(tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1), 2) as AVG_DK_POINTS,
+            ROUND(MAX(tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1), 2) as MAX_DK_POINTS,
+            ROUND(MIN(tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1), 2) as MIN_DK_POINTS
+        FROM traditional_boxscores AS tb LEFT JOIN game_summary as gs ON gs.game_id = tb.game_id
+        WHERE tb.TEAM_ABBREVIATION = "{team}" AND STR_TO_DATE(gs.game_date_est,"{date_format}") >= "{date}"
+            AND tb.game_id IN (
+                SELECT tbt.GAME_ID
+                FROM traditional_boxscores_team as tbt
+                LEFT JOIN game_summary as gs
+                    ON gs.game_id = tbt.game_id
+                WHERE tbt.TEAM_ABBREVIATION = "{team}"
+                    AND STR_TO_DATE(gs.game_date_est,"{date_format}") >= "{date}"
+                    AND tbt.PLUS_MINUS <= -10
+            )
+        GROUP BY tb.PLAYER_NAME
+
+    """.format(team=team, date_format=DATE_FORMAT_YEAR, date=date)
+
+    return query
+
+def get_blowout_wins_by_team(team, date):
+    query = """
+        SELECT tb.PLAYER_NAME, ROUND(AVG(tb.MIN), 2) as AVG_MIN,
+            ROUND(MAX(CAST(tb.min AS DECIMAL(6,2))), 2) as MAX_MIN,
+            ROUND(MIN(CAST(tb.min AS DECIMAL(6,2))), 2) as MIN_MIN,
+            ROUND(AVG(tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1), 2) as AVG_DK_POINTS,
+            ROUND(MAX(tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1), 2) as MAX_DK_POINTS,
+            ROUND(MIN(tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1), 2) as MIN_DK_POINTS
+        FROM traditional_boxscores AS tb LEFT JOIN game_summary as gs ON gs.game_id = tb.game_id
+        WHERE tb.TEAM_ABBREVIATION = "{team}" AND STR_TO_DATE(gs.game_date_est,"{date_format}") >= "{date}"
+            AND tb.game_id IN (
+                SELECT tbt.GAME_ID
+                FROM traditional_boxscores_team as tbt
+                LEFT JOIN game_summary as gs
+                    ON gs.game_id = tbt.game_id
+                WHERE tbt.TEAM_ABBREVIATION = "{team}"
+                    AND STR_TO_DATE(gs.game_date_est,"{date_format}") >= "{date}"
+                    AND tbt.PLUS_MINUS >= 10
+            )
+        GROUP BY tb.PLAYER_NAME
+
+    """.format(team=team, date_format=DATE_FORMAT_YEAR, date=date)
+
+    return query
 # print get_lineup_from_absence('Jerryd Bayless, Joel Embiid, Robert Covington', 'PHI')
 # print get_player_lineup_stats_from_absence('SAS', 'Manu Ginobili', 'player_1', '2016-10-25')
 # print get_team_fouls(FIRST_DATE_REG_SEASON)

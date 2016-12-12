@@ -322,6 +322,7 @@ def team_ranks_from_top():
         TEAM_DICT[team['TEAM']]['pace'] = team['avgPace']
 
     TEAM_SYNERGY_RANKS = execute_query(sqlfetch.get_team_synergy_ranks())
+    # print sqlfetch.get_team_synergy_ranks()
 
     # print TEAM_SYNERGY_RANKS
     for team in TEAM_SYNERGY_RANKS:
@@ -539,7 +540,7 @@ DK_TEAMS = {
     'GS' : 'GSW',
     'Was' : 'WAS',
     'Mil' : 'MIL',
-    'Sac' : 'SAV',
+    'Sac' : 'SAC',
     'Pho' : 'PHO',
     'Den' : 'DEN'
 }
@@ -723,17 +724,18 @@ def get_daily_snapshot():
     # for all players playing in tomorrow's game we are going to get how they played in the preseason
     with open('../scrape/json_files/team_schedules/'+YEAR+'/league_schedule.json',) as data_file:
         data = json.load(data_file)
-        # today_date = date.today()
-        today_date = date.today() - timedelta(days=1)
+        today_date = date.today()
+        # today_date = date.today() - timedelta(days=1)
         formatted_date = today_date.strftime("%a, %b %-d, %Y")
 
         opponents = {}
-        # fantasy_lab_news = news_scraper.get_fantasy_lab_news()
-        fantasy_lab_news = {}
+        fantasy_lab_news = news_scraper.get_fantasy_lab_news()
+        # fantasy_lab_news = {}
         # vegas_lines = news_scraper.get_vegas_lines(str(today_date))
         dk_money_obj = {}
 
         dk_teams_list = []
+        print today_date
         with open('../scrape/csv/'+str(today_date)+'-Turbo.csv',) as csv_file:
             try:
                 next(csv_file, None)
@@ -747,15 +749,17 @@ def get_daily_snapshot():
                         'fp_needed': float(player[2])*0.001*6,
                         'avg_val': float(player[4])/(0.001*float(player[2]))
                     }
+                    # print player[5]
                     dk_team_abbrev = DK_TEAMS[player[5]]
+                    # print dk_team_abbrev
                     if dk_team_abbrev not in dk_teams_list:
                         dk_teams_list.append(dk_team_abbrev)
 
             except csv.Error as e:
                 sys.exit('file %s: %s' % (csv_file, e))
-
+        # print dk_teams_list
         for game in data[formatted_date]:
-
+            # print game
             if game['team'] in dk_teams_list:
                 opponents[game['team']] = game['opp']
                 opponents[game['opp']] = game['team']
@@ -765,7 +769,7 @@ def get_daily_snapshot():
         player_news = {}
         players_string = ''
 
-        team_synergy_ranks = execute_query(sqlfetch.get_team_synergy_ranks(today_date))
+        # team_synergy_ranks = execute_query(sqlfetch.get_team_synergy_ranks(today_date))
         team_possessions_ranks = execute_query(sqlfetch.get_team_possessions_per_game(today_date))
         team_foul_ranks = execute_query(sqlfetch.get_team_fouls(FIRST_DATE_REG_SEASON))
         team_fga_ranks = execute_query(sqlfetch.get_team_fga_ranking(FIRST_DATE_REG_SEASON))
@@ -957,16 +961,16 @@ def get_daily_snapshot():
             print '\n'
             print 'From Last Season vs ' + oppo
             # sort by usg first, then remainder by poss
-            sorted_usg_list = sorted(last_season_against_team['players'], key=lambda x: (last_season_against_team['players'][x]['complied_stats']['usg']), reverse=True)
+            sorted_usg_list = sorted(last_season_against_team['players'], key=lambda x: (last_season_against_team['players'][x]['compiled_stats']['usg']), reverse=True)
             for player in sorted_usg_list:
-                player_name = player.encode("utf-8")
+                player_name = player
                 player_obj = last_season_against_team['players'][player]
 
-                if player_obj['complied_stats']['usg'] >= 20 and player_obj['poss'] >= 20:
+                if player_obj['compiled_stats']['usg'] >= 20 and player_obj['poss'] >= 20:
                     if player in all_team_players[team]['all_players']:
                         print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
-                            player=player_name, poss=player_obj['poss'], usg=player_obj['complied_stats']['usg'],\
-                            si=player_obj['complied_stats']['scoring_index'])
+                            player=player_name, poss=player_obj['poss'], usg=player_obj['compiled_stats']['usg'],\
+                            si=player_obj['compiled_stats']['scoring_index'])
 
             print '\n'
 
@@ -988,8 +992,8 @@ def get_daily_snapshot():
                 if item["TEAM"] == oppo).next()
             oppo_rating_rank = (item for item in team_rating_ranks \
                 if item["TEAM"] == oppo).next()
-            oppo_synergy_rank = (item for item in team_synergy_ranks \
-                if item["TEAM_NAME"] == oppo).next()
+            # oppo_synergy_rank = (item for item in team_synergy_ranks \
+            #     if item["TEAM_NAME"] == oppo).next()
 
             print '{team}: {team_poss} ({team_poss_rank}) vs {oppo}: {oppo_poss} ({oppo_poss_rank})'.format(
                     team=team, oppo=oppo, team_poss=team_possession_rank['AVG_NUM_POSS'], \
@@ -1019,12 +1023,12 @@ def get_daily_snapshot():
                     oppo=oppo, rating=oppo_rating_rank['AVG_DEF_RATING'], \
                     rating_rank=team_rating_ranks.index(oppo_rating_rank))
 
-            print oppo + ' Synergy Ranks'
-            print 'PnR Handler: {roll_rank}, PnR Roller: {handler_rank}, SpotUp Shots: {spotup_rank}, ISO: {iso_rank}'.format(
-                roll_rank=oppo_synergy_rank['PR_ROLL_RANK'], \
-                handler_rank=oppo_synergy_rank['PR_HANDLER_RANK'], \
-                spotup_rank=oppo_synergy_rank['SPOTUP_RANK'], \
-                iso_rank=oppo_synergy_rank['ISO_RANK'])
+            # print oppo + ' Synergy Ranks'
+            # print 'PnR Handler: {roll_rank}, PnR Roller: {handler_rank}, SpotUp Shots: {spotup_rank}, ISO: {iso_rank}'.format(
+            #     roll_rank=oppo_synergy_rank['PR_ROLL_RANK'], \
+            #     handler_rank=oppo_synergy_rank['PR_HANDLER_RANK'], \
+            #     spotup_rank=oppo_synergy_rank['SPOTUP_RANK'], \
+            #     iso_rank=oppo_synergy_rank['ISO_RANK'])
 
             print '{oppo} DvP:'.format(oppo=oppo)
 
@@ -1080,6 +1084,7 @@ def get_daily_snapshot():
                             # basketball monster use sql names
                             if sql_player in player_daily_status['today'] or sql_player in player_daily_status['all']:
 
+                                print sql_player
                                 if sql_player in player_daily_status['today']:
                                     player_status = player_daily_status['today'][sql_player]
                                 if sql_player in player_daily_status['all']:
@@ -1101,12 +1106,12 @@ def get_daily_snapshot():
 
                                     player_off_obj = news_scraper.player_on_off(WOWY_TEAMS[wowy_team], 'all', [], [wowy_player], FIRST_DATE_REG_SEASON, str(today_date))
 
-                                    sorted_usg_list = sorted(player_off_obj['players'], key=lambda x: (player_off_obj['players'][x]['complied_stats']['usg']), reverse=True)
+                                    sorted_usg_list = sorted(player_off_obj['players'], key=lambda x: (player_off_obj['players'][x]['compiled_stats']['usg']), reverse=True)
                                     for other_player in sorted_usg_list:
-                                        other_player_name = other_player.encode('ascii', 'ignore')
+                                        other_player_name = other_player
                                         player_off_wowy_obj = player_off_obj['players'][other_player]
 
-                                        if player_off_wowy_obj['complied_stats']['usg'] >= 20 and player_off_wowy_obj['poss'] >= 20:
+                                        if player_off_wowy_obj['compiled_stats']['usg'] >= 20 and player_off_wowy_obj['poss'] >= 20:
 
                                             # only get the current players on that team
                                             if other_player_name in all_team_players[fantasy_team]['all_players']:
@@ -1125,27 +1130,27 @@ def get_daily_snapshot():
 
                                             # there needs to be a translate here
                                             player_avg_usg = execute_query(sqlfetch.get_player_avg_usg(FIRST_DATE_REG_SEASON, today_date, split_name))
-                                            if player_off_wowy_obj['complied_stats']['usg'] >= player_avg_usg[0]['AVG_USG'] and \
-                                                player_off_wowy_obj['complied_stats']['usg'] >= 20:
+                                            if player_off_wowy_obj['compiled_stats']['usg'] >= player_avg_usg[0]['AVG_USG'] and \
+                                                player_off_wowy_obj['compiled_stats']['usg'] >= 20:
 
                                                 if player in all_team_players[wowy_team]['all_players']:
                                                     print '{player}, POSS: {poss}, USG: {usg}, SI: {si}'.format(
-                                                        player=other_player_name, poss=player_off_wowy_obj['poss'], usg=player_off_wowy_obj['complied_stats']['usg'],\
-                                                        si=player_off_wowy_obj['complied_stats']['scoring_index'])
+                                                        player=other_player_name, poss=player_off_wowy_obj['poss'], usg=player_off_wowy_obj['compiled_stats']['usg'],\
+                                                        si=player_off_wowy_obj['compiled_stats']['scoring_index'])
 
 
-                                sql_positions = {
-                                    'PG': 'player_1',
-                                    'SG': 'player_2',
-                                    'SF': 'player_3',
-                                    'PF': 'player_4',
-                                    'C': 'player_5'
-                                }
+                                    sql_positions = {
+                                        'PG': 'player_1',
+                                        'SG': 'player_2',
+                                        'SF': 'player_3',
+                                        'PF': 'player_4',
+                                        'C': 'player_5'
+                                    }
 
-                                # fetch games missed
-                                player_off_lineup = sqlfetch.execute_query(sqlfetch.get_games_not_played_by_player(team, sql_player, FIRST_DATE_REG_SEASON))
+                                    # fetch games missed
+                                    player_off_lineup = sqlfetch.execute_query(sqlfetch.get_games_not_played_by_player(team, sql_player, FIRST_DATE_REG_SEASON))
 
-                                if len(player_off_lineup) >= 1:
+                                    # if len(player_off_lineup) >= 1:
                                     temp_player_replace_obj = {}
                                     for position in dk_money_obj[player]['positions']:
                                         player_off_lineup = sqlfetch.execute_query(sqlfetch.get_player_lineup_stats_from_absence(team, sql_player, sql_positions[position], FIRST_DATE_REG_SEASON))
@@ -1171,244 +1176,237 @@ def get_daily_snapshot():
                                     print '\n'
 
 
-                            # if player_status != 'Out':
 
 
-                            if 'SG' in dk_money_obj[player]['positions'] or \
-                                'PG' in dk_money_obj[player]['positions']:
-                                dvp_against_player = oppo_dvp_obj['G']
-                            elif 'SF' in dk_money_obj[player]['positions'] or \
-                                'PF' in dk_money_obj[player]['positions']:
-                                dvp_against_player = oppo_dvp_obj['F']
-                            else:
-                                dvp_against_player = oppo_dvp_obj['C']
+                            if player_status != 'Out':
+                                if 'SG' in dk_money_obj[player]['positions'] or \
+                                    'PG' in dk_money_obj[player]['positions']:
+                                    dvp_against_player = oppo_dvp_obj['G']
+                                elif 'SF' in dk_money_obj[player]['positions'] or \
+                                    'PF' in dk_money_obj[player]['positions']:
+                                    dvp_against_player = oppo_dvp_obj['F']
+                                else:
+                                    dvp_against_player = oppo_dvp_obj['C']
 
-                            # player_games_log = sqlfetch.execute_query(sqlfetch.get_player_dk_points_log(sql_player, FIRST_DATE_REG_SEASON))
-                            # num_games_played = len(player_games_log)
+                                # player_games_log = sqlfetch.execute_query(sqlfetch.get_player_dk_points_log(sql_player, FIRST_DATE_REG_SEASON))
+                                # num_games_played = len(player_games_log)
 
-                            get_player_avg_min = sqlfetch.execute_query(sqlfetch.get_player_avg_min(sql_player, FIRST_DATE_REG_SEASON))
-                            try:
-                                played_avg_min = get_player_avg_min[0]['AVG_MIN']
-                            except IndexError:
-                                played_avg_min = 0
-
-                            print '{player_name} ({player_role}) ({num_games_played}G) ({played_avg_min}M) {position}: {salary}, AVG: {fp_avg}, '\
-                                    'OPPO DvP: {dvp_against_player} ({dvp_against_player_rank}), '\
-                                    'VAL: {avg_val}, PTS NEEDED: {fp_needed}'.format(
-                                        player_name=player, position=dk_money_obj[player]['positions'], \
-                                        player_role=player_role, num_games_played=num_games_played, \
-                                        salary=player_salary, dvp_against_player=dvp_against_player['Season'], \
-                                        dvp_against_player_rank=dvp_against_player['rank'], fp_avg=fp_avg, \
-                                        avg_val=news_scraper.two_decimals(avg_val), fp_needed=fp_needed, played_avg_min=played_avg_min)
-
-                            # have the player ever reached this value? (%)
-                            # num games played
-                            # how recent were these (what was the latest date?)
-                            dk_points_query = sqlfetch.get_player_dk_points_log(sql_player, FIRST_DATE_REG_SEASON) + \
-                                'AND tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 >= {fp_needed} '\
-                                'ORDER BY DATE'.format(fp_needed=fp_needed)
-                            have_reached_value = sqlfetch.execute_query(dk_points_query)
-                            num_times_reached_value = len(have_reached_value)
-
-                            value_games_game_id = []
-                            for reached_value_games in have_reached_value:
-                                # need to explore these games
-                                value_games_game_id.append(reached_value_games['GAME_ID'])
-
-                            if num_times_reached_value >= 1:
-                                reached_value_pct = (float(num_times_reached_value) / float(num_games_played)) * 100
-                                print 'Reached V {num_times}x ({reached_value_pct}%)'.format(
-                                    num_times=num_times_reached_value, reached_value_pct=news_scraper.two_decimals(reached_value_pct)
-                                )
-
-                            # if not what are the chances that he will
-                            news_scraper.test_markov(sql_player)
-
-                            # based on last game's positions
-                            # based on the combination of both last game as well as the DK positions
-                            player_matchups_list = []
-                            if wowy_player in temp_lineup_obj:
-                                player_obj = temp_lineup_obj[wowy_player]
-                                for player_obj_positon, poss in player_obj['positions'].iteritems():
-                                    try:
-                                        poss_pct = float(poss)/float(player_obj['poss'])*100
-                                    except ZeroDivisionError:
-                                        poss_pct = 0
-
-                                    if poss_pct >= 20:
-                                        player_matchups_list = player_matchups_list + all_team_players[fantasy_oppo]['players'][player_obj_positon].keys()
-                            else:
-                                # based on the natural positions
-                                # this can be based on the avg positions
-                                for position in dk_money_obj[player]['positions']:
-                                    player_matchups_list = player_matchups_list + all_team_players[fantasy_oppo]['players'][position].keys()
-
-                            player_matchups_string = ', '.join(player_matchups_list)
-
-                            print 'Potential Matchups: %s' % player_matchups_string
-
-                            # name things
-                            split_name = player.split('.')
-                            news_player = ''
-                            if len(split_name) > 1:
-                                news_player = "".join(split_name)
-
-                            if news_player in player_news:
-                                for report in player_news[news_player]['report']:
-                                    if report:
-                                        print report.strip()
-                                for news in player_news[news_player]['news']:
-                                    if news:
-                                        print news.strip()
-
-
-                            # # write to player log
-                            # player_log = sqlfetch.full_player_log(player, FIRST_DATE_REG_SEASON, today_date, 0, 0)
-                            # full_player_log = execute_query(player_log)
-                            # write_to_csv(player_log, 'player_logs', player)
-
-                            # # calc simple regression
-                            # simple_lr_data = nba_scrape_linear_regression.get_simple_player_log_regression(player)
-
-                            # print simple_lr_data
-
-                            # if sql_player in player_daily_status['today'] or sql_player in player_daily_status['all']:
-
-                            #     if sql_player in player_daily_status['today']:
-                            #         player_status = player_daily_status['today'][sql_player]
-                            #     if sql_player in player_daily_status['all']:
-                            #         player_status = player_daily_status['all'][sql_player]
-
-                            # if (player_status == 'Questionable' or \
-                            #     player_status == 'Out' or \
-                            #     player_status == 'Doubtful' or \
-                            #     player_status == 'Injured') \
-                            #     and fp_avg > 0:
-
-                            #     sql_positions = {
-                            #         'PG': 'player_1',
-                            #         'SG': 'player_2',
-                            #         'SF': 'player_3',
-                            #         'PF': 'player_4',
-                            #         'C': 'player_5'
-                            #     }
-
-                            #     # fetch games missed
-                            #     player_off_lineup = sqlfetch.execute_query(sqlfetch.get_games_not_played_by_player(team, sql_player, FIRST_DATE_REG_SEASON))
-
-                            #     if len(player_off_lineup) >= 1:
-                            #         temp_player_replace_obj = {}
-                            #         for position in dk_money_obj[player]['positions']:
-                            #             player_off_lineup = sqlfetch.execute_query(sqlfetch.get_player_lineup_stats_from_absence(team, sql_player, sql_positions[position], FIRST_DATE_REG_SEASON))
-                            #             for replace_player in player_off_lineup:
-                            #                 if replace_player['PLAYER_NAME'] not in temp_player_replace_obj:
-                            #                     temp_player_replace_obj[replace_player['PLAYER_NAME']] = {
-                            #                         'min': replace_player['TOTAL_MIN_PLAYED'],
-                            #                         'poss': replace_player['TOTAL_POSS_PLAYED']
-                            #                     }
-                            #                 else:
-                            #                     temp_player_replace_obj[replace_player['PLAYER_NAME']]['min'] += replace_player['TOTAL_MIN_PLAYED']
-                            #                     temp_player_replace_obj[replace_player['PLAYER_NAME']]['poss'] += replace_player['TOTAL_POSS_PLAYED']
-
-                            #         sorted_player_replace_obj = sorted(temp_player_replace_obj, key=lambda x: (temp_player_replace_obj[x]['poss']), reverse=True)
-
-                            #         for replacement_player in sorted_player_replace_obj:
-                            #             if temp_player_replace_obj[replacement_player]['min'] > 0
-                            #                 print '{player_name}, MIN: {min} POSS: {poss}'.format(
-                            #                     player_name=replacement_player, min=temp_player_replace_obj[replacement_player]['min'], poss=temp_player_replace_obj[replacement_player]['poss']
-                            #                 )
-
-                            # print player_off_obj
-                            # SQL stuff
-                            player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, sql_player))
-
-                            player_pf = execute_query(sqlfetch.get_player_pf(FIRST_DATE_REG_SEASON, sql_player))
-                            print 'PFD: {pfd}, PF: {pf}'.format(pfd=player_pfd[0]['AVG_PFD'], pf=player_pf[0]['AVG_PF'])
-
-                            player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(sql_oppo, sql_player))
-
-
-                            # print temp_lineup_obj
-                            played_last_game = ''
-                            if wowy_player in temp_lineup_obj:
-                                player_obj = temp_lineup_obj[wowy_player]
-                                total_poss_pct = float(player_obj['poss'])/float(total_possessions)*100
-                            else:
-                                played_last_game = 'DNP'
-                                print played_last_game
-
-                            if played_last_game != 'DNP':
-                                player_last_game = execute_query(sqlfetch.player_last_game(sql_player, 1, False))
-
-                                # i should probably also try to fetch the last game for the player so i can get # of plays
-                                # fga + (0.5 * fta) + stats['tov'] + stats['ast']
+                                get_player_avg_min = sqlfetch.execute_query(sqlfetch.get_player_avg_min(sql_player, FIRST_DATE_REG_SEASON))
                                 try:
-                                    if played_last_game != 'DNP':
-                                        last_game = player_last_game[0]
-                                        players_plays = last_game['FGA'] + (0.5 * last_game['FTA']) + last_game['TO'] + last_game['AST']
-                                        print
-                                        print 'Last Game'
-                                        print '{date} vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(
-                                            date=last_game['DATE'], team=last_game['TEAM_AGAINST'], \
-                                            min=last_game['MIN'], usg=last_game['USG_PCT'], \
-                                            dk=last_game['DK_POINTS'])
-                                        print 'Possessions Played: {poss_played} ({total_poss_pct}%) - {plays} Plays'.format(
-                                            poss_played=player_obj['poss'], total_poss_pct=news_scraper.two_decimals(total_poss_pct), plays=players_plays)
-                                        for positon, poss in player_obj['positions'].iteritems():
-                                            try:
-                                                poss_pct = float(poss)/float(player_obj['poss'])*100
-                                            except ZeroDivisionError:
-                                                poss_pct = 0
-                                            print '{positions}: {poss}%'.format(positions=positon, poss=news_scraper.two_decimals(poss_pct))
+                                    played_avg_min = get_player_avg_min[0]['AVG_MIN']
                                 except IndexError:
-                                    print 'Out of range'
+                                    played_avg_min = 0
+
+                                print '{player_name} ({player_role}) ({num_games_played}G) ({played_avg_min}M) {position}: {salary}, AVG: {fp_avg}, '\
+                                        'OPPO DvP: {dvp_against_player} ({dvp_against_player_rank}), '\
+                                        'V: {avg_val}, PTS NEEDED: {fp_needed}'.format(
+                                            player_name=player, position=dk_money_obj[player]['positions'], \
+                                            player_role=player_role, num_games_played=num_games_played, \
+                                            salary=player_salary, dvp_against_player=dvp_against_player['Season'], \
+                                            dvp_against_player_rank=dvp_against_player['rank'], fp_avg=fp_avg, \
+                                            avg_val=news_scraper.two_decimals(avg_val), fp_needed=fp_needed, played_avg_min=played_avg_min)
+
+                                # have the player ever reached this value? (%)
+                                # num games played
+                                # how recent were these (what was the latest date?)
+                                dk_points_query = sqlfetch.get_player_dk_points_log(sql_player, FIRST_DATE_REG_SEASON) + \
+                                    'AND tb.FG3M*0.5+tb.REB*1.25+tb.AST*1.50+tb.STL*2+tb.BLK*2+tb.TO*-0.5+tb.PTS*1 >= {fp_needed} '\
+                                    'ORDER BY DATE'.format(fp_needed=fp_needed)
+                                have_reached_value = sqlfetch.execute_query(dk_points_query)
+                                num_times_reached_value = len(have_reached_value)
+
+                                value_games_game_id = []
+                                for reached_value_games in have_reached_value:
+                                    # need to explore these games
+                                    value_games_game_id.append(reached_value_games['GAME_ID'])
+
+                                if num_times_reached_value >= 1:
+                                    reached_value_pct = (float(num_times_reached_value) / float(num_games_played)) * 100
+                                    print 'Reached V {num_times}x ({reached_value_pct}%)'.format(
+                                        num_times=num_times_reached_value, reached_value_pct=news_scraper.two_decimals(reached_value_pct)
+                                    )
+
+                                # if not what are the chances that he will
+                                news_scraper.test_markov(sql_player)
+
+                                # based on last game's positions
+                                # based on the combination of both last game as well as the DK positions
+                                player_matchups_list = []
+                                if wowy_player in temp_lineup_obj:
+                                    player_obj = temp_lineup_obj[wowy_player]
+                                    for player_obj_positon, poss in player_obj['positions'].iteritems():
+                                        try:
+                                            poss_pct = float(poss)/float(player_obj['poss'])*100
+                                        except ZeroDivisionError:
+                                            poss_pct = 0
+
+                                        if poss_pct >= 20:
+                                            player_matchups_list = player_matchups_list + all_team_players[fantasy_oppo]['players'][player_obj_positon].keys()
+                                else:
+                                    # based on the natural positions
+                                    # this can be based on the avg positions
+                                    for position in dk_money_obj[player]['positions']:
+                                        player_matchups_list = player_matchups_list + all_team_players[fantasy_oppo]['players'][position].keys()
+
+                                player_matchups_string = ', '.join(player_matchups_list)
+
+                                print 'Potential Matchups: %s' % player_matchups_string
+
+                                # name things
+                                split_name = player.split('.')
+                                news_player = ''
+                                if len(split_name) > 1:
+                                    news_player = "".join(split_name)
+
+                                if news_player in player_news:
+                                    for report in player_news[news_player]['report']:
+                                        if report:
+                                            print report.strip()
+                                    for news in player_news[news_player]['news']:
+                                        if news:
+                                            print news.strip()
 
 
-                            player_data = {}
-                            if len(player_against_team_logs) >= 1:
-                                usg_list = []
-                                dk_list = []
-                                min_list = []
-                                fp_min_list = []
-                                for game in player_against_team_logs:
-                                    usg_list.append(game['USG_PCT'])
-                                    dk_list.append(game['DK_POINTS'])
-                                    fp_min_list.append(game['FP_PER_MIN'])
+                                # # write to player log
+                                # player_log = sqlfetch.full_player_log(player, FIRST_DATE_REG_SEASON, today_date, 0, 0)
+                                # full_player_log = execute_query(player_log)
+                                # write_to_csv(player_log, 'player_logs', player)
 
-                                    player_name = game['PLAYER_NAME']
-                                    if player_name in player_data:
-                                        for param in game:
-                                            if param == 'MIN':
-                                                game['MIN'] = process_playtime(0, game['MIN']) / 60
-                                                min_list.append(game['MIN'])
-                                    else:
-                                        player_data[player_name] = {}
-                                        for param in game:
-                                            player_data[player_name][param] = []
-                                            if param == 'MIN':
-                                                game['MIN'] = process_playtime(0, game['MIN']) / 60
-                                                min_list.append(game['MIN'])
-                                print
-                                print 'Last Time Against: {oppo}, {num_games} Games'.format(oppo=oppo, num_games=len(player_against_team_logs))
-                                print 'USG - Max: {max_usg}, Min: {min_usg}'.format(max_usg=np.max(usg_list), min_usg=np.min(usg_list))
-                                print 'FP - Max: {max_dk}, Min: {min_dk}'.format(max_dk=np.max(dk_list), min_dk=np.min(dk_list))
-                                print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(min_list), min_min=np.min(min_list))
-                                print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}'.format(max_fpm=np.max(fp_min_list), min_fpm=np.min(fp_min_list))
-                            print '\n'
+                                # # calc simple regression
+                                # simple_lr_data = nba_scrape_linear_regression.get_simple_player_log_regression(player)
+
+                                # print simple_lr_data
+
+                                # print player_off_obj
+                                # SQL stuff
+                                player_pfd = execute_query(sqlfetch.get_player_pfd(FIRST_DATE_REG_SEASON, sql_player))
+
+                                player_pf = execute_query(sqlfetch.get_player_pf(FIRST_DATE_REG_SEASON, sql_player))
+                                print 'PFD: {pfd}, PF: {pf}'.format(pfd=player_pfd[0]['AVG_PFD'], pf=player_pf[0]['AVG_PF'])
+
+                                player_against_team_logs = execute_query(sqlfetch.get_player_against_team_log(sql_oppo, sql_player))
+
+
+                                # print temp_lineup_obj
+                                played_last_game = ''
+                                if wowy_player in temp_lineup_obj:
+                                    player_obj = temp_lineup_obj[wowy_player]
+                                    total_poss_pct = float(player_obj['poss'])/float(total_possessions)*100
+                                else:
+                                    played_last_game = 'DNP'
+                                    print played_last_game
+
+                                if played_last_game != 'DNP':
+                                    player_last_game = execute_query(sqlfetch.player_last_game(sql_player, 1, False))
+
+                                    # i should probably also try to fetch the last game for the player so i can get # of plays
+                                    # fga + (0.5 * fta) + stats['tov'] + stats['ast']
+                                    try:
+                                        if played_last_game != 'DNP':
+                                            last_game = player_last_game[0]
+                                            players_plays = last_game['FGA'] + (0.5 * last_game['FTA']) + last_game['TO'] + last_game['AST']
+                                            print
+                                            print 'Last Game'
+                                            print '{date} vs {team} Min: {min}, Usage: {usg}, FP: {dk}'.format(
+                                                date=last_game['DATE'], team=last_game['TEAM_AGAINST'], \
+                                                min=last_game['MIN'], usg=last_game['USG_PCT'], \
+                                                dk=last_game['DK_POINTS'])
+                                            print 'Possessions Played: {poss_played} ({total_poss_pct}%) - {plays} Plays'.format(
+                                                poss_played=player_obj['poss'], total_poss_pct=news_scraper.two_decimals(total_poss_pct), plays=players_plays)
+                                            for positon, poss in player_obj['positions'].iteritems():
+                                                try:
+                                                    poss_pct = float(poss)/float(player_obj['poss'])*100
+                                                except ZeroDivisionError:
+                                                    poss_pct = 0
+                                                print '{positions}: {poss}%'.format(positions=positon, poss=news_scraper.two_decimals(poss_pct))
+                                    except IndexError:
+                                        print 'Out of range'
+
+
+                                player_data = {}
+                                if len(player_against_team_logs) >= 1:
+                                    usg_list = []
+                                    dk_list = []
+                                    min_list = []
+                                    fp_min_list = []
+                                    for game in player_against_team_logs:
+                                        usg_list.append(game['USG_PCT'])
+                                        dk_list.append(game['DK_POINTS'])
+                                        fp_min_list.append(game['FP_PER_MIN'])
+
+                                        player_name = game['PLAYER_NAME']
+                                        if player_name in player_data:
+                                            for param in game:
+                                                if param == 'MIN':
+                                                    game['MIN'] = process_playtime(0, game['MIN']) / 60
+                                                    min_list.append(game['MIN'])
+                                        else:
+                                            player_data[player_name] = {}
+                                            for param in game:
+                                                player_data[player_name][param] = []
+                                                if param == 'MIN':
+                                                    game['MIN'] = process_playtime(0, game['MIN']) / 60
+                                                    min_list.append(game['MIN'])
+                                    print
+                                    print 'Last Time Against: {oppo}, {num_games} Games'.format(oppo=oppo, num_games=len(player_against_team_logs))
+                                    print 'USG - Max: {max_usg}, Min: {min_usg}'.format(max_usg=np.max(usg_list), min_usg=np.min(usg_list))
+                                    print 'FP - Max: {max_dk}, Min: {min_dk}'.format(max_dk=np.max(dk_list), min_dk=np.min(dk_list))
+                                    print 'MIN - Max: {max_min}, Min: {min_min}'.format(max_min=np.max(min_list), min_min=np.min(min_list))
+                                    print 'FP/MIN - Max: {max_fpm}, Min: {min_fpm}'.format(max_fpm=np.max(fp_min_list), min_fpm=np.min(fp_min_list))
+                                print '\n'
 
             # out players and possible lineups
             out_players = ', '.join(out_players)
             print out_players
             possible_lineups = sqlfetch.execute_query(sqlfetch.get_lineup_from_absence(out_players, team))
 
+            # call nba_wowy
             # put percentages
             for possible_lineup in possible_lineups:
                 # print possible_lineup
-                print '{player_1}, {player_2}, {player_3}, {player_4}, {player_5}'.format(
+                if possible_lineup['PLAYER_1'] in news_scraper.SQL_TO_WOWY_TRANSLATE:
+                    player_1 = news_scraper.SQL_TO_WOWY_TRANSLATE[possible_lineup['PLAYER_1']]
+                else:
+                    player_1 = possible_lineup['PLAYER_1']
+
+                if possible_lineup['PLAYER_2'] in news_scraper.SQL_TO_WOWY_TRANSLATE:
+                    player_2 = news_scraper.SQL_TO_WOWY_TRANSLATE[possible_lineup['PLAYER_2']]
+                else:
+                    player_2 = possible_lineup['PLAYER_2']
+
+                if possible_lineup['PLAYER_3'] in news_scraper.SQL_TO_WOWY_TRANSLATE:
+                    player_3 = news_scraper.SQL_TO_WOWY_TRANSLATE[possible_lineup['PLAYER_3']]
+                else:
+                    player_3 = possible_lineup['PLAYER_3']
+
+                if possible_lineup['PLAYER_4'] in news_scraper.SQL_TO_WOWY_TRANSLATE:
+                    player_4 = news_scraper.SQL_TO_WOWY_TRANSLATE[possible_lineup['PLAYER_4']]
+                else:
+                    player_4 = possible_lineup['PLAYER_4']
+
+                if possible_lineup['PLAYER_5'] in news_scraper.SQL_TO_WOWY_TRANSLATE:
+                    player_5 = news_scraper.SQL_TO_WOWY_TRANSLATE[possible_lineup['PLAYER_5']]
+                else:
+                    player_5 = possible_lineup['PLAYER_5']
+
+
+                on_players = [player_1, player_2, player_3, player_4, player_5]
+                player_on_obj = news_scraper.player_on_off(WOWY_TEAMS[wowy_team], 'all', on_players, [], FIRST_DATE_REG_SEASON, str(today_date))
+
+                print on_players
+                print '{player_1} ({p1_usg}), {player_2} ({p2_usg}), {player_3} ({p3_usg}), {player_4} ({p4_usg}), {player_5} ({p5_usg})'.format(
                     player_1=possible_lineup['PLAYER_1'], player_2=possible_lineup['PLAYER_2'], player_3=possible_lineup['PLAYER_3'],
-                    player_4=possible_lineup['PLAYER_4'], player_5=possible_lineup['PLAYER_5']
+                    player_4=possible_lineup['PLAYER_4'], player_5=possible_lineup['PLAYER_5'],
+                    p1_usg=player_on_obj['players'][player_1]['compiled_stats']['usg'],
+                    p2_usg=player_on_obj['players'][player_2]['compiled_stats']['usg'],
+                    p3_usg=player_on_obj['players'][player_3]['compiled_stats']['usg'],
+                    p4_usg=player_on_obj['players'][player_4]['compiled_stats']['usg'],
+                    p5_usg=player_on_obj['players'][player_5]['compiled_stats']['usg']
                 )
+
                 print 'Poss: {poss}'.format(poss=possible_lineup['POSSESSIONS'])
                 print 'Min: {min}'.format(min=possible_lineup['MINUTES_PLAYED'])
+
+            print '\n'
 
 get_daily_snapshot()
