@@ -1109,6 +1109,7 @@ def get_all_lineups():
             yesterday_date = today_date - timedelta(days=1)
             get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name, yesterday_date))
 
+            print get_games_played
             if len(get_games_played) >= 1:
 
                 for games_played in get_games_played:
@@ -1783,17 +1784,18 @@ def test_markov(player_name):
     # there is an issue where sometimes it is displaying the current std as nan
 
     print '% next game score > avg and within {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 0) * 100))
+
     print '% next game score > avg and outside {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 1) * 100))
     print '% next game score <= avg and within {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 2) * 100))
     print '% next game score <= avg and outside {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 3) * 100))
 
-# get_updated_depth_chart()
-# create_player_depth_table()
-# create_oppo_stats_table
-# get_fantasy_news()
-# get_team_against_position()
-# get_all_lineups()
-# lineup_analysis()
-# get_deiviation_lineups()
+get_updated_depth_chart()
+create_player_depth_table()
+create_oppo_stats_table
+get_fantasy_news()
+get_team_against_position()
+get_all_lineups()
+lineup_analysis()
+get_deiviation_lineups()
 # test_markov('Lance Thomas')
 

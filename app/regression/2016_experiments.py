@@ -735,7 +735,6 @@ def get_daily_snapshot():
         dk_money_obj = {}
 
         dk_teams_list = []
-        print today_date
         with open('../scrape/csv/'+str(today_date)+'-Turbo.csv',) as csv_file:
             try:
                 next(csv_file, None)
@@ -757,7 +756,7 @@ def get_daily_snapshot():
 
             except csv.Error as e:
                 sys.exit('file %s: %s' % (csv_file, e))
-        # print dk_teams_list
+
         for game in data[formatted_date]:
             # print game
             if game['team'] in dk_teams_list:
@@ -776,6 +775,11 @@ def get_daily_snapshot():
         team_reb_ranks = execute_query(sqlfetch.get_team_reb_ranking(FIRST_DATE_REG_SEASON))
         team_rating_ranks = execute_query(sqlfetch.get_team_ratings(FIRST_DATE_REG_SEASON))
         player_daily_status = news_scraper.player_daily_status()
+
+
+        # open the lineup analysis
+        with open('../scrape/misc/updated_depth_chart/lineup_analysis.json',) as la:
+            team_lineup_analysis = json.load(la)
 
         team_last_game_info_obj = {}
         for (team, oppo) in opponents.iteritems():
@@ -863,6 +867,14 @@ def get_daily_snapshot():
             wowy_team = team
             fantasy_team = team
 
+            if oppo == 'BKN':
+                wowy_oppo = 'BRK'
+            elif oppo == 'PHX':
+                wowy_oppo = 'PHO'
+            elif oppo == 'CHA':
+                wowy_oppo = 'CHO'
+            wowy_oppo = oppo
+
             if oppo == 'BRK':
                 sql_oppo = 'BKN'
             elif oppo == 'PHO':
@@ -906,8 +918,27 @@ def get_daily_snapshot():
 
             temp_lineup_obj = {}
             for lineup in team_wowy_obj['lineups'][0:5:1]:
-                print ', '.join(lineup['lineup'])
+
+                player_on_obj = news_scraper.player_on_off(WOWY_TEAMS[wowy_team], 'all', lineup['lineup'], [], str(team_last_game_info_obj[team]['date']), str(team_last_game_info_obj[team]['date']))
+
+                last_game_player_1 = lineup['lineup'][0]
+                last_game_player_2 = lineup['lineup'][1]
+                last_game_player_3 = lineup['lineup'][2]
+                last_game_player_4 = lineup['lineup'][3]
+                last_game_player_5 = lineup['lineup'][4]
+
+                print '{player_1} ({p1_usg}), {player_2} ({p2_usg}), {player_3} ({p3_usg}), {player_4} ({p4_usg}), {player_5} ({p5_usg})'.format(
+                    player_1=last_game_player_1, player_2=last_game_player_2, player_3=last_game_player_3,
+                    player_4=last_game_player_4, player_5=last_game_player_5,
+                    p1_usg=player_on_obj['players'][last_game_player_1]['compiled_stats']['usg'],
+                    p2_usg=player_on_obj['players'][last_game_player_2]['compiled_stats']['usg'],
+                    p3_usg=player_on_obj['players'][last_game_player_3]['compiled_stats']['usg'],
+                    p4_usg=player_on_obj['players'][last_game_player_4]['compiled_stats']['usg'],
+                    p5_usg=player_on_obj['players'][last_game_player_5]['compiled_stats']['usg']
+                )
                 print 'Poss: {poss}'.format(poss=lineup['poss'])
+
+
 
             total_possessions = 0
             for lineup in team_wowy_obj['lineups']:
@@ -1044,6 +1075,11 @@ def get_daily_snapshot():
                             position=position, \
                             season=fp_against['Season'], \
                             rank=fp_against['rank'])
+
+            print 'Oppo Small Lineup Summary'
+            print '% Small Team Lineup (avg): {la_avg}, (median): {la_med}'.format(
+                            la_avg=team_lineup_analysis[wowy_oppo]['avg'], \
+                            la_med=team_lineup_analysis[wowy_oppo]['median'])
 
             print '\n'
 
@@ -1393,7 +1429,6 @@ def get_daily_snapshot():
                 on_players = [player_1, player_2, player_3, player_4, player_5]
                 player_on_obj = news_scraper.player_on_off(WOWY_TEAMS[wowy_team], 'all', on_players, [], FIRST_DATE_REG_SEASON, str(today_date))
 
-                print on_players
                 print '{player_1} ({p1_usg}), {player_2} ({p2_usg}), {player_3} ({p3_usg}), {player_4} ({p4_usg}), {player_5} ({p5_usg})'.format(
                     player_1=possible_lineup['PLAYER_1'], player_2=possible_lineup['PLAYER_2'], player_3=possible_lineup['PLAYER_3'],
                     player_4=possible_lineup['PLAYER_4'], player_5=possible_lineup['PLAYER_5'],
@@ -1404,8 +1439,7 @@ def get_daily_snapshot():
                     p5_usg=player_on_obj['players'][player_5]['compiled_stats']['usg']
                 )
 
-                print 'Poss: {poss}'.format(poss=possible_lineup['POSSESSIONS'])
-                print 'Min: {min}'.format(min=possible_lineup['MINUTES_PLAYED'])
+                print 'Poss: {poss}, Min: {min}'.format(poss=possible_lineup['POSSESSIONS'], min=possible_lineup['MINUTES_PLAYED'])
 
             print '\n'
 
