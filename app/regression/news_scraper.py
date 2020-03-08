@@ -38,11 +38,11 @@ pp = pprint.PrettyPrinter(indent=4)
 
 YEAR = '2017'
 
-LAST_DATE_REG_SEASON = '2017-04-12'
-FIRST_DATE_REG_SEASON = '2016-10-25'
+LAST_DATE_REG_SEASON =  str(date.today())
+FIRST_DATE_REG_SEASON = '2018-10-16'
 
-FIRST_DATE_PRE_SEASON = '2016-10-01'
-LAST_DATE_PRE_SEASON = '2016-10-15'
+FIRST_DATE_PRE_SEASON = '2018-10-01'
+LAST_DATE_PRE_SEASON = '2018-10-15'
 
 # some links dont transfer
 SCRAPE_TRANSLATE_DICT = {
@@ -54,6 +54,115 @@ SCRAPE_TRANSLATE_DICT = {
     'NY':'NYK',
     'BKN':'BRK',
     'SA':'SAS',
+}
+
+TEAMS = {
+    'ATL':'Atlanta Hawks',
+    'BOS':'Boston Celtics',
+    'BRK':'Brooklyn Nets',
+    'CHO':'Charlotte Hornets',
+    'CHI':'Chicago Bulls',
+    'CLE':'Cleveland Cavaliers',
+    'DAL':'Dallas Mavericks',
+    'DEN':'Denver Nuggets',
+    'DET':'Detroit Pistons',
+    'GSW':'Golden State Warriors',
+    'HOU':'Houston Rockets',
+    'IND':'Indiana Pacers',
+    'LAC':'Los Angeles Clippers',
+    'LAL':'Los Angeles Lakers',
+    'MEM':'Memphis Grizzlies',
+    'MIA':'Miami Heat',
+    'MIL':'Milwaukee Bucks',
+    'MIN':'Minnesota Timberwolves',
+    'NOP':'New Orleans Pelicans',
+    'NYK':'New York Knicks',
+    'OKC':'Oklahoma City Thunder',
+    'ORL':'Orlando Magic',
+    'PHI':'Philadelphia 76ers',
+    'PHO':'Phoenix Suns',
+    'POR':'Portland Trail Blazers',
+    'SAC':'Sacramento Kings',
+    'SAS':'San Antonio Spurs',
+    'TOR':'Toronto Raptors',
+    'UTA':'Utah Jazz',
+    'WAS':'Washington Wizards'
+}
+
+DK_TEAMS = {
+    'HOU' : 'HOU',
+    'NO' : 'NOP',
+    'OKC' : 'OKC',
+    'SA' : 'SAS',
+    'LAC' : 'LAC',
+    'MIA' : 'MIA',
+    'DET' : 'DET',
+    'IND' : 'IND',
+    'BOS' : 'BOS',
+    'UTA' : 'UTA',
+    'NY' : 'NYK',
+    'DAL' : 'DAL',
+    'MEM' : 'MEM',
+    'BKN' : 'BRK',
+    'PHI' : 'PHI',
+    'ORL' : 'ORL',
+    'CLE' : 'CLE',
+    'POR' : 'POR',
+    'TOR' : 'TOR',
+    'MIN' : 'MIN',
+    'CHI' : 'CHI',
+    'CHA' : 'CHO',
+    'ATL' : 'ATL',
+    'LAL' : 'LAL',
+    'GS' : 'GSW',
+    'WAS' : 'WAS',
+    'MIL' : 'MIL',
+    'SAC' : 'SAC',
+    'PHO' : 'PHO',
+    'DEN' : 'DEN'
+}
+
+TRANSLATE_DICT = {
+    'CHO':'CHA',
+    'BRK':'BKN',
+    'PHO':'PHX',
+}
+
+
+REVERSE_TRANSLATE_DICT = dict((v,k) for k,v in TRANSLATE_DICT.iteritems())
+
+
+WOWY_TEAMS = {
+    'ATL':'Hawks',
+    'BOS':'Celtics',
+    'BRK':'Nets',
+    'CHO':'Hornets',
+    'CHI':'Bulls',
+    'CLE':'Cavaliers',
+    'DAL':'Mavericks',
+    'DEN':'Nuggets',
+    'DET':'Pistons',
+    'GSW':'Warriors',
+    'HOU':'Rockets',
+    'IND':'Pacers',
+    'LAC':'Clippers',
+    'LAL':'Lakers',
+    'MEM':'Grizzlies',
+    'MIA':'Heat',
+    'MIL':'Bucks',
+    'MIN':'Timberwolves',
+    'NOP':'Pelicans',
+    'NYK':'Knicks',
+    'OKC':'Thunder',
+    'ORL':'Magic',
+    'PHI':'76ers',
+    'PHO':'Suns',
+    'POR':'Trail Blazers',
+    'SAC':'Kings',
+    'SAS':'Spurs',
+    'TOR':'Raptors',
+    'UTA':'Jazz',
+    'WAS':'Wizards'
 }
 
 NEWS_DICT = {
@@ -84,6 +193,39 @@ NEWS_DICT = {
     'POR':'Portland Trail Blazers',
     'SAC':'Sacramento Kings',
     'SA':'San Antonio Spurs',
+    'TOR':'Toronto Raptors',
+    'UTA':'Utah Jazz',
+    'WAS':'Washington Wizards'
+}
+
+SQL_TEAMS_DICT = {
+    'ATL':'Atlanta Hawks',
+    'BOS':'Boston Celtics',
+    'BKN':'Brooklyn Nets',
+    'CHA':'Charlotte Hornets',
+    'CHI':'Chicago Bulls',
+    'CLE':'Cleveland Cavaliers',
+    'DAL':'Dallas Mavericks',
+    'DEN':'Denver Nuggets',
+    'DET':'Detroit Pistons',
+    'GSW':'Golden State Warriors',
+    'HOU':'Houston Rockets',
+    'IND':'Indiana Pacers',
+    'LAC':'LA Clippers',
+    'LAL':'Los Angeles Lakers',
+    'MEM':'Memphis Grizzlies',
+    'MIA':'Miami Heat',
+    'MIL':'Milwaukee Bucks',
+    'MIN':'Minnesota Timberwolves',
+    'NOP':'New Orleans Pelicans',
+    'NYK':'New York Knicks',
+    'OKC':'Oklahoma City Thunder',
+    'ORL':'Orlando Magic',
+    'PHI':'Philadelphia 76ers',
+    'PHX':'Phoenix Suns',
+    'POR':'Portland Trail Blazers',
+    'SAC':'Sacramento Kings',
+    'SAS':'San Antonio Spurs',
     'TOR':'Toronto Raptors',
     'UTA':'Utah Jazz',
     'WAS':'Washington Wizards'
@@ -168,7 +310,7 @@ DEPTH_TO_DK_TRANSLATE = {
     "JJ Barea": "J.J. Barea",
     "Dorian Finney Smith": "Dorian Finney-Smith",
     "AJ Hammons": "A.J. Hammons",
-    "CJ McCollum": "C.J. McCollum",
+    "CJ McCollum": "CJ McCollum",
     "Al Farouq Aminu": "Al-Farouq Aminu",
     "Domas Sabonis": "Domantas Sabonis",
     "JR Smith": "J.R. Smith",
@@ -187,7 +329,7 @@ DEPTH_TO_DK_TRANSLATE = {
     "TJ Warren": "T.J. Warren",
     "PJ Tucker": "P.J. Tucker",
     "Derrick Jones": "Derrick Jones Jr.",
-    "JJ Redick": "J.J. Redick",
+    "JJ Redick": "JJ Redick",
     "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
     "Willie Cauley Stein": "Willie Cauley-Stein",
     "George Papagiannis": "Georgios Papagiannis",
@@ -198,7 +340,20 @@ DEPTH_TO_DK_TRANSLATE = {
     "Rondae Hollis Jefferson": "Rondae Hollis-Jefferson",
     "CJ Miles": "C.J. Miles",
     "Glenn Robinson": "Glenn Robinson III",
-    "ETwaun Moore": "E'Twaun Moore"
+    "ETwaun Moore": "E'Twaun Moore",
+    "Dennis Smith": "Dennis Smith Jr.",
+    "Frank Mason": "Frank Mason III",
+    "Otto Porter": "Otto Porter Jr.",
+    "DeAaron Fox": "De'Aaron Fox",
+    "DJ Wilson": "D.J. Wilson",
+    "Ogugua Anunoby": "OG Anunoby",
+    "James Ennis": "James Ennis III",
+    "Johnny OBryant": "Johnny O'Bryant III",
+    "Royce ONeale": "Royce O'Neale",
+    "Derrick Walton Jr": "Derrick Walton Jr."
+
+
+
 }
 
 DK_TO_DEPTH_TRANSLATE = dict((v,k) for k,v in DEPTH_TO_DK_TRANSLATE.iteritems())
@@ -264,41 +419,135 @@ INTERNATIONAL_TEAMS = ['FCB', 'RMD', 'SLA', 'MAC', 'SDS']
 
 SQL_REVERSE_TRANSLATE = dict((v,k) for k,v in SQL_TRANSLATE_DICT.iteritems())
 
+
+DEPTH_TO_SQL_TRANSLATE = {
+    "Matt Dellavedova": "Matthew Dellavedova",
+    "James McAdoo": "James Michael McAdoo",
+    "John Lucas": "John Lucas III",
+    "Karl Anthony Towns": "Karl-Anthony Towns",
+    "Tim Hardaway Jr": "Tim Hardaway Jr.",
+    "DeAndre Bembry": "DeAndre' Bembry",
+    "Kentavious Caldwell Pope": "Kentavious Caldwell-Pope",
+    "Kyle OQuinn": "Kyle O'Quinn",
+    "JJ Barea": "J.J. Barea",
+    "Dorian Finney Smith": "Dorian Finney-Smith",
+    "AJ Hammons": "A.J. Hammons",
+    "CJ McCollum": "CJ McCollum",
+    "Al Farouq Aminu": "Al-Farouq Aminu",
+    "Domas Sabonis": "Domantas Sabonis",
+    "JR Smith": "J.R. Smith",
+    "Raulzinho Neto": "Raul Neto",
+    "Michael Carter Williams": "Michael Carter-Williams",
+    "RJ Hunter": "R.J. Hunter",
+    "Michael Kidd Gilchrist": "Michael Kidd-Gilchrist",
+    "KJ McDaniels": "K.J. McDaniels",
+    "Maybyner Nene": "Nene",
+    "Kelly Oubre Jr": "Kelly Oubre Jr.",
+    "DAngelo Russell": "D'Angelo Russell",
+    "Larry Nance Jr": "Larry Nance Jr.",
+    "TJ McConnell": "T.J. McConnell",
+    "Timothe Luwawu Cabarrot": "Timothe Luwawu-Cabarrot",
+    "TJ Warren": "T.J. Warren",
+    "PJ Tucker": "PJ Tucker",
+    "Derrick Jones": "Derrick Jones Jr.",
+    "JJ Redick": "JJ Redick",
+    "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
+    "Willie Cauley Stein": "Willie Cauley-Stein",
+    "George Papagiannis": "Georgios Papagiannis",
+    "DJ Augustin": "D.J. Augustin",
+    "CJ Watson": "C.J. Watson",
+    "CJ Wilcox": "C.J. Wilcox",
+    "Stephen Zimmerman": "Stephen Zimmerman Jr.",
+    "Rondae Hollis Jefferson": "Rondae Hollis-Jefferson",
+    "CJ Miles": "C.J. Miles",
+    "Glenn Robinson": "Glenn Robinson III",
+    "ETwaun Moore": "E'Twaun Moore",
+    "Dennis Smith": "Dennis Smith Jr.",
+    "Frank Mason": "Frank Mason",
+    "Otto Porter": "Otto Porter",
+    "DeAaron Fox": "De'Aaron Fox",
+    "DJ Wilson": "D.J. Wilson",
+    "Ogugua Anunoby": "OG Anunoby",
+    "James Ennis": "James Ennis III",
+    "Johnny OBryant": "Johnny O'Bryant III",
+    "Royce ONeale": "Royce O'Neale",
+    "Derrick Walton Jr": "Derrick Walton Jr.",
+    "Wayne Selden": "Wayne Selden"
+
+}
+
+
 DK_TO_SQL_TRANSLATE = {
-    "C.J. McCollum": "CJ McCollum",
+    "CJ McCollum": "CJ McCollum",
     "DeAndre' Bembry": "DeAndre Bembry",
     "R.J. Hunter": "RJ Hunter",
-    "T.J. Warren": "TJ Warren",
-    "J.J. Barea": "Jose Juan Barea",
+    "TJ Warren": "T.J. Warren",
+    "J.J. Barea": "J.J. Barea",
     "C.J. Miles": "CJ Miles",
-    "J.J. Redick": "JJ Redick",
+    "JJ Redick": "JJ Redick",
     "P.J. Tucker": "PJ Tucker",
     "J.R. Smith": "JR Smith",
     "Nene Hilario": "Nene",
-    "Juancho Hernangomez": "Juan Hernangomez",
     "A.J. Hammons": "AJ Hammons",
     "Derrick Jones Jr.": "Derrick Jones, Jr.",
     "K.J. McDaniels": "KJ McDaniels",
     "C.J. Watson": "CJ Watson",
     "C.J. Wilcox": "CJ Wilcox",
     "Stephen Zimmerman Jr.": "Stephen Zimmerman",
-    "T.J. McConnell": "TJ McConnell",
-    "Kelly Oubre Jr.": "Kelly Oubre",
-    "Timothe Luwawu-Cabarrot": "Timothe Luwawu",
+    "T.J. McConnell": "T.J. McConnell",
+    "Timothe Luwawu-Cabarrot": "Timothe Luwawu-Cabarrot",
     "Guillermo Hernangomez": "Willy Hernangomez",
     "Glenn Robinson III": "Glenn Robinson",
     "Wade Baldwin IV": "Wade Baldwin",
-    "Luc Richard Mbah a Moute": "Luc Mbah a Moute"
+    "Luc Richard Mbah a Moute": "Luc Mbah a Moute",
+    "Frank Mason III": "Frank Mason",
+    "Otto Porter Jr.":"Otto Porter Jr.",
+    "Tim Hardaway Jr.":"Tim Hardaway Jr.",
+    "Jakarr Sampson":"JaKarr Sampson",
+    "OG Anunoby": "OG Anunoby",
+    "James Ennis III": "James Ennis III",
+    "Larry Nance Jr.": "Larry Nance Jr.",
+    "Johnny O'Bryant III": "Johnny O'Bryant III",
+    "Royce O'Neale": "Royce O'Neale",
+    "Derrick Walton Jr.": "Derrick Walton Jr.",
+    "Wayne Selden Jr.": "Wayne Selden",
+    "Robert Williams":"Robert Williams III",
+    "Mohamed Bamba":"Mo Bamba",
+    "Juan Hernangomez":"Juancho Hernangomez",
+    "Wesley Iwundu":"Wes Iwundu",
+    "Melvin Frazier Jr":"Melvin Frazier Jr.",
+    "Jaren Jackson Jr":"Jaren Jackson Jr."
 }
 
 SQL_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_SQL_TRANSLATE.iteritems())
 
 DK_TO_WOWY_TRANSLATE = {
     # urllib.quote(u"Danté Exum".encode("utf-8"))
+    # "Sergio Rodriguez": urllib.quote(u"Sergio Rodríguez".encode("utf-8")),
+    # "Alex Abrines": urllib.quote(u"Álex Abrines".encode("utf-8")),
+    # "Nicolas Laprovittola": urllib.quote(u"Nicolás Laprovittola".encode("utf-8")),
+    # "Dante Exum": urllib.quote(u"Danté Exum".encode("utf-8")),
+    # "Timothe Luwawu-Cabarrot": urllib.quote(u"Timothé Luwawu-Cabarrot".encode("utf-8")),
+    # 'Nicolas Brussino': urllib.quote(u"Nicolás Brussino".encode("utf-8"))
+
     "Sergio Rodriguez": urllib.quote(u"Sergio Rodríguez".encode("utf-8")),
     "Alex Abrines": urllib.quote(u"Álex Abrines".encode("utf-8")),
-    "Nicolas Laprovittola": urllib.quote(u"Nicolás Laprovittola".encode("utf-8")),
-    "Dante Exum": urllib.quote(u"Danté Exum".encode("utf-8"))
+    "Nicolas Laprovittola": "Nicol\xc3\xa1s Laprovittola",
+    "Dante Exum": "Dant\xc3\xa9 Exum",
+    "Timothe Luwawu-Cabarrot": "Timoth\xc3\xa9 Luwawu-Cabarrot",
+    "Nicolas Brussino": "Nicol\xc3\xa1s Brussino",
+    "Jose Calderon": "Jos\xc3\xa9 Calder\xc3\xb3n",
+    "Guillermo Hernangomez":"Guillermo Hernang\xc3\xb3mez",    
+    "Juancho Hernangomez":"Juancho Hernang\xc3\xb3mez",
+    "Alex Abrines":"\xc3\x81lex Abrines",
+    "Otto Porter Jr.":"Otto Porter",
+    "CJ McCollum":"C.J. McCollum",
+    "JJ Redick":"J.J. Redick",
+    "Nene Hilario": "Nene",
+    "Johnny O'Bryant III": "Johnny O'Bryant III",
+    "Royce O'Neale": "Royce O'Neale",
+    "Derrick Walton Jr.": "Derrick Walton Jr.",
+    "Wayne Selden Jr.": "Wayne Selden Jr."
 }
 
 SQL_TO_WOWY_TRANSLATE = {
@@ -308,6 +557,7 @@ SQL_TO_WOWY_TRANSLATE = {
     "Dante Exum": u"Danté Exum".encode("utf-8"),
     "AJ Hammons": "A.J. Hammons",
     "Alex Abrines": u"Álex Abrines".encode("utf-8"),
+    "Nicolas Brussino":"Nicol\xc3\xa1s Brussino",
     "CJ McCollum": "C.J. McCollum",
     "CJ Miles": "C.J. Miles",
     "CJ Watson": "C.J. Watson",
@@ -317,29 +567,43 @@ SQL_TO_WOWY_TRANSLATE = {
     "Edy Tavares": "Walter Tavares",
     "Glenn Robinson": "Glenn Robinson III",
     "JJ Redick": "J.J. Redick",
-    "Jose Juan Barea": "J.J. Barea",
+    "J.J. Barea": "J.J. Barea",
     "JR Smith": "J.R. Smith",
-    "Juan Hernangomez": "Juancho Hernangomez",
-    "Willy Hernangomez": "Guillermo Hernangomez",
-    "Kelly Oubre": "Kelly Oubre Jr.",
+    "Juan Hernangomez": "Juancho Hernang\xc3\xb3mez",
+    "Willy Hernangomez": "Guillermo Hernang\xc3\xb3mez",
+    "Kelly Oubre Jr.": "Kelly Oubre Jr.",
     "KJ McDaniels": "K.J. McDaniels",
     "Luc Mbah a Moute": "Luc Richard Mbah a Moute",
     "PJ Tucker": "P.J. Tucker",
     "RJ Hunter": "R.J. Hunter",
     "Stephen Zimmerman": "Stephen Zimmerman Jr.",
-    "Timothe Luwawu": "Timothe Luwawu-Cabarrott",
-    "TJ McConnell": "T.J. McConnell",
+    "Timothe Luwawu-Cabarrot": "Timoth\xc3\xa9 Luwawu-Cabarrot",
+    "T.J. McConnell": "T.J. McConnell",
     "TJ Warren": "T.J. Warren",
-    "Wade Baldwin": "Wade Baldwin IV"
+    "Wade Baldwin": "Wade Baldwin IV",
+    "Otto Porter Jr.": "Otto Porter",
+    "Frank Mason": "Frank Mason III",
+    "JaKarr Sampson": "Jakarr Sampson",
+    "James Ennis III": "James Ennis III",
+    "Jose Calderon": "Jos\xc3\xa9 Calder\xc3\xb3n",
+    "Alex Abrines": "\xc3\x81lex Abrines",
+    "Johnny O'Bryant III": "Johnny O'Bryant III",
+    "Royce O'Neale": "Royce O'Neale",
+    "Derrick Walton Jr.": "Derrick Walton Jr.",
+    "Wayne Selden": "Wayne Selden Jr.",
+    "Juan Hernangomez": "Juancho Hernang\xc3\xb3mez",
+
+
 }
 
 
 WOWY_TO_DK_TRANSLATE = dict((v,k) for k,v in DK_TO_WOWY_TRANSLATE.iteritems())
-
+WOWY_TO_SQL_TRANSLATE = dict((v,k) for k,v in SQL_TO_WOWY_TRANSLATE.iteritems())
 
 NEWS_URL = 'http://www.rotoworld.com/teams/nba/'
 MATCHUP_URL = 'http://www.rotowire.com/daily/nba/defense-vspos.htm'
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/47.0.2526.73 Chrome/47.0.2526.73 Safari/537.36"
+
 
 def process_depth_charts():
     depth_players = []
@@ -427,11 +691,11 @@ def get_all_teams_playing_today():
 
 def get_sql_team_names():
     team_obj = {}
+
     query = """
-        SELECT TEAM_ID, TEAM_ABBREVIATION FROM all_game_ids GROUP BY TEAM_ID
+        SELECT id as TEAM_ID, TEAM_ABBREVIATION FROM teams GROUP BY id;
     """
     all_teams = sqlfetch.execute_query(query)
-
     for team in all_teams:
         team_obj[team['TEAM_ABBREVIATION']] = {
             'name': team['TEAM_ABBREVIATION'],
@@ -464,7 +728,7 @@ def get_fantasy_news():
         news_content = []
         url = urllib2.urlopen(NEWS_URL+'/'+team+'/'+team_link)
 
-        soup = BeautifulSoup(url, 'html5lib')
+        soup = BeautifulSoup(url)
         news_holder = soup.find_all('div', attrs={'class':'RW_pn'})[1]
         news = news_holder.find_all('div', attrs={'class':'pb'})
 
@@ -490,32 +754,38 @@ def get_fantasy_news():
             json.dump(news_content, outfile)
 
 
-def get_vegas_lines(date):
-    url = urllib2.urlopen('http://www.covers.com/Sports/NBA/Matchups?selectedDate='+date)
-    soup = BeautifulSoup(url, 'html5lib')
+def get_vegas_lines():
 
-    game_list = soup.find_all('div', attrs={'class': 'cmg_matchups_list'})[0]
-    game_matchup = game_list.find_all('div', attrs={'class': 'cmg_matchup_game'})
+    from selenium import webdriver
+    # because the html is rendered via HTML
+    # we load up the page and get the source (once loaded) instead
+    url = 'https://rotogrinders.com/schedules/nba'
+    browser = webdriver.PhantomJS()
+    browser.get(url)
+    html = browser.page_source
+    soup = BeautifulSoup(html)
+
+    game_stats_table = soup.find('div', attrs={'id': 'game-stats-table'})
+    table = game_stats_table.find_all('table')[0]
+    table_body = table.find('tbody')
+    rows = table_body.find_all('tr')
 
     vegas_lines = {}
-    for game in game_matchup:
-        open_odds = game.find('div', attrs={'class': 'cmg_team_opening_odds'})
-        odds_line = open_odds.find_all('span')
-        over_under = odds_line[1].text
-        advantage_team = odds_line[2].text
-        matchup = game.find_all('div', attrs={'class': 'cmg_team_name'})
+    for row in rows:
+        team = row.find_all('td')
+        team_name = team[1].text
 
-        for team in matchup:
-            teams = team.find_all(text=True, recursive=False)
-            for team in teams:
-                team_name = team.strip()
-                if team_name != '':
-                    if team_name in SCRAPE_TRANSLATE_DICT:
-                        team_name = SCRAPE_TRANSLATE_DICT[team_name]
-                    vegas_lines[team_name] = {
-                        'over_under': over_under,
-                        'advantage_team': advantage_team
-                    }
+        if team_name in TRANSLATE_DICT:
+            team_name = TRANSLATE_DICT[team_name]
+
+        vegas_lines[team_name] = {
+            'team_name' : team_name,
+            'ou' : team[5].text,
+            'line' : team[3].text,
+            'oppo' : team[2].text,
+            'proj_points' : team[6].text
+        }
+    
     return vegas_lines
 
 def get_fantasy_lab_news():
@@ -545,8 +815,9 @@ def get_team_against_position():
     total_stats = {}
     for position in pos_list:
         LOGGER.info('getting matchup information for: '+position)
-        url = urllib2.urlopen(MATCHUP_URL+'?site=%s&pos=%s' % (site, position))
-        soup = BeautifulSoup(url, 'html5lib')
+        site_url = MATCHUP_URL+'?site=%s&pos=%s' % (site, position)
+        url = urllib2.urlopen(site_url)
+        soup = BeautifulSoup(url)
 
         table = soup.find('table', attrs={'class': 'footballproj-table'})
         header = table.find('thead')
@@ -611,7 +882,7 @@ def get_team_against_position():
 
 def player_daily_status():
     url = urllib2.urlopen('https://basketballmonster.com/playernews.aspx')
-    soup = BeautifulSoup(url, 'html5lib')
+    soup = BeautifulSoup(url)
 
     today_news = soup.find_all('div', attrs={'class': 'daily-status-updates'})
     player_status = today_news[0].find_all('div', attrs={'class': 'daily-status-player'})
@@ -640,9 +911,9 @@ def player_daily_status():
 
     return daily_status_player
 
-
 def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date):
-    base_url = 'http://nbawowy-52108.onmodulus.net/api/'
+    # base_url = 'http://nbawowy-52108.onmodulus.net/api/'
+    base_url = 'http://nbawowy.com/api/'
 
     if vs_teams == 'all':
         vs_teams = '[76ers,Bobcats,Bucks,Bulls,Cavaliers,Celtics,Clippers,'\
@@ -682,6 +953,14 @@ def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_d
         {
             'name': 'ast',
             'link': 'ast/q/'
+        },
+        {
+            'name': 'stl',
+            'link': 'stl/q/'
+        },
+        {
+            'name': 'blk',
+            'link': 'blk/q/'
         }
     ]
 
@@ -721,7 +1000,6 @@ def construct_api_url(team, vs_teams, on_players, off_players, start_date, end_d
 def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date):
 
     url_list = construct_api_url(team, vs_teams, on_players, off_players, start_date, end_date)
-
     player_obj = {
         'players': {},
         'lineups': [],
@@ -756,11 +1034,47 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
                     'poss': lineup['poss'],
                     'min': lineup['time'] / 60
                 })
-
         if stat['stat'] == 'tov' \
             or stat['stat'] == 'reb' \
-            or stat['stat'] == 'ast':
+            or stat['stat'] == 'stl' \
+            or stat['stat'] == 'blk':
             process_stat_api(player_obj, data, stat['stat'])
+
+
+        if stat['stat'] == 'ast':
+            temp_obj = {}
+            mfg2m = 0
+            mfg3m = 0
+            for player in data:
+                player_info = player['_id']
+                player_name = player_info['name'].encode('utf-8')
+
+                # if player_info['name'] in ACCENT_TO_NONE:
+                #     player_name = ACCENT_TO_NONE[player_info['name']]
+                # else:
+                #     player_name = player_info['name']
+
+                if player_name not in temp_obj:
+                    temp_obj[player_name] = {
+                        'ast2': 0,
+                        'ast3': 0
+                    }
+
+                if player_info['value'] == 2:
+                    temp_obj[player_name]['ast2'] += 1
+                    mfg2m += 1
+                elif player_info['value'] == 3:
+                    temp_obj[player_name]['ast3'] += 1
+                    mfg3m += 1
+
+            for (player, stat_name) in player_obj['players'].iteritems():
+                if player in temp_obj:
+                    player_obj['players'][player][stat['stat']] = temp_obj[player]
+                else:
+                    player_obj['players'][player][stat['stat']] = {
+                        'ast2': 0,
+                        'ast3': 0,
+                    }
 
         if stat['stat'] == 'fga':
             temp_obj = {}
@@ -772,7 +1086,6 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
                 #     player_name = ACCENT_TO_NONE[player_info['name']]
                 # else:
                 #     player_name = player_info['name']
-
                 if player_name not in temp_obj:
                     temp_obj[player_name] = {
                         'fg2m': 0,
@@ -845,6 +1158,7 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
 
     for (player, stats) in player_obj['players'].iteritems():
         # definitions from nbawowy
+
         fta_made = stats['fta']['fta2m'] + stats['fta']['fta3m']
         fta_missed = stats['fta']['fta2x'] + stats['fta']['fta3x']
         fga_made = stats['fga']['fg2m'] + stats['fga']['fg3m']
@@ -855,6 +1169,12 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
 
         fta_2 = stats['fta']['fta2m'] + stats['fta']['fta2x']
         fta_3 = stats['fta']['fta3m'] + stats['fta']['fta3x']
+        asts = stats['ast']['ast2'] + stats['ast']['ast3']
+
+        try:
+            reb_rate = (float(stats['reb']) / float(stats['poss'])) * 100
+        except ZeroDivisionError:
+            reb_rate = 0
 
         try:
             usg = ((fga + (0.44 * fta) + stats['tov']) / stats['poss'] * 100)
@@ -865,7 +1185,7 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
         except ZeroDivisionError:
             pace = 0
 
-        plays = fga + (0.5 * fta) + stats['tov'] + stats['ast']
+        plays = fga + (0.5 * fta) + stats['tov'] + asts
         tsa = fga + 0.5 * (fta_2) + (1/3) * (fta_3)
 
         try:
@@ -884,18 +1204,53 @@ def player_on_off(team, vs_teams, on_players, off_players, start_date, end_date)
         except ZeroDivisionError:
             scoring_index = 0
 
-        # (2*stats.fg2m+3*stats.fg3m+stats.fta2m + stats.fta3m+stats.and1m + stats.techm+0.5*stats.fg3m+1.25*(stats.oreb+stats.dreb) + 1.5*(stats.ast2+stats.ast3) + 2 * stats.stl + 2 * stats.blk - 0.5 * stats.tov)/stats.min
+        try:
+            scoring_index = (1 + ((-0.9 + 0.89 * ((fga_made + 0.73 * (fga_missed) \
+                + 0.5 * fta_2 + (1/3) * fta_3 + stats['tov']) \
+                / stats['poss']) + 0.5 * (2 * stats['fga']['fg2m'] \
+                + 3 * stats['fga']['fg3m'] + fta_made)\
+                / (fga + 0.5 * fta_2 + (1/3)* fta_3)) / 1.33) / 0.136)
+        except ZeroDivisionError:
+            scoring_index = 0
+
+        try:
+            ts = 0.5 * (2 * stats['fga']['fg2m'] + 3 * stats['fga']['fg3m'] + fta_made) \
+                / (fga_made + fga_missed + 0.5 \
+                * (fta_2) + (1/3) * (fta_3))
+        except ZeroDivisionError:
+            ts = 0
+
+        try:
+            # mfg2m + mfg3m = total fields made by the players
+            ast_rate = float(asts) / float((mfg2m + mfg3m - stats['fga']['fg2m'] - stats['fga']['fg3m']))
+        except ZeroDivisionError:
+            ast_rate = 0
+        
+        try:
+            dkm = (2 * stats['fga']['fg2m'] + 3 * stats['fga']['fg3m'] + fta_made + 0.5 * stats['fga']['fg3m'] + \
+                1.25 * (stats['reb']) + 1.5*(asts) + 2 * stats['stl'] + 2 * stats['blk']- 0.5 * stats['tov'])\
+                / stats['min']
+
+        except ZeroDivisionError:
+            dkm = 0
+
         stats['compiled_stats'] = {
             'usg': two_decimals(usg),
             'plays': two_decimals(plays),
+            'reb_rate': two_decimals(reb_rate),
             'pace': two_decimals(pace),
+            'ast_rate': two_decimals(ast_rate),
             'tsa': two_decimals(tsa),
+            'dkm': two_decimals(dkm),
+            'ts': two_decimals(ts),
             'ppp': two_decimals(ppp),
             'scoring_index': two_decimals(scoring_index)
         }
 
     # pp.pprint(player_obj)
     return player_obj
+
+
 
 def process_stat_api(player_obj, data, stat):
     temp_obj = {}
@@ -952,7 +1307,7 @@ def compare_sql_to_wowy_players():
 # just the lineup call
 def get_lineups_by_team(team, vs_teams, on_players, off_players, start_date, end_date):
 
-    base_url = 'http://nbawowy-52108.onmodulus.net/api/'
+    base_url = 'http://nbawowy.com/api/'
 
     # http://nbawowy-52108.onmodulus.net/api/players/76ers/
 
@@ -1027,6 +1382,7 @@ def get_all_lineups():
 
     cursor.execute("DROP TABLE IF EXISTS team_lineups")
 
+
     sql = """CREATE TABLE team_lineups (
               TEAM_ID varchar(255),
               TEAM_NAME varchar(255),
@@ -1039,6 +1395,7 @@ def get_all_lineups():
               MINUTES_PLAYED INT)"""
 
     cursor.execute(sql)
+    create_lineup_logs_table()
 
     all_teams = TEAMS_DICT.keys()
     # we need to separate this by SEASON (ex. 15, 16), Preseason, Playoffs
@@ -1050,9 +1407,10 @@ def get_all_lineups():
         else:
             sql_team_name = team
 
-        print 'AGAINST ' + team
+        # print 'AGAINST ' + team
         sql_lineups = []
         team_wowy_obj = get_lineups_by_team(WOWY_TEAMS[team], 'all', [], [], FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON)
+
         for lineup in team_wowy_obj['lineups']:
 
             for idx, lineup_player in enumerate(lineup['lineup']):
@@ -1107,9 +1465,8 @@ def get_all_lineups():
             # use today's date
             today_date = date.today()
             yesterday_date = today_date - timedelta(days=1)
-            get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name, yesterday_date))
+            get_games_played = sqlfetch.execute_query(sqlfetch.get_team_faced(sql_team_name, team_against_sql_name, FIRST_DATE_REG_SEASON))
 
-            print get_games_played
             if len(get_games_played) >= 1:
 
                 for games_played in get_games_played:
@@ -1120,7 +1477,6 @@ def get_all_lineups():
 
                     if len(team_against_wowy_obj['lineups']) > 0:
                         for lineup in team_against_wowy_obj['lineups']:
-
                             for idx, lineup_player in enumerate(lineup['lineup']):
                                 try:
                                     # print lineup['lineup'][idx]
@@ -1272,7 +1628,6 @@ def lineup_analysis():
 
     for team in team_obj:
         if team not in INTERNATIONAL_TEAMS:
-            print team
             temp_lineup_obj = {}
             lineup_poss = []
             small_ball_poss = []
@@ -1393,7 +1748,7 @@ def get_deiviation_lineups():
 def get_updated_depth_chart():
 
     url = urllib2.urlopen('http://basketball.realgm.com/nba/teams/Depth_Charts').read()
-    soup = BeautifulSoup(url, 'html5lib')
+    soup = BeautifulSoup(url)
 
     tables = soup.find_all('table', attrs={'class':'basketball'})
     if len(tables) == 30:
@@ -1434,9 +1789,95 @@ def get_updated_depth_chart():
 
     # return current_starters
 
+def daterange(start_date, end_date):
+    for n in range(int ((end_date - start_date).days)+1):
+        yield start_date + timedelta(n)
+
+
+def create_player_salary_log(end_date, suffix):
+    start_date = date(2018, 10, 16)
+    end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    cursor.execute("DROP TABLE IF EXISTS player_dk_salary_log")
+
+    sql = """CREATE TABLE player_dk_salary_log (
+              PLAYER_ID varchar(255),
+              PLAYER_NAME varchar(255),
+              TEAM_ID varchar(255),
+              TEAM_NAME varchar(255),
+              SALARY INTEGER,
+              DATE varchar(255))"""
+
+    cursor.execute(sql)
+    # actually its not guaranteed what their shit is
+
+    # dependency on the players who have the games
+    all_sql_players = sqlfetch.execute_query(sqlfetch.get_all_players_played(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON))
+
+    # if not we can just check with the updated_depth_chart anyway.
+    sql_players_dict = {}
+    for players in all_sql_players:
+        sql_players_dict[players['NAME']] = {
+            'name': players['NAME'],
+            'player_id': players['PLAYER_ID'],
+            'team_id': players['TEAM_ID'],
+            'team_name': players['TEAM_ABBREVIATION']
+        }
+    for single_date in daterange(start_date, end_date):
+        try:
+            print str(single_date)
+            sql_players = []
+
+            if suffix != '':
+                filename = str(single_date)+'-'+str(suffix)
+            else:
+                filename = str(single_date)
+
+            with open('../scrape/csv/'+filename+'.csv',) as csv_file:
+                try:
+                    next(csv_file, None)
+                    players = csv.reader(csv_file)
+                    for player in players:
+                        try:
+                            player_name = player[1]
+                            salary = player[2]
+
+                            if player_name in DK_TO_SQL_TRANSLATE:
+                                player_name = DK_TO_SQL_TRANSLATE[player_name]
+
+                            player_name = player_name.encode("utf-8")
+                            if player_name in sql_players_dict:
+                                player_name = sql_players_dict[player_name]['name']
+                                player_id = sql_players_dict[player_name]['player_id']
+                                team_id = sql_players_dict[player_name]['team_id']
+                                team_name = sql_players_dict[player_name]['team_name']
+                                val_string = '("{player_id}", "{player_name}", "{team_id}", "{team_name}", '\
+                                                '"{salary}", "{date}")'.format(
+                                                    player_id=player_id, player_name=player_name, \
+                                                    team_id=team_id, team_name=team_name, \
+                                                    salary=salary, date=str(single_date)
+                                                )
+
+                                sql_players.append(val_string)
+                        except IndexError:
+                            print "Index doesn't exist!"
+
+                except csv.Error as e:
+                    sys.exit('file %s: %s' % (csv_file, e))
+
+                insert_players_string = ', '.join(sql_players)
+                insert_sql = """INSERT INTO player_dk_salary_log VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
+
+                cursor.execute(insert_sql)
+                db.commit()
+ 
+        except:
+            db.rollback()
+
 
 def create_player_depth_table():
     cursor.execute("DROP TABLE IF EXISTS player_depth")
+
 
     sql = """CREATE TABLE player_depth (
               PLAYER_ID varchar(255) PRIMARY KEY,
@@ -1453,8 +1894,16 @@ def create_player_depth_table():
     # insert
     try:
         sql_players = []
+
+        # dependency on the players who have played the games
+
+        # solution to this is just to have a team / team id dict
+        # go thorugh the updated depth charts then match the players with the player name & id, then fetch the team id from the existing team dict
+        # what if they are new players that dont have a player id
+
         all_sql_players = sqlfetch.execute_query(sqlfetch.get_all_players_played(FIRST_DATE_REG_SEASON, LAST_DATE_REG_SEASON))
 
+        # if not we can just check with the updated_depth_chart anyway.
         sql_players_dict = {}
         for players in all_sql_players:
             sql_players_dict[players['NAME']] = {
@@ -1463,11 +1912,11 @@ def create_player_depth_table():
                 'team_id': players['TEAM_ID'],
                 'team_name': players['TEAM_ABBREVIATION']
             }
-
         # get all the players from the depth chart
         teams = ['ATL', 'BOS', 'BRK', 'CHO', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 'MIA', 'MIL', 'MIN', 'NOP', 'NYK', 'OKC', 'ORL', 'PHI', 'PHO', 'POR', 'SAC', 'SAS', 'TOR', 'UTA', 'WAS']
 
         for team in teams:
+
             with open('../scrape/misc/updated_depth_chart/'+team+'.json') as data_file:
                 data = json.load(data_file)
                 positions = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -1476,13 +1925,12 @@ def create_player_depth_table():
                     for player in depth:
                         player_name = player['player']
                         player_role = player['role']
-
                         # DEPTH TO SQL TRANSLATE
                         if player_name in DEPTH_TO_DK_TRANSLATE:
                             player_name = DEPTH_TO_DK_TRANSLATE[player_name]
                             if player_name in DK_TO_SQL_TRANSLATE:
                                 player_name = DK_TO_SQL_TRANSLATE[player_name]
-
+                        
                         if player_name in sql_players_dict:
                             player_name = sql_players_dict[player_name]['name']
                             player_id = sql_players_dict[player_name]['player_id']
@@ -1503,6 +1951,7 @@ def create_player_depth_table():
             # if players['NAME'] in SQL_TO_DK_TRANSLATE
         insert_players_string = ', '.join(sql_players)
         # return sql_players
+
         insert_sql = """INSERT INTO player_depth VALUES {insert_players_string}""".format(insert_players_string=insert_players_string)
 
         cursor.execute(insert_sql)
@@ -1534,7 +1983,7 @@ def create_oppo_stats_table():
                             ON tb.game_id = gl.game_id
                             AND tb.team_id = gl.team_id
                     WHERE
-                        gl.date >= "2016-10-25"
+                        gl.date >= "2017-10-17"
                     GROUP BY
                         TEAM"""
     cursor.execute(view_query)
@@ -1543,83 +1992,60 @@ def create_oppo_stats_table():
 
     sql = """
         CREATE TABLE OPP_STATS_TABLE AS SELECT
-            tb.TEAM_NAME as NAME,
             tb.TEAM_ABBREVIATION as TEAM_NAME,
-            ROUND(avg(dr.OPP_OREB_PCT),
-            3) as AVG_OPP_OREB_PCT,
             ROUND(avg(rgl.REB),
             2) as NUM_REB_ALLOWED,
-            ROUND(avg(rgl.OREB_CHANCES),
+             ROUND(avg(rgl.OREB_CHANCES),
             2) as OPP_OREB_CHANCES,
             ROUND(avg(rgl.DREB_CHANCES),
             2) as OPP_DREB_CHANCES,
             ROUND(avg(rgl.REB_CHANCES),
             2) as OPP_REB_CHANCES,
-            ROUND(avg(rgl.REB_CHANCE_PCT_ADJ),
-            2) as OPP_REB_PCT_ADJ,
             ROUND(avg(csl.CATCH_SHOOT_FGA),
             3) as OPP_AVG_CATCH_SHOOT_FGA,
             ROUND(avg(csl.CATCH_SHOOT_PTS),
             3) as OPP_AVG_CATCH_SHOOT_PTS,
             ROUND(avg(csl.CATCH_SHOOT_FG_PCT),
             3) as OPP_CATCH_SHOOT_FG_PCT,
-            ROUND(avg(ptl.PAINT_TOUCHES),
-            3) as OPP_AVG_PAINT_TOUCHES,
-            ROUND(avg(ptl.PAINT_TOUCH_FGA),
-            3) as OPP_AVG_PAINT_TOUCH_FGA,
-            ROUND(avg(ptl.PAINT_TOUCH_PTS),
-            3) as OPP_PAINT_TOUCH_PTS,
-            ROUND(avg(potl.POST_TOUCHES),
-            3) as OPP_AVG_POST_TOUCHES,
-            ROUND(avg(potl.POST_TOUCH_FGA),
-            3) as OPP_AVG_POST_TOUCH_FGA,
-            ROUND(avg(potl.POST_TOUCH_PTS),
-            3) as OPP_POST_TOUCH_PTS,
             ROUND(avg(drl.DRIVES),
             2) as AVG_NUM_DRIVES_FACED,
             ROUND(avg(drl.DRIVE_FGA),
             2) as AVG_NUM_DRIVE_FGA_ALLOWED,
-            ROUND(avg(drl.DRIVE_FTA),
-            2) as AVG_NUM_DRIVE_FTA_ALLOWED,
             ROUND(avg(drl.DRIVE_PTS),
             2) as AVG_DRIVE_PTS_ALLOWED,
-            ROUND(avg(drl.DRIVE_PF),
-            2) as AVG_NUM_DRIVE_PF_COMMITED,
-            ROUND(avg(tb3.AVG_FOULS),
-            2) as AVG_FOULS
+            ROUND(avg(ptl.PAINT_TOUCH_PTS),
+            3) as OPP_PAINT_TOUCH_PTS
         FROM
             four_factors_boxscores_team as dr
         LEFT JOIN
             traditional_boxscores_team as tb
                 ON tb.TEAM_ID = dr.TEAM_ID
                 AND tb.GAME_ID = dr.GAME_ID
-        left join
+        LEFT JOIN
             game_summary as gs
                 on dr.game_id = gs.game_id
-        left join
+        LEFT JOIN
             sportvu_rebounding_team_game_logs as rgl
                 ON rgl.GAME_ID = dr.GAME_ID
-        left join
+                AND rgl.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
+        LEFT JOIN
             sportvu_catch_shoot_team_game_logs as csl
                 ON csl.GAME_ID = dr.GAME_ID
-        left join
-            sportvu_paint_touches_team_game_logs as ptl
-                ON ptl.GAME_ID = dr.GAME_ID
-        left join
-            sportvu_post_touches_team_game_logs as potl
-                ON potl.GAME_ID = dr.GAME_ID
-        left join
+                AND csl.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
+        LEFT JOIN
             sportvu_drives_team_game_logs as drl
                 ON drl.GAME_ID = dr.GAME_ID
+                AND csl.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
         LEFT JOIN
-            team_fouls as tb3
-                on tb3.TEAM_ID = tb.TEAM_ID
+            sportvu_paint_touches_team_game_logs as ptl
+                ON ptl.GAME_ID = dr.GAME_ID
+                AND ptl.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
         LEFT JOIN
             ALL_GAME_IDS as tb2
                 ON tb2.game_id = dr.GAME_ID
-                and tb2.TEAM_ID != tb.TEAM_ID
+                AND tb2.TEAM_ABBREVIATION != tb.TEAM_ABBREVIATION
         WHERE
-            gs.GAME_DATE_EST >= '2016-10-26'
+            gs.GAME_DATE_EST >= '2017-10-17'
         GROUP BY
             TEAM_NAME
     """
@@ -1630,14 +2056,12 @@ def test_markov(player_name):
 
     DATE_FORMAT_YEAR = str("%Y-%m-%d")
     avg_min_query = """
-        SELECT STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") as DATE, ub.PLAYER_NAME as NAME, ub.TEAM_ABBREVIATION as TEAM_NAME, avg(ub.MIN) as AVG_MIN
+        SELECT avg(ub.MIN) as AVG_MIN
         FROM usage_boxscores as ub
         LEFT JOIN game_summary as gs ON gs.game_id = ub.game_id
         WHERE ub.PLAYER_NAME = "{player_name}" AND STR_TO_DATE(gs.game_date_est,"%Y-%m-%d") >= "2015-10-25"
     """.format(player_name=player_name)
-
     query_results = sqlfetch.execute_query(avg_min_query)
-    # print query_results[0]
     player_avg_min = query_results[0]['AVG_MIN']
 
     if player_avg_min == None:
@@ -1789,13 +2213,28 @@ def test_markov(player_name):
     print '% next game score <= avg and within {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 2) * 100))
     print '% next game score <= avg and outside {current_std}, {pct_score}%'.format(current_std=two_decimals(current_std), pct_score=two_decimals(prob_result_matrix.item(0, 3) * 100))
 
-get_updated_depth_chart()
-create_player_depth_table()
-create_oppo_stats_table
-get_fantasy_news()
-get_team_against_position()
-get_all_lineups()
-lineup_analysis()
-get_deiviation_lineups()
-# test_markov('Lance Thomas')
 
+def new_wowy(url):
+
+    # url = 'https://api.pbpstats.com/get-wowy-stats/nba?0Exactly1OffFloor=201599&1Exactly1OffFloor=203501&2Exactly1OffFloor=201584&3Exactly1OffFloor=202083&4Exactly1OffFloor=202683&5Exactly1OffFloor=203504&6Exactly1OffFloor=1627758&7Exactly1OffFloor=1626209&8Exactly1OffFloor=1628373&TeamId=1610612752&Season=2018-19&SeasonType=Regular%2BSeason&Type=Player'
+    wowy_obj = {}
+    print url
+    response = requests.get(url, headers={'User-Agent': USER_AGENT})
+    data = response.json()
+
+    # OffPoss
+    # Usage
+    for stats in data['multi_row_table_data']:
+        wowy_obj[stats['Name']] = {
+            'possessions_played': stats['OffPoss'] if 'OffPoss' in stats else 0,
+            'usage': stats['Usage'] if 'Usage' in stats else 0
+        }
+
+    return wowy_obj
+
+# new_wowy()
+
+# get_team_against_position()
+# lineup_analysis()
+# get_deiviation_lineups()
+# test_markov('Ricky Rubio')

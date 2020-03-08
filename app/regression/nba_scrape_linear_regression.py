@@ -36,6 +36,11 @@ def get_simple_player_log_regression(player):
                 if value < 0.05 and key != 'Intercept':
                     opp_bucket[key] = value
 
+            print opp_bucket
             return opp_bucket
         except ValueError:  #raised if `y` is empty.
             pass
+
+
+
+get_simple_player_log_regression('Jeremy Lin')

@@ -288,7 +288,6 @@ app.factory('processing', ['common', 'fetch', '$q', function(common, fetch, $q) 
             getTeamDepthChart(team, opponents[team]);
         }
 
-        console.log(finalData);
         return finalData;
     }
 

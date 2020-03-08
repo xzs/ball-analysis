@@ -1,0 +1,2295 @@
+Jakarr Sampson
+Index Out of Bounds
+
+
+PREDICTION OF FGA:
+FGA:  85.0
+REB:  37.0
+REB CHANCES:  70.0
+
+
+TEAM AVG:
+FGA:  84.67
+REB:  44.78
+
+
+PF: Draymond Green
+- Kevon Looney
+- Jordan Bell
+-- Omri Casspi
+-- Damian Jones
+-- Chris Boucher
+C: Zaza Pachulia
+- David West
+- JaVale McGee
+SG: Klay Thompson
+- Patrick McCaw
+-- Nick Young
+PG: Stephen Curry
+-- Quinn Cook
+SF: Kevin Durant
+- Andre Iguodala
+
+
+[u'Draymond Green', u'Zaza Pachulia', u'Klay Thompson', u'Stephen Curry', u'Kevin Durant']
+FROM LAST YEARS MATCHUPS VS DEN
+Stephen Curry - 58.94% / 122.0m
+Kevin Durant - 57.97% / 120.0m
+Draymond Green - 57.0% / 118.0m
+Klay Thompson - 48.31% / 100.0m
+Andre Iguodala - 42.03% / 87.0m
+Patrick McCaw - 40.1% / 83.0m
+Zaza Pachulia - 27.54% / 57.0m
+JaVale McGee - 21.74% / 45.0m
+Kevon Looney - 19.81% / 41.0m
+David West - 18.36% / 38.0m
+Damian Jones - 8.7% / 18.0m
+Nick Young - 8.21% / 17.0m
+Jordan Bell - 3.38% / 7.0m
+
+
+LINEUPS (ALL)
+Kevin Durant POSS: 74.8%
+PFD: 4.0, PF: 2.44
+WvL: -2.83
+Klay Thompson POSS: 70.98%
+PFD: 1.33, PF: 2.44
+WvL: -3.33
+Stephen Curry POSS: 69.85%
+PFD: 4.44, PF: 2.56
+WvL: 8.0
+Draymond Green POSS: 63.89%
+PFD: 1.78, PF: 3.11
+WvL: -7.17
+Andre Iguodala POSS: 52.98%
+PFD: 1.13, PF: 0.88
+WvL: 2.5
+Zaza Pachulia POSS: 27.78%
+PFD: 1.11, PF: 2.33
+WvL: -2.0
+Patrick McCaw POSS: 23.62%
+PFD: 0.25, PF: 0.63
+WvL: 13.8
+Nick Young POSS: 23.28%
+PFD: 0.5, PF: 0.88
+WvL: 4.3
+David West POSS: 22.72%
+PFD: 0.67, PF: 1.56
+WvL: 2.0
+JaVale McGee POSS: 14.29%
+PFD: 0.71, PF: 1.29
+WvL: 4.4
+Jordan Bell POSS: 13.95%
+PFD: 0.29, PF: 1.71
+WvL: 10.0
+Omri Casspi POSS: 9.34%
+PFD: 1.17, PF: 0.33
+WvL: -1.5
+Kevon Looney POSS: 4.5%
+PFD: 1.0, PF: 2.5
+WvL: 100
+Quinn Cook POSS: 0.11%
+PFD: 0.0, PF: 1.0
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 23.4%
+Stephen Curry DKM: 1.01
+Klay Thompson DKM: 1.19
+Draymond Green DKM: 0.68
+Kevin Durant DKM: 0.87
+Zaza Pachulia DKM: 0.82
+
+
+POSS: 8.32%
+Stephen Curry DKM: 1.68
+Klay Thompson DKM: 1.14
+Andre Iguodala DKM: 0.43
+Draymond Green DKM: 0.64
+Kevin Durant DKM: 1.39
+
+
+POSS: 2.59%
+Andre Iguodala DKM: 0.43
+Klay Thompson DKM: 0.98
+Nick Young DKM: 0.23
+Draymond Green DKM: 0.93
+David West DKM: 1.82
+
+
+POSS: 3.04%
+Andre Iguodala DKM: 0.66
+Klay Thompson DKM: 0.84
+Patrick McCaw DKM: 0.48
+Draymond Green DKM: 0.98
+David West DKM: 0.91
+
+
+POSS: 2.36%
+Stephen Curry DKM: 2.59
+Nick Young DKM: 0.88
+Andre Iguodala DKM: 1.0
+Draymond Green DKM: 1.03
+Jordan Bell DKM: 1.81
+
+
+POSS: 1.69%
+Stephen Curry DKM: 1.04
+Patrick McCaw DKM: 0.57
+Andre Iguodala DKM: 0.21
+Draymond Green DKM: 2.18
+Jordan Bell DKM: 1.71
+
+
+POSS: 1.46%
+Stephen Curry DKM: 1.42
+Nick Young DKM: 0.0
+Andre Iguodala DKM: 0.17
+Draymond Green DKM: 1.75
+JaVale McGee DKM: 1.46
+
+
+POSS: 1.12%
+Andre Iguodala DKM: 0.46
+Klay Thompson DKM: 0.92
+Omri Casspi DKM: 1.92
+Kevin Durant DKM: 2.0
+David West DKM: 2.0
+
+
+POSS: 1.57%
+Stephen Curry DKM: 2.1
+Patrick McCaw DKM: 0.4
+Andre Iguodala DKM: 1.25
+Draymond Green DKM: 0.2
+JaVale McGee DKM: 1.7
+
+
+POSS: 1.46%
+Andre Iguodala DKM: 1.88
+Klay Thompson DKM: 1.71
+Patrick McCaw DKM: 1.38
+Kevin Durant DKM: 1.12
+David West DKM: 1.46
+
+
+POSS: 1.35%
+Patrick McCaw DKM: 1.6
+Klay Thompson DKM: 0.25
+Draymond Green DKM: 0.7
+Kevin Durant DKM: 1.85
+Jordan Bell DKM: 0.7
+
+
+POSS: 1.24%
+Andre Iguodala DKM: 0.0
+Nick Young DKM: 2.17
+Patrick McCaw DKM: -0.08
+Omri Casspi DKM: 0.0
+David West DKM: 0.67
+
+
+POSS: 1.24%
+Stephen Curry DKM: 1.5
+Andre Iguodala DKM: 0.0
+Nick Young DKM: 0.0
+Klay Thompson DKM: 1.85
+Kevin Durant DKM: 2.0
+
+
+POSS: 1.24%
+Stephen Curry DKM: 0.81
+Klay Thompson DKM: 0.25
+Andre Iguodala DKM: 0.5
+Kevin Durant DKM: 2.38
+JaVale McGee DKM: 0.5
+
+
+POSS: 1.12%
+Stephen Curry DKM: 1.25
+Klay Thompson DKM: 0.31
+Andre Iguodala DKM: 0.88
+Kevin Durant DKM: 0.88
+Kevon Looney DKM: 2.62
+
+
+POSS: 1.12%
+Stephen Curry DKM: 1.44
+Klay Thompson DKM: 0.88
+Andre Iguodala DKM: 0.31
+Draymond Green DKM: 1.88
+JaVale McGee DKM: 1.12
+
+
+Andre Iguodala : 14 - 29.57
+Klay Thompson : 11 - 46.0
+Stephen Curry : 10 - 43.52
+Draymond Green : 10 - 46.9
+Kevin Durant : 8 - 39.25
+Patrick McCaw : 6 - 10.35
+David West : 5 - 9.45
+Nick Young : 5 - 8.89
+JaVale McGee : 4 - 5.39
+Jordan Bell : 3 - 5.4
+Omri Casspi : 2 - 2.36
+Zaza Pachulia : 1 - 23.4
+Kevon Looney : 1 - 1.12
+
+
+BASED ON LINEUP %
+MED: 45.54,  MED36: 51.15,  MAX: 47.64  -  NEED: 57.0  (Stephen Curry)
+MED: 44.15,  MED36: 45.29,  MAX: 45.17  -  NEED: 61.8  (Kevin Durant)
+MED: 36.63,  MED36: 38.1,  MAX: 36.06  -  NEED: 42.0  (Klay Thompson)
+MED: 28.36,  MED36: 32.54,  MAX: 27.72  -  NEED: 43.2  (Draymond Green)
+MED: 16.21,  MED36: 51.19,  MAX: 15.51  -  NEED: 19.8  (David West)
+MED: 14.52,  MED36: 22.22,  MAX: 15.7  -  NEED: 22.8  (Andre Iguodala)
+MED: 10.93,  MED36: 29.52,  MAX: 10.93  -  NEED: 19.2  (Zaza Pachulia)
+MED: 10.77,  MED36: 56.12,  MAX: 10.44  -  NEED: 19.2  (Jordan Bell)
+MED: 10.01,  MED36: 47.64,  MAX: 9.08  -  NEED: 18.0  (JaVale McGee)
+MED: 8.61,  MED36: 69.12,  MAX: 8.61  -  NEED: 18.0  (Omri Casspi)
+MED: 7.31,  MED36: 28.77,  MAX: 9.06  -  NEED: 21.0  (Patrick McCaw)
+MED: 6.61,  MED36: 20.31,  MAX: 6.31  -  NEED: 19.8  (Nick Young)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Quinn Cook)
+MED: 0.0,  MED36: 94.32,  MAX: 5.66  -  NEED: 18.0  (Kevon Looney)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  85.0
+REB:  48.0
+REB CHANCES:  99.0
+
+
+TEAM AVG:
+FGA:  85.38
+REB:  40.75
+
+
+PF: Taj Gibson
+- Nemanja Bjelica
+C: Karl-Anthony Towns
+- Gorgui Dieng
+-- Cole Aldrich
+SG: Jimmy Butler
+- Jamal Crawford
+-- Marcus Georges Hunt
+PG: Jeff Teague
+- Tyus Jones
+-- Aaron Brooks
+SF: Andrew Wiggins
+- Shabazz Muhammad
+-- Anthony Brown
+
+
+[u'Taj Gibson', 'Karl-Anthony Towns', u'Jimmy Butler', u'Jeff Teague', u'Andrew Wiggins']
+FROM LAST YEARS MATCHUPS VS DAL
+Karl-Anthony Towns - 80.95% / 102.0m
+Andrew Wiggins - 79.37% / 100.0m
+Gorgui Dieng - 63.49% / 80.0m
+Nemanja Bjelica - 43.65% / 55.0m
+Tyus Jones - 30.95% / 39.0m
+Shabazz Muhammad - 30.95% / 39.0m
+Cole Aldrich - 7.94% / 10.0m
+
+
+LINEUPS (ALL)
+Andrew Wiggins POSS: 75.21%
+PFD: 4.75, PF: 1.75
+WvL: 8.6
+Jeff Teague POSS: 67.56%
+PFD: 4.0, PF: 2.5
+WvL: 17.7
+Karl-Anthony Towns POSS: 61.9%
+PFD: 3.63, PF: 3.88
+WvL: -0.8
+Taj Gibson POSS: 57.65%
+PFD: 0.88, PF: 2.5
+WvL: 15.5
+Jimmy Butler POSS: 53.26%
+PFD: 4.33, PF: 2.0
+WvL: 100
+Jamal Crawford POSS: 44.33%
+PFD: 2.5, PF: 1.0
+WvL: -18.3
+Nemanja Bjelica POSS: 36.54%
+PFD: 0.75, PF: 1.25
+WvL: -20.2
+Shabazz Muhammad POSS: 34.14%
+PFD: 0.63, PF: 1.0
+WvL: -48.4
+Tyus Jones POSS: 32.29%
+PFD: 0.88, PF: 0.88
+WvL: -11.5
+Gorgui Dieng POSS: 31.87%
+PFD: 1.75, PF: 2.38
+WvL: 14.5
+Aaron Brooks POSS: 1.84%
+PFD: 0.5, PF: 0.0
+Cole Aldrich POSS: 1.42%
+PFD: 0.0, PF: 0.5
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 32.86%
+Jeff Teague DKM: 0.74
+Andrew Wiggins DKM: 0.86
+Jimmy Butler DKM: 0.79
+Taj Gibson DKM: 0.62
+Karl-Anthony Towns DKM: 1.21
+
+
+POSS: 10.2%
+Jeff Teague DKM: 0.74
+Andrew Wiggins DKM: 0.84
+Shabazz Muhammad DKM: 0.47
+Taj Gibson DKM: 0.46
+Karl-Anthony Towns DKM: 1.11
+
+
+POSS: 7.37%
+Tyus Jones DKM: 0.83
+Jamal Crawford DKM: 0.39
+Shabazz Muhammad DKM: 0.3
+Nemanja Bjelica DKM: 1.2
+Gorgui Dieng DKM: 0.9
+
+
+POSS: 6.52%
+Jeff Teague DKM: 0.65
+Andrew Wiggins DKM: 1.3
+Jimmy Butler DKM: 0.73
+Gorgui Dieng DKM: 0.78
+Taj Gibson DKM: 1.11
+
+
+POSS: 8.36%
+Tyus Jones DKM: 0.49
+Jamal Crawford DKM: 0.52
+Andrew Wiggins DKM: 0.71
+Nemanja Bjelica DKM: 0.62
+Gorgui Dieng DKM: 1.74
+
+
+POSS: 4.25%
+Tyus Jones DKM: 1.24
+Shabazz Muhammad DKM: 0.47
+Jamal Crawford DKM: 1.47
+Nemanja Bjelica DKM: 0.74
+Karl-Anthony Towns DKM: 0.88
+
+
+POSS: 2.55%
+Jeff Teague DKM: 1.56
+Andrew Wiggins DKM: 0.17
+Jamal Crawford DKM: 1.31
+Jimmy Butler DKM: 0.75
+Karl-Anthony Towns DKM: 1.11
+
+
+POSS: 2.69%
+Jeff Teague DKM: 1.02
+Andrew Wiggins DKM: 1.2
+Jamal Crawford DKM: 0.2
+Nemanja Bjelica DKM: 0.12
+Gorgui Dieng DKM: 0.72
+
+
+POSS: 1.27%
+Tyus Jones DKM: 1.36
+Jamal Crawford DKM: 0.18
+Nemanja Bjelica DKM: 0.25
+Gorgui Dieng DKM: 0.66
+Karl-Anthony Towns DKM: 0.3
+
+
+POSS: 1.56%
+Jeff Teague DKM: 1.0
+Andrew Wiggins DKM: 0.69
+Jimmy Butler DKM: 1.0
+Nemanja Bjelica DKM: 0.0
+Gorgui Dieng DKM: 0.64
+
+
+POSS: 1.56%
+Tyus Jones DKM: 0.0
+Jimmy Butler DKM: 1.25
+Shabazz Muhammad DKM: 0.0
+Jamal Crawford DKM: -0.12
+Karl-Anthony Towns DKM: 0.88
+
+
+POSS: 1.42%
+Jeff Teague DKM: 1.08
+Jamal Crawford DKM: 1.58
+Jimmy Butler DKM: 0.46
+Nemanja Bjelica DKM: 0.62
+Karl-Anthony Towns DKM: 0.88
+
+
+POSS: 0.99%
+Tyus Jones DKM: 0.33
+Jimmy Butler DKM: 2.33
+Andrew Wiggins DKM: 0.25
+Taj Gibson DKM: 0.42
+Gorgui Dieng DKM: 0.42
+
+
+POSS: 0.99%
+Tyus Jones DKM: 0.78
+Jamal Crawford DKM: 0.62
+Andrew Wiggins DKM: 0.97
+Nemanja Bjelica DKM: 0.09
+Karl-Anthony Towns DKM: 0.44
+
+
+POSS: 0.99%
+Jeff Teague DKM: 1.12
+Andrew Wiggins DKM: 1.0
+Jamal Crawford DKM: 1.04
+Taj Gibson DKM: 1.58
+Karl-Anthony Towns DKM: 2.92
+
+
+POSS: 0.99%
+Tyus Jones DKM: 1.0
+Jimmy Butler DKM: 0.5
+Jamal Crawford DKM: 0.5
+Shabazz Muhammad DKM: 0.67
+Nemanja Bjelica DKM: 1.67
+
+
+POSS: 1.13%
+Jeff Teague DKM: -0.17
+Jamal Crawford DKM: 2.08
+Andrew Wiggins DKM: 0.0
+Shabazz Muhammad DKM: 0.0
+Nemanja Bjelica DKM: 1.17
+
+
+Jamal Crawford : 12 - 33.57
+Andrew Wiggins : 11 - 68.84
+Nemanja Bjelica : 10 - 30.03
+Karl-Anthony Towns : 9 - 56.09
+Jeff Teague : 9 - 59.92
+Jimmy Butler : 8 - 48.45
+Tyus Jones : 8 - 25.78
+Gorgui Dieng : 7 - 28.76
+Shabazz Muhammad : 6 - 25.5
+Taj Gibson : 5 - 51.56
+
+
+BASED ON LINEUP %
+MED: 33.16,  MED36: 41.35,  MAX: 34.13  -  NEED: 52.8  (Karl-Anthony Towns)
+MED: 31.0,  MED36: 31.84,  MAX: 31.93  -  NEED: 41.4  (Andrew Wiggins)
+MED: 25.99,  MED36: 26.81,  MAX: 24.15  -  NEED: 37.8  (Jeff Teague)
+MED: 20.72,  MED36: 28.87,  MAX: 20.5  -  NEED: 45.0  (Jimmy Butler)
+MED: 17.33,  MED36: 22.18,  MAX: 17.05  -  NEED: 25.2  (Taj Gibson)
+MED: 14.64,  MED36: 32.3,  MAX: 13.72  -  NEED: 19.8  (Gorgui Dieng)
+MED: 14.15,  MED36: 25.54,  MAX: 15.09  -  NEED: 23.4  (Jamal Crawford)
+MED: 13.81,  MED36: 23.65,  MAX: 11.52  -  NEED: 20.4  (Nemanja Bjelica)
+MED: 13.63,  MED36: 36.49,  MAX: 15.71  -  NEED: 18.0  (Tyus Jones)
+MED: 7.17,  MED36: 15.56,  MAX: 7.08  -  NEED: 22.8  (Shabazz Muhammad)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Cole Aldrich)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Aaron Brooks)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  79.0
+REB:  42.0
+REB CHANCES:  74.0
+
+
+TEAM AVG:
+FGA:  83.6
+REB:  40.8
+
+
+PF: Dirk Nowitzki
+- Maxi Kleber
+C: Nerlens Noel
+- Dwight Powell
+- Salah Mejri
+-- Jeff Withey
+SG: Wesley Matthews
+- J.J. Barea
+- Devin Harris
+-- Gian Clavell
+PG: Dennis Smith Jr.
+- Yogi Ferrell
+SF: Harrison Barnes
+-- Johnathan Motley
+
+
+[u'Dirk Nowitzki', u'Nerlens Noel', u'Wesley Matthews', 'Dennis Smith Jr.', u'Harrison Barnes']
+FROM LAST YEARS MATCHUPS VS MIN
+Wesley Matthews - 78.69% / 96.0m
+Harrison Barnes - 76.23% / 93.0m
+Dirk Nowitzki - 59.84% / 73.0m
+Salah Mejri - 32.79% / 40.0m
+Devin Harris - 27.87% / 34.0m
+Yogi Ferrell - 22.13% / 27.0m
+Dwight Powell - 18.85% / 23.0m
+J.J. Barea - 18.03% / 22.0m
+
+
+LINEUPS (ALL)
+Harrison Barnes POSS: 75.5%
+PFD: 3.0, PF: 1.4
+WvL: 8.57
+Wesley Matthews POSS: 72.38%
+PFD: 2.9, PF: 2.0
+WvL: 13.29
+Yogi Ferrell POSS: 61.02%
+PFD: 2.1, PF: 2.2
+WvL: -3.71
+Dirk Nowitzki POSS: 50.0%
+PFD: 1.7, PF: 1.9
+WvL: -5.43
+Dennis Smith Jr. POSS: 49.89%
+PFD: 2.63, PF: 1.63
+WvL: -6.2
+J.J. Barea POSS: 46.99%
+PFD: 2.2, PF: 1.5
+WvL: -13.29
+Dwight Powell POSS: 36.53%
+PFD: 1.1, PF: 2.1
+WvL: 2.71
+Nerlens Noel POSS: 34.97%
+PFD: 2.4, PF: 2.7
+WvL: 1.29
+Devin Harris POSS: 20.6%
+PFD: 2.83, PF: 2.83
+WvL: -16.0
+Salah Mejri POSS: 13.03%
+PFD: 0.83, PF: 0.83
+Maxi Kleber POSS: 11.25%
+PFD: 1.0, PF: 0.6
+Gian Clavell POSS: 9.91%
+PFD: 0.6, PF: 1.2
+Jeff Withey POSS: 4.34%
+PFD: 0.5, PF: 0.25
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 9.69%
+Dennis Smith Jr. DKM: 0.84
+Wesley Matthews DKM: 1.04
+Harrison Barnes DKM: 0.58
+Nerlens Noel DKM: 0.75
+Dirk Nowitzki DKM: 0.7
+
+
+POSS: 6.12%
+Dennis Smith Jr. DKM: 0.95
+Yogi Ferrell DKM: 0.43
+Wesley Matthews DKM: 0.64
+Harrison Barnes DKM: 1.27
+Dirk Nowitzki DKM: 0.6
+
+
+POSS: 5.35%
+Yogi Ferrell DKM: 0.42
+J.J. Barea DKM: 1.14
+Wesley Matthews DKM: 0.79
+Harrison Barnes DKM: 0.74
+Nerlens Noel DKM: 1.17
+
+
+POSS: 3.45%
+Yogi Ferrell DKM: 1.61
+Gian Clavell DKM: 0.25
+Maxi Kleber DKM: 0.92
+Dwight Powell DKM: 1.3
+Jeff Withey DKM: 0.94
+
+
+POSS: 3.23%
+Yogi Ferrell DKM: 0.68
+J.J. Barea DKM: 0.2
+Wesley Matthews DKM: 1.22
+Harrison Barnes DKM: 1.82
+Dirk Nowitzki DKM: 0.68
+
+
+POSS: 3.12%
+Dennis Smith Jr. DKM: 0.23
+Yogi Ferrell DKM: 0.34
+Wesley Matthews DKM: 0.71
+Harrison Barnes DKM: 0.79
+Nerlens Noel DKM: 0.48
+
+
+POSS: 3.01%
+Dennis Smith Jr. DKM: 0.57
+Yogi Ferrell DKM: 0.86
+Wesley Matthews DKM: 1.28
+Harrison Barnes DKM: 1.46
+Dwight Powell DKM: 0.64
+
+
+POSS: 2.9%
+Dennis Smith Jr. DKM: 1.17
+Devin Harris DKM: 0.87
+Wesley Matthews DKM: 0.62
+Harrison Barnes DKM: 1.19
+Dirk Nowitzki DKM: 1.27
+
+
+POSS: 2.56%
+J.J. Barea DKM: 1.34
+Wesley Matthews DKM: 0.39
+Harrison Barnes DKM: 0.54
+Nerlens Noel DKM: 0.62
+Dirk Nowitzki DKM: 1.25
+
+
+POSS: 3.23%
+Yogi Ferrell DKM: 0.96
+J.J. Barea DKM: 1.5
+Devin Harris DKM: 0.88
+Dirk Nowitzki DKM: 0.93
+Dwight Powell DKM: 0.83
+
+
+POSS: 2.67%
+Dennis Smith Jr. DKM: 0.62
+J.J. Barea DKM: 0.67
+Wesley Matthews DKM: 1.16
+Dirk Nowitzki DKM: 1.11
+Dwight Powell DKM: 0.59
+
+
+POSS: 2.56%
+Dennis Smith Jr. DKM: 0.35
+J.J. Barea DKM: 0.19
+Wesley Matthews DKM: 1.67
+Harrison Barnes DKM: 1.71
+Dirk Nowitzki DKM: 1.06
+
+
+POSS: 1.56%
+Devin Harris DKM: 0.69
+J.J. Barea DKM: 1.12
+Wesley Matthews DKM: 0.0
+Harrison Barnes DKM: 1.44
+Salah Mejri DKM: 1.81
+
+
+POSS: 1.22%
+Yogi Ferrell DKM: 0.18
+Wesley Matthews DKM: 0.21
+Harrison Barnes DKM: 0.71
+Nerlens Noel DKM: 0.75
+Dwight Powell DKM: 1.25
+
+
+POSS: 1.45%
+Dennis Smith Jr. DKM: 1.46
+Yogi Ferrell DKM: 1.12
+Wesley Matthews DKM: 0.0
+Harrison Barnes DKM: 1.38
+Salah Mejri DKM: 1.29
+
+
+POSS: 1.34%
+Devin Harris DKM: 0.79
+J.J. Barea DKM: 2.04
+Wesley Matthews DKM: 0.17
+Harrison Barnes DKM: 0.96
+Nerlens Noel DKM: 1.0
+
+
+POSS: 1.11%
+Dennis Smith Jr. DKM: 0.65
+Yogi Ferrell DKM: 1.65
+Maxi Kleber DKM: 0.25
+Dwight Powell DKM: 0.8
+Salah Mejri DKM: 1.2
+
+
+POSS: 1.0%
+Dennis Smith Jr. DKM: 1.7
+J.J. Barea DKM: 0.9
+Wesley Matthews DKM: 0.7
+Harrison Barnes DKM: 0.0
+Nerlens Noel DKM: 0.65
+
+
+Wesley Matthews : 15 - 47.78
+Harrison Barnes : 14 - 45.11
+Dennis Smith Jr. : 10 - 33.63
+Yogi Ferrell : 10 - 31.29
+J.J. Barea : 9 - 23.5
+Dirk Nowitzki : 8 - 32.96
+Nerlens Noel : 7 - 24.28
+Dwight Powell : 6 - 14.69
+Devin Harris : 4 - 9.03
+Salah Mejri : 3 - 4.12
+Maxi Kleber : 2 - 4.56
+Jeff Withey : 1 - 3.45
+Gian Clavell : 1 - 3.45
+
+
+BASED ON LINEUP %
+MED: 35.22,  MED36: 36.56,  MAX: 36.8  -  NEED: 34.8  (Harrison Barnes)
+MED: 31.55,  MED36: 31.53,  MAX: 30.43  -  NEED: 28.8  (Wesley Matthews)
+MED: 21.89,  MED36: 33.94,  MAX: 21.26  -  NEED: 25.8  (J.J. Barea)
+MED: 21.81,  MED36: 26.73,  MAX: 21.75  -  NEED: 23.4  (Yogi Ferrell)
+MED: 18.48,  MED36: 28.52,  MAX: 19.01  -  NEED: 27.6  (Dirk Nowitzki)
+MED: 17.95,  MED36: 28.69,  MAX: 19.09  -  NEED: 30.6  (Dennis Smith Jr.)
+MED: 17.85,  MED36: 38.62,  MAX: 18.81  -  NEED: 19.2  (Dwight Powell)
+MED: 13.77,  MED36: 29.57,  MAX: 13.79  -  NEED: 22.2  (Nerlens Noel)
+MED: 11.32,  MED36: 54.18,  MAX: 9.41  -  NEED: 18.0  (Salah Mejri)
+MED: 8.42,  MED36: 29.88,  MAX: 8.21  -  NEED: 21.0  (Devin Harris)
+MED: 4.57,  MED36: 33.12,  MAX: 4.97  -  NEED: 18.0  (Maxi Kleber)
+MED: 1.96,  MED36: 33.84,  MAX: 1.96  -  NEED: 18.0  (Jeff Withey)
+MED: 1.19,  MED36: 9.0,  MAX: 1.19  -  NEED: 18.0  (Gian Clavell)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  94.0
+REB:  50.0
+REB CHANCES:  97.0
+
+
+TEAM AVG:
+FGA:  85.29
+REB:  48.14
+
+
+PF: Lauri Markkanen
+C: Robin Lopez
+- Cristiano Felicio
+SG: David Nwaba
+-- Antonio Blakeney
+PG: Jerian Grant
+- Kris Dunn
+-- Kay Felder
+-- Ryan Arcidiacono
+SF: Justin Holiday
+- Denzel Valentine
+- Paul Zipser
+- Quincy Pondexter
+
+
+[u'Lauri Markkanen', u'Robin Lopez', u'David Nwaba', u'Jerian Grant', u'Justin Holiday']
+FROM LAST YEARS MATCHUPS VS NOP
+Robin Lopez - 54.65% / 47.0m
+Paul Zipser - 53.49% / 46.0m
+Denzel Valentine - 53.49% / 46.0m
+Justin Holiday - 26.74% / 23.0m
+David Nwaba - 25.58% / 22.0m
+Jerian Grant - 22.09% / 19.0m
+Ryan Arcidiacono - 22.09% / 19.0m
+Cristiano Felicio - 16.28% / 14.0m
+Lauri Markkanen - 15.12% / 13.0m
+Antonio Blakeney - 2.33% / 2.0m
+
+
+LINEUPS (ALL)
+Justin Holiday POSS: 73.74%
+PFD: 2.57, PF: 1.14
+WvL: -1.4
+Lauri Markkanen POSS: 63.05%
+PFD: 3.0, PF: 1.43
+WvL: -2.2
+Robin Lopez POSS: 61.01%
+PFD: 1.71, PF: 1.71
+WvL: 12.4
+Jerian Grant POSS: 60.22%
+PFD: 3.0, PF: 2.0
+WvL: 9.4
+Denzel Valentine POSS: 46.86%
+PFD: 0.29, PF: 1.14
+WvL: 16.25
+David Nwaba POSS: 44.81%
+PFD: 2.29, PF: 1.71
+WvL: 11.2
+Paul Zipser POSS: 43.24%
+PFD: 0.83, PF: 1.83
+Cristiano Felicio POSS: 32.7%
+PFD: 0.86, PF: 2.14
+WvL: -7.2
+Quincy Pondexter POSS: 27.99%
+PFD: 0.67, PF: 1.67
+WvL: -0.75
+Kris Dunn POSS: 23.74%
+PFD: 1.33, PF: 4.33
+Kay Felder POSS: 19.18%
+PFD: 1.33, PF: 1.17
+WvL: 0.25
+Ryan Arcidiacono POSS: 3.14%
+PFD: 0.0, PF: 1.0
+Antonio Blakeney POSS: 0.31%
+PFD: 0.0, PF: 0.0
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 17.45%
+Jerian Grant DKM: 0.75
+Justin Holiday DKM: 0.65
+Paul Zipser DKM: 0.65
+Lauri Markkanen DKM: 1.0
+Robin Lopez DKM: 0.85
+
+
+POSS: 16.04%
+Jerian Grant DKM: 0.59
+David Nwaba DKM: 0.94
+Justin Holiday DKM: 0.8
+Lauri Markkanen DKM: 0.9
+Robin Lopez DKM: 0.94
+
+
+POSS: 8.81%
+Jerian Grant DKM: 0.74
+Denzel Valentine DKM: 0.71
+Justin Holiday DKM: 0.74
+Lauri Markkanen DKM: 1.09
+Robin Lopez DKM: 0.97
+
+
+POSS: 3.3%
+Kris Dunn DKM: 0.95
+Denzel Valentine DKM: 0.68
+Quincy Pondexter DKM: 0.35
+Paul Zipser DKM: 1.02
+Cristiano Felicio DKM: 1.07
+
+
+POSS: 2.52%
+Kris Dunn DKM: 0.42
+David Nwaba DKM: 1.05
+Denzel Valentine DKM: 1.1
+Paul Zipser DKM: 0.33
+Cristiano Felicio DKM: 0.53
+
+
+POSS: 3.3%
+Kris Dunn DKM: 0.5
+David Nwaba DKM: 0.65
+Denzel Valentine DKM: 1.0
+Quincy Pondexter DKM: 0.42
+Cristiano Felicio DKM: 0.57
+
+
+POSS: 2.52%
+Kris Dunn DKM: 1.03
+Denzel Valentine DKM: 0.32
+Justin Holiday DKM: 0.95
+Lauri Markkanen DKM: 1.38
+Robin Lopez DKM: 0.33
+
+
+POSS: 4.09%
+Kay Felder DKM: 0.75
+David Nwaba DKM: 1.08
+Quincy Pondexter DKM: 0.77
+Denzel Valentine DKM: 0.83
+Cristiano Felicio DKM: 0.25
+
+
+POSS: 2.36%
+Jerian Grant DKM: 1.15
+Justin Holiday DKM: 1.15
+Quincy Pondexter DKM: 0.35
+Lauri Markkanen DKM: 1.07
+Robin Lopez DKM: 1.18
+
+
+POSS: 2.36%
+Kris Dunn DKM: 1.0
+David Nwaba DKM: 0.46
+Justin Holiday DKM: 0.64
+Lauri Markkanen DKM: 1.89
+Robin Lopez DKM: 0.64
+
+
+POSS: 2.67%
+Kris Dunn DKM: 1.08
+Jerian Grant DKM: 2.0
+Denzel Valentine DKM: 0.0
+Justin Holiday DKM: 1.42
+Paul Zipser DKM: 0.21
+
+
+POSS: 2.04%
+Kris Dunn DKM: 0.77
+Denzel Valentine DKM: 0.42
+Justin Holiday DKM: 1.15
+Paul Zipser DKM: 0.31
+Robin Lopez DKM: 0.63
+
+
+POSS: 2.04%
+Ryan Arcidiacono DKM: 0.58
+Kay Felder DKM: 0.62
+Quincy Pondexter DKM: 1.08
+Paul Zipser DKM: 0.42
+Cristiano Felicio DKM: 1.38
+
+
+POSS: 1.73%
+Kay Felder DKM: 0.71
+David Nwaba DKM: 0.21
+Denzel Valentine DKM: 0.33
+Lauri Markkanen DKM: 1.21
+Cristiano Felicio DKM: 0.46
+
+
+POSS: 1.89%
+Kris Dunn DKM: 2.1
+David Nwaba DKM: 0.3
+Denzel Valentine DKM: 1.65
+Lauri Markkanen DKM: 0.9
+Cristiano Felicio DKM: 0.55
+
+
+POSS: 1.89%
+Kay Felder DKM: 0.7
+David Nwaba DKM: 2.05
+Justin Holiday DKM: 0.65
+Quincy Pondexter DKM: 0.9
+Robin Lopez DKM: 0.95
+
+
+Denzel Valentine : 10 - 32.87
+Justin Holiday : 9 - 56.14
+Lauri Markkanen : 8 - 53.16
+Robin Lopez : 8 - 53.47
+David Nwaba : 8 - 33.82
+Kris Dunn : 8 - 20.6
+Cristiano Felicio : 7 - 18.87
+Paul Zipser : 6 - 30.02
+Quincy Pondexter : 6 - 16.98
+Jerian Grant : 5 - 47.33
+Kay Felder : 4 - 9.75
+Ryan Arcidiacono : 1 - 2.04
+
+
+BASED ON LINEUP %
+MED: 32.1,  MED36: 36.74,  MAX: 30.89  -  NEED: 39.6  (Lauri Markkanen)
+MED: 25.46,  MED36: 31.83,  MAX: 25.89  -  NEED: 32.4  (Robin Lopez)
+MED: 25.06,  MED36: 27.64,  MAX: 27.17  -  NEED: 35.4  (Justin Holiday)
+MED: 21.83,  MED36: 26.45,  MAX: 21.24  -  NEED: 30.0  (Jerian Grant)
+MED: 18.81,  MED36: 32.95,  MAX: 19.69  -  NEED: 23.4  (David Nwaba)
+MED: 16.83,  MED36: 28.82,  MAX: 18.01  -  NEED: 26.4  (Denzel Valentine)
+MED: 13.68,  MED36: 24.16,  MAX: 13.93  -  NEED: 21.6  (Paul Zipser)
+MED: 11.17,  MED36: 26.58,  MAX: 11.59  -  NEED: 18.0  (Cristiano Felicio)
+MED: 8.03,  MED36: 27.97,  MAX: 8.85  -  NEED: 29.4  (Kris Dunn)
+MED: 6.9,  MED36: 25.02,  MAX: 6.4  -  NEED: 18.0  (Kay Felder)
+MED: 6.23,  MED36: 17.28,  MAX: 6.45  -  NEED: 18.0  (Quincy Pondexter)
+MED: 0.0,  MED36: 20.88,  MAX: 0.87  -  NEED: 18.0  (Ryan Arcidiacono)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Antonio Blakeney)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  88.0
+REB:  42.0
+REB CHANCES:  88.0
+
+
+TEAM AVG:
+FGA:  89.33
+REB:  42.22
+
+
+PF: Tobias Harris
+- Anthony Tolliver
+C: Andre Drummond
+- Henry Ellenson
+-- Eric Moreland
+-- Boban Marjanovic
+SG: Avery Bradley
+- Langston Galloway
+-- Dwight Buycks
+PG: Reggie Jackson
+- Ish Smith
+SF: Stanley Johnson
+- Reggie Bullock
+-- Luke Kennard
+-- Luis Montero
+
+
+[u'Tobias Harris', u'Andre Drummond', u'Avery Bradley', u'Reggie Jackson', u'Stanley Johnson']
+FROM LAST YEARS MATCHUPS VS SAC
+Andre Drummond - 76.54% / 62.0m
+Reggie Jackson - 72.84% / 59.0m
+Tobias Harris - 69.14% / 56.0m
+Ish Smith - 27.16% / 22.0m
+Stanley Johnson - 23.46% / 19.0m
+Reggie Bullock - 12.35% / 10.0m
+Boban Marjanovic - 9.88% / 8.0m
+Henry Ellenson - 6.17% / 5.0m
+
+
+LINEUPS (ALL)
+Tobias Harris POSS: 69.88%
+PFD: 1.33, PF: 2.11
+WvL: -5.83
+Avery Bradley POSS: 68.5%
+PFD: 2.44, PF: 1.89
+WvL: -9.17
+Stanley Johnson POSS: 66.62%
+PFD: 1.0, PF: 2.44
+WvL: 19.92
+Andre Drummond POSS: 65.0%
+PFD: 4.11, PF: 3.11
+WvL: -1.17
+Reggie Jackson POSS: 63.5%
+PFD: 3.33, PF: 2.44
+WvL: -7.0
+Ish Smith POSS: 36.62%
+PFD: 1.56, PF: 1.78
+WvL: 0.75
+Langston Galloway POSS: 26.12%
+PFD: 0.63, PF: 0.63
+WvL: 5.67
+Anthony Tolliver POSS: 25.87%
+PFD: 2.0, PF: 1.33
+WvL: 11.67
+Henry Ellenson POSS: 15.5%
+PFD: 0.6, PF: 1.2
+WvL: 13.33
+Luke Kennard POSS: 13.38%
+PFD: 1.0, PF: 1.0
+WvL: -20.5
+Reggie Bullock POSS: 9.88%
+PFD: 0.25, PF: 0.0
+WvL: -7.5
+Eric Moreland POSS: 9.0%
+PFD: 0.67, PF: 1.33
+WvL: -12.0
+Boban Marjanovic POSS: 1.0%
+PFD: 1.0, PF: 1.0
+WvL: 100
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 31.75%
+Reggie Jackson DKM: 0.78
+Avery Bradley DKM: 0.62
+Stanley Johnson DKM: 0.54
+Tobias Harris DKM: 0.76
+Andre Drummond DKM: 1.09
+
+
+POSS: 5.25%
+Avery Bradley DKM: 0.84
+Reggie Jackson DKM: 1.12
+Tobias Harris DKM: 0.87
+Anthony Tolliver DKM: 0.24
+Andre Drummond DKM: 0.88
+
+
+POSS: 3.38%
+Ish Smith DKM: 0.52
+Avery Bradley DKM: 0.54
+Stanley Johnson DKM: 0.38
+Tobias Harris DKM: 1.11
+Andre Drummond DKM: 0.96
+
+
+POSS: 2.38%
+Avery Bradley DKM: 2.12
+Reggie Jackson DKM: 0.91
+Stanley Johnson DKM: 0.56
+Anthony Tolliver DKM: 1.19
+Andre Drummond DKM: 1.22
+
+
+POSS: 2.12%
+Langston Galloway DKM: 0.52
+Avery Bradley DKM: 0.68
+Reggie Jackson DKM: 1.46
+Tobias Harris DKM: 1.05
+Andre Drummond DKM: 1.05
+
+
+POSS: 1.75%
+Avery Bradley DKM: 2.33
+Reggie Jackson DKM: 0.46
+Stanley Johnson DKM: 1.12
+Tobias Harris DKM: 1.38
+Eric Moreland DKM: 1.0
+
+
+POSS: 1.62%
+Langston Galloway DKM: 1.96
+Reggie Jackson DKM: 1.42
+Stanley Johnson DKM: 0.33
+Anthony Tolliver DKM: 1.33
+Andre Drummond DKM: 0.75
+
+
+POSS: 1.25%
+Ish Smith DKM: 1.35
+Langston Galloway DKM: 1.75
+Stanley Johnson DKM: 0.8
+Anthony Tolliver DKM: -0.1
+Eric Moreland DKM: 0.9
+
+
+POSS: 1.25%
+Reggie Jackson DKM: 0.78
+Langston Galloway DKM: 0.72
+Stanley Johnson DKM: 0.5
+Tobias Harris DKM: 1.56
+Henry Ellenson DKM: 0.22
+
+
+POSS: 1.12%
+Ish Smith DKM: 1.21
+Langston Galloway DKM: 0.58
+Tobias Harris DKM: 1.79
+Henry Ellenson DKM: 1.58
+Andre Drummond DKM: 1.79
+
+
+POSS: 1.12%
+Reggie Jackson DKM: 0.31
+Stanley Johnson DKM: 0.31
+Anthony Tolliver DKM: 0.69
+Tobias Harris DKM: 2.31
+Andre Drummond DKM: 0.31
+
+
+POSS: 0.88%
+Ish Smith DKM: 0.75
+Langston Galloway DKM: 0.31
+Reggie Bullock DKM: 0.31
+Anthony Tolliver DKM: 0.69
+Eric Moreland DKM: 1.19
+
+
+POSS: 0.88%
+Ish Smith DKM: 1.75
+Luke Kennard DKM: 0.31
+Stanley Johnson DKM: 0.0
+Henry Ellenson DKM: -0.12
+Boban Marjanovic DKM: 0.5
+
+
+POSS: 1.75%
+Langston Galloway DKM: 0.0
+Avery Bradley DKM: 1.08
+Reggie Jackson DKM: 1.29
+Stanley Johnson DKM: 0.88
+Tobias Harris DKM: 1.92
+
+
+POSS: 0.88%
+Ish Smith DKM: 0.5
+Avery Bradley DKM: 1.08
+Stanley Johnson DKM: 1.58
+Anthony Tolliver DKM: 0.0
+Andre Drummond DKM: 3.67
+
+
+POSS: 1.38%
+Ish Smith DKM: 0.95
+Avery Bradley DKM: 0.3
+Tobias Harris DKM: 0.85
+Anthony Tolliver DKM: 0.0
+Andre Drummond DKM: 3.45
+
+
+POSS: 0.62%
+Ish Smith DKM: 0.62
+Langston Galloway DKM: 1.0
+Stanley Johnson DKM: 0.0
+Henry Ellenson DKM: 3.0
+Eric Moreland DKM: 1.75
+
+
+Stanley Johnson : 12 - 48.63
+Tobias Harris : 10 - 50.87
+Andre Drummond : 10 - 51.0
+Reggie Jackson : 9 - 48.99
+Avery Bradley : 9 - 50.64
+Langston Galloway : 8 - 10.61
+Ish Smith : 8 - 10.39
+Anthony Tolliver : 8 - 14.76
+Eric Moreland : 4 - 4.5
+Henry Ellenson : 4 - 3.87
+Reggie Bullock : 1 - 0.88
+Boban Marjanovic : 1 - 0.88
+Luke Kennard : 1 - 0.88
+
+
+BASED ON LINEUP %
+MED: 33.63,  MED36: 37.86,  MAX: 35.28  -  NEED: 38.4  (Tobias Harris)
+MED: 31.68,  MED36: 37.65,  MAX: 32.63  -  NEED: 48.6  (Andre Drummond)
+MED: 31.06,  MED36: 31.92,  MAX: 29.15  -  NEED: 31.8  (Avery Bradley)
+MED: 28.13,  MED36: 32.08,  MAX: 27.16  -  NEED: 37.8  (Reggie Jackson)
+MED: 17.69,  MED36: 20.2,  MAX: 17.95  -  NEED: 23.4  (Stanley Johnson)
+MED: 15.91,  MED36: 28.18,  MAX: 13.76  -  NEED: 21.0  (Ish Smith)
+MED: 9.9,  MED36: 41.34,  MAX: 14.4  -  NEED: 18.0  (Langston Galloway)
+MED: 7.18,  MED36: 22.86,  MAX: 7.89  -  NEED: 18.6  (Anthony Tolliver)
+MED: 6.7,  MED36: 29.34,  MAX: 6.06  -  NEED: 18.0  (Henry Ellenson)
+MED: 4.18,  MED36: 35.43,  MAX: 4.25  -  NEED: 18.0  (Eric Moreland)
+MED: 0.0,  MED36: 11.16,  MAX: 1.47  -  NEED: 18.0  (Reggie Bullock)
+MED: 0.0,  MED36: 11.16,  MAX: 1.99  -  NEED: 18.0  (Luke Kennard)
+MED: 0.0,  MED36: 18.0,  MAX: 0.24  -  NEED: 18.0  (Boban Marjanovic)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  90.0
+REB:  41.0
+REB CHANCES:  90.0
+
+
+TEAM AVG:
+FGA:  86.38
+REB:  40.5
+
+
+PF: Zach Randolph
+- Skal Labissiere
+-- JaKarr Sampson
+-- Jack Cooley
+C: Willie Cauley-Stein
+- Kosta Koufos
+-- Georgios Papagiannis
+SG: Buddy Hield
+PG: De'Aaron Fox
+- De'Aaron Fox
+- Frank Mason III
+SF: Bogdan Bogdanovic
+- Justin Jackson
+- Malachi Richardson
+-- Vince Carter
+
+
+[u'Zach Randolph', 'Willie Cauley-Stein', u'Buddy Hield', "De'Aaron Fox", u'Bogdan Bogdanovic']
+FROM LAST YEARS MATCHUPS VS DET
+Kosta Koufos - 35.0% / 28.0m
+Willie Cauley-Stein - 20.0% / 16.0m
+Malachi Richardson - 13.75% / 11.0m
+
+
+LINEUPS (ALL)
+Willie Cauley-Stein POSS: 56.65%
+PFD: 1.75, PF: 2.13
+WvL: -4.17
+De'Aaron Fox POSS: 54.65%
+PFD: 2.5, PF: 2.25
+WvL: -5.83
+Buddy Hield POSS: 52.5%
+PFD: 0.75, PF: 2.5
+WvL: 9.83
+Skal Labissiere POSS: 47.93%
+PFD: 2.63, PF: 1.25
+WvL: -21.5
+Kosta Koufos POSS: 36.91%
+PFD: 1.88, PF: 2.38
+WvL: 4.67
+Justin Jackson POSS: 36.34%
+PFD: 0.75, PF: 0.88
+WvL: -2.67
+Zach Randolph POSS: 35.91%
+PFD: 1.67, PF: 2.0
+WvL: 3.8
+Bogdan Bogdanovic POSS: 32.33%
+PFD: 1.6, PF: 2.0
+Malachi Richardson POSS: 21.89%
+PFD: 1.4, PF: 1.4
+Vince Carter POSS: 19.31%
+PFD: 0.86, PF: 1.29
+WvL: 19.8
+Frank Mason POSS: 13.59%
+PFD: 1.5, PF: 0.25
+Jakarr Sampson POSS: 3.43%
+PFD: 0.5, PF: 2.0
+Georgios Papagiannis POSS: 1.43%
+PFD: 0.5, PF: 0.5
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 4.58%
+De'Aaron Fox DKM: 0.23
+Bogdan Bogdanovic DKM: 1.14
+Buddy Hield DKM: 0.38
+Skal Labissiere DKM: 0.98
+Willie Cauley-Stein DKM: 0.83
+
+
+POSS: 3.43%
+De'Aaron Fox DKM: 1.1
+Malachi Richardson DKM: 0.48
+Justin Jackson DKM: 0.62
+Kosta Koufos DKM: 0.79
+Skal Labissiere DKM: 0.92
+
+
+POSS: 1.86%
+De'Aaron Fox DKM: 1.0
+Buddy Hield DKM: 1.18
+Vince Carter DKM: 0.21
+Justin Jackson DKM: 0.32
+Kosta Koufos DKM: 1.07
+
+
+POSS: 1.86%
+De'Aaron Fox DKM: 1.1
+Buddy Hield DKM: 1.1
+Justin Jackson DKM: 0.8
+Kosta Koufos DKM: 0.5
+Skal Labissiere DKM: 0.7
+
+
+POSS: 1.14%
+De'Aaron Fox DKM: 2.5
+Bogdan Bogdanovic DKM: 0.67
+Vince Carter DKM: 0.5
+Skal Labissiere DKM: 1.33
+Kosta Koufos DKM: 1.83
+
+
+POSS: 0.72%
+De'Aaron Fox DKM: 1.0
+Bogdan Bogdanovic DKM: 1.0
+Justin Jackson DKM: -0.25
+Kosta Koufos DKM: 0.75
+Skal Labissiere DKM: 1.62
+
+
+POSS: 0.43%
+De'Aaron Fox DKM: 3.25
+Buddy Hield DKM: 0.0
+Malachi Richardson DKM: 0.0
+Skal Labissiere DKM: 0.0
+Willie Cauley-Stein DKM: 3.25
+
+
+POSS: 0.43%
+De'Aaron Fox DKM: 1.0
+Buddy Hield DKM: 0.0
+Malachi Richardson DKM: 1.25
+Kosta Koufos DKM: 0.0
+Willie Cauley-Stein DKM: 4.0
+
+
+POSS: 0.29%
+De'Aaron Fox DKM: 0.0
+Bogdan Bogdanovic DKM: 0.0
+Buddy Hield DKM: 0.0
+Vince Carter DKM: 3.0
+Willie Cauley-Stein DKM: 0.0
+
+
+POSS: 0.29%
+De'Aaron Fox DKM: 0.0
+Buddy Hield DKM: 7.5
+Malachi Richardson DKM: 0.0
+Justin Jackson DKM: 1.5
+Skal Labissiere DKM: 1.5
+
+
+POSS: 0.29%
+De'Aaron Fox DKM: 0.0
+Buddy Hield DKM: 1.25
+Justin Jackson DKM: 0.0
+Skal Labissiere DKM: 1.5
+Willie Cauley-Stein DKM: 2.0
+
+
+De'Aaron Fox : 11 - 15.32
+Buddy Hield : 8 - 10.03
+Skal Labissiere : 8 - 12.74
+Justin Jackson : 6 - 8.45
+Kosta Koufos : 6 - 9.44
+Willie Cauley-Stein : 5 - 6.02
+Bogdan Bogdanovic : 4 - 6.73
+Malachi Richardson : 4 - 4.58
+Vince Carter : 3 - 3.29
+
+
+BASED ON LINEUP %
+Frank Mason
+MED: 33.98,  MED36: 44.77,  MAX: 33.82  -  NEED: 29.4  (Willie Cauley-Stein)
+MED: 23.75,  MED36: 34.95,  MAX: 25.47  -  NEED: 31.2  (De'Aaron Fox)
+MED: 23.51,  MED36: 37.12,  MAX: 23.72  -  NEED: 28.2  (Skal Labissiere)
+MED: 18.99,  MED36: 29.08,  MAX: 20.36  -  NEED: 26.4  (Buddy Hield)
+MED: 16.59,  MED36: 36.92,  MAX: 15.92  -  NEED: 27.0  (Bogdan Bogdanovic)
+MED: 16.04,  MED36: 34.53,  MAX: 16.99  -  NEED: 21.0  (Kosta Koufos)
+MED: 8.86,  MED36: 20.65,  MAX: 10.0  -  NEED: 18.0  (Justin Jackson)
+MED: 7.41,  MED36: 24.28,  MAX: 6.25  -  NEED: 18.0  (Vince Carter)
+MED: 5.94,  MED36: 19.13,  MAX: 5.58  -  NEED: 18.0  (Malachi Richardson)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 35  (Frank Mason)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Georgios Papagiannis)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 31.2  (Zach Randolph)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  88.0
+REB:  39.0
+REB CHANCES:  73.0
+
+
+TEAM AVG:
+FGA:  86.56
+REB:  44.67
+
+
+PF: Paul Millsap
+- Darrell Arthur
+-- Kenneth Faried
+-- Trey Lyles
+-- Tyler Lydon
+C: Nikola Jokic
+- Mason Plumlee
+SG: Gary Harris
+-- Malik Beasley
+-- Monte Morris
+PG: Jamal Murray
+- Emmanuel Mudiay
+SF: Wilson Chandler
+- Will Barton
+-- Richard Jefferson
+-- Torrey Craig
+
+
+[u'Paul Millsap', u'Nikola Jokic', u'Gary Harris', u'Jamal Murray', u'Wilson Chandler']
+FROM LAST YEARS MATCHUPS VS GSW
+Nikola Jokic - 51.63% / 111.0m
+Jamal Murray - 47.91% / 103.0m
+Will Barton - 46.05% / 99.0m
+Gary Harris - 42.79% / 92.0m
+Emmanuel Mudiay - 40.93% / 88.0m
+Wilson Chandler - 34.88% / 75.0m
+Kenneth Faried - 18.14% / 39.0m
+Malik Beasley - 16.74% / 36.0m
+Paul Millsap - 10.7% / 23.0m
+Mason Plumlee - 8.84% / 19.0m
+Trey Lyles - 8.37% / 18.0m
+Torrey Craig - 1.4% / 3.0m
+Tyler Lydon - 1.4% / 3.0m
+
+
+LINEUPS (ALL)
+Gary Harris POSS: 67.73%
+PFD: 1.56, PF: 2.33
+WvL: -3.42
+Wilson Chandler POSS: 65.95%
+PFD: 1.33, PF: 2.11
+WvL: 1.58
+Nikola Jokic POSS: 64.41%
+PFD: 3.67, PF: 2.44
+WvL: -1.42
+Paul Millsap POSS: 62.75%
+PFD: 4.33, PF: 2.44
+WvL: 5.83
+Will Barton POSS: 57.65%
+PFD: 2.11, PF: 2.0
+WvL: -6.33
+Jamal Murray POSS: 53.62%
+PFD: 1.56, PF: 2.11
+WvL: -12.5
+Emmanuel Mudiay POSS: 44.48%
+PFD: 2.78, PF: 1.89
+WvL: 9.75
+Mason Plumlee POSS: 32.86%
+PFD: 2.33, PF: 1.89
+WvL: 4.0
+Kenneth Faried POSS: 19.81%
+PFD: 1.5, PF: 0.88
+WvL: 19.34
+Malik Beasley POSS: 16.25%
+PFD: 0.44, PF: 1.0
+WvL: -3.75
+Juancho Hernangómez POSS: 5.58%
+PFD: None, PF: None
+WvL: 100
+Trey Lyles POSS: 3.91%
+PFD: 0.0, PF: 0.6
+WvL: 0.33
+Darrell Arthur POSS: 3.08%
+PFD: 0.0, PF: 0.0
+Richard Jefferson POSS: 1.9%
+PFD: 0.5, PF: 0.0
+WvL: 100
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 32.5%
+Jamal Murray DKM: 0.68
+Gary Harris DKM: 0.72
+Wilson Chandler DKM: 0.58
+Paul Millsap DKM: 1.05
+Nikola Jokic DKM: 1.0
+
+
+POSS: 5.81%
+Emmanuel Mudiay DKM: 0.52
+Gary Harris DKM: 0.29
+Will Barton DKM: 1.22
+Paul Millsap DKM: 1.13
+Mason Plumlee DKM: 0.75
+
+
+POSS: 6.52%
+Emmanuel Mudiay DKM: 1.11
+Malik Beasley DKM: 0.61
+Will Barton DKM: 0.82
+Nikola Jokic DKM: 1.11
+Kenneth Faried DKM: 0.51
+
+
+POSS: 5.22%
+Emmanuel Mudiay DKM: 0.83
+Will Barton DKM: 0.69
+Wilson Chandler DKM: 0.5
+Mason Plumlee DKM: 0.97
+Nikola Jokic DKM: 2.03
+
+
+POSS: 3.32%
+Jamal Murray DKM: 0.39
+Gary Harris DKM: 1.0
+Will Barton DKM: 0.95
+Paul Millsap DKM: 0.73
+Mason Plumlee DKM: 1.57
+
+
+POSS: 2.61%
+Gary Harris DKM: 1.02
+Will Barton DKM: 0.54
+Wilson Chandler DKM: 0.25
+Nikola Jokic DKM: 1.42
+Paul Millsap DKM: 0.87
+
+
+POSS: 3.08%
+Jamal Murray DKM: 1.07
+Gary Harris DKM: 0.82
+Will Barton DKM: 0.36
+Paul Millsap DKM: 0.61
+Nikola Jokic DKM: 2.34
+
+
+POSS: 2.73%
+Emmanuel Mudiay DKM: 0.94
+Will Barton DKM: 0.6
+Wilson Chandler DKM: 0.75
+Kenneth Faried DKM: 1.19
+Nikola Jokic DKM: 0.81
+
+
+POSS: 2.02%
+Emmanuel Mudiay DKM: 0.7
+Gary Harris DKM: 0.42
+Wilson Chandler DKM: 0.38
+Paul Millsap DKM: 0.65
+Nikola Jokic DKM: 0.55
+
+
+POSS: 1.78%
+Emmanuel Mudiay DKM: 1.47
+Gary Harris DKM: 0.44
+Will Barton DKM: 1.19
+Wilson Chandler DKM: 0.12
+Mason Plumlee DKM: 1.25
+
+
+POSS: 1.54%
+Emmanuel Mudiay DKM: 0.71
+Gary Harris DKM: 0.5
+Will Barton DKM: 0.68
+Nikola Jokic DKM: 1.54
+Mason Plumlee DKM: 1.46
+
+
+POSS: 1.9%
+Emmanuel Mudiay DKM: 0.42
+Malik Beasley DKM: 0.33
+Will Barton DKM: 2.04
+Wilson Chandler DKM: 1.75
+Mason Plumlee DKM: 1.54
+
+
+POSS: 1.54%
+Emmanuel Mudiay DKM: 1.0
+Jamal Murray DKM: 1.75
+Will Barton DKM: 1.5
+Mason Plumlee DKM: 0.95
+Darrell Arthur DKM: 0.25
+
+
+POSS: 1.42%
+Emmanuel Mudiay DKM: 1.12
+Malik Beasley DKM: 1.31
+Richard Jefferson DKM: 0.25
+Trey Lyles DKM: 0.44
+Kenneth Faried DKM: 1.19
+
+
+POSS: 1.19%
+Emmanuel Mudiay DKM: 2.0
+Malik Beasley DKM: 0.0
+Will Barton DKM: 0.69
+Wilson Chandler DKM: 1.5
+Nikola Jokic DKM: 2.0
+
+
+POSS: 1.07%
+Malik Beasley DKM: 0.0
+Emmanuel Mudiay DKM: 3.06
+Will Barton DKM: 1.88
+Mason Plumlee DKM: 0.81
+Darrell Arthur DKM: 0.5
+
+
+POSS: 1.07%
+Jamal Murray DKM: 0.25
+Gary Harris DKM: 0.7
+Will Barton DKM: 0.9
+Wilson Chandler DKM: 0.65
+Paul Millsap DKM: 1.25
+
+
+Will Barton : 14 - 39.38
+Emmanuel Mudiay : 12 - 32.74
+Nikola Jokic : 9 - 57.41
+Wilson Chandler : 9 - 51.02
+Gary Harris : 9 - 53.73
+Mason Plumlee : 8 - 22.18
+Paul Millsap : 7 - 50.41
+Malik Beasley : 5 - 12.1
+Jamal Murray : 5 - 41.51
+Kenneth Faried : 3 - 10.67
+Darrell Arthur : 2 - 2.61
+Trey Lyles : 1 - 1.42
+Richard Jefferson : 1 - 1.42
+
+
+BASED ON LINEUP %
+MED: 38.01,  MED36: 43.84,  MAX: 37.65  -  NEED: 51.0  (Nikola Jokic)
+MED: 29.52,  MED36: 37.31,  MAX: 31.22  -  NEED: 40.8  (Paul Millsap)
+MED: 24.53,  MED36: 31.28,  MAX: 24.05  -  NEED: 33.0  (Will Barton)
+MED: 21.58,  MED36: 25.1,  MAX: 22.67  -  NEED: 31.8  (Gary Harris)
+MED: 18.7,  MED36: 24.49,  MAX: 17.51  -  NEED: 32.4  (Jamal Murray)
+MED: 18.3,  MED36: 20.28,  MAX: 17.84  -  NEED: 27.0  (Wilson Chandler)
+MED: 17.43,  MED36: 38.67,  MAX: 16.94  -  NEED: 22.8  (Mason Plumlee)
+MED: 17.39,  MED36: 29.33,  MAX: 17.4  -  NEED: 26.4  (Emmanuel Mudiay)
+MED: 6.74,  MED36: 26.23,  MAX: 6.93  -  NEED: 21.0  (Kenneth Faried)
+MED: 4.32,  MED36: 21.96,  MAX: 4.76  -  NEED: 18.0  (Malik Beasley)
+MED: 0.0,  MED36: 15.84,  MAX: 0.83  -  NEED: 18.0  (Trey Lyles)
+MED: 0.0,  MED36: 9.0,  MAX: 0.23  -  NEED: 18.0  (Richard Jefferson)
+MED: 0.0,  MED36: 9.0,  MAX: 0.37  -  NEED: 18.0  (Darrell Arthur)
+
+
+
+
+PREDICTION OF FGA:
+FGA:  79.0
+REB:  44.0
+REB CHANCES:  73.0
+
+
+TEAM AVG:
+FGA:  86.11
+REB:  45.89
+
+
+PF: Anthony Davis
+-- Cheick Diallo
+-- Josh Smith
+C: DeMarcus Cousins
+SG: E'Twaun Moore
+- Ian Clark
+-- Charles Cooke
+PG: Jrue Holiday
+- Jameer Nelson
+SF: Dante Cunningham
+- Tony Allen
+-- Darius Miller
+-- Jalen Jones
+
+
+[u'Anthony Davis', u'DeMarcus Cousins', "E'Twaun Moore", u'Jrue Holiday', u'Dante Cunningham']
+FROM LAST YEARS MATCHUPS VS CHI
+DeMarcus Cousins - 85.0% / 68.0m
+Anthony Davis - 78.75% / 63.0m
+Jrue Holiday - 75.0% / 60.0m
+E'Twaun Moore - 58.75% / 47.0m
+Dante Cunningham - 40.0% / 32.0m
+Ian Clark - 26.25% / 21.0m
+Darius Miller - 17.5% / 14.0m
+Tony Allen - 7.5% / 6.0m
+Jalen Jones - 5.0% / 4.0m
+Charles Cooke - 2.5% / 2.0m
+
+
+LINEUPS (ALL)
+DeMarcus Cousins POSS: 79.33%
+PFD: 8.11, PF: 4.11
+WvL: -0.33
+Jrue Holiday POSS: 78.86%
+PFD: 1.44, PF: 3.0
+WvL: 0.33
+E'Twaun Moore POSS: 64.23%
+PFD: 0.89, PF: 3.0
+WvL: 16.83
+Anthony Davis POSS: 60.98%
+PFD: 8.38, PF: 2.38
+WvL: 10.25
+Dante Cunningham POSS: 57.03%
+PFD: 1.22, PF: 2.56
+WvL: 3.25
+Jameer Nelson POSS: 45.06%
+PFD: 1.43, PF: 1.71
+WvL: 2.34
+Ian Clark POSS: 40.88%
+PFD: 0.56, PF: 1.78
+WvL: 1.08
+Tony Allen POSS: 26.13%
+PFD: 0.56, PF: 2.11
+WvL: -7.92
+Darius Miller POSS: 20.33%
+PFD: 0.44, PF: 1.11
+WvL: -7.42
+Cheick Diallo POSS: 10.92%
+PFD: 0.33, PF: 1.5
+WvL: -3.5
+Josh Smith POSS: 2.67%
+PFD: 0.0, PF: 1.0
+WvL: 14.0
+Charles Cooke POSS: 0.93%
+PFD: 0.0, PF: 0.0
+WvL: 100
+Jalen Jones POSS: 0.93%
+PFD: 0.0, PF: 0.0
+WvL: 100
+
+
+LINEUPS (ACCOUNTING FOR INJURY)
+POSS: 24.51%
+Jrue Holiday DKM: 0.71
+E'Twaun Moore DKM: 0.55
+Dante Cunningham DKM: 0.49
+DeMarcus Cousins DKM: 1.3
+Anthony Davis DKM: 1.3
+
+
+POSS: 5.46%
+Jrue Holiday DKM: 0.65
+Jameer Nelson DKM: 0.79
+E'Twaun Moore DKM: 0.36
+Dante Cunningham DKM: 0.71
+DeMarcus Cousins DKM: 1.85
+
+
+POSS: 3.6%
+Jrue Holiday DKM: 0.67
+Jameer Nelson DKM: 0.54
+E'Twaun Moore DKM: 0.61
+DeMarcus Cousins DKM: 1.22
+Anthony Davis DKM: 0.97
+
+
+POSS: 2.9%
+Jrue Holiday DKM: 1.1
+Jameer Nelson DKM: 0.48
+Dante Cunningham DKM: 0.6
+Cheick Diallo DKM: 0.71
+Anthony Davis DKM: 2.06
+
+
+POSS: 2.32%
+Jrue Holiday DKM: 1.22
+Ian Clark DKM: 0.91
+Tony Allen DKM: 1.47
+DeMarcus Cousins DKM: 0.81
+Anthony Davis DKM: 1.94
+
+
+POSS: 3.25%
+Jameer Nelson DKM: 0.38
+Ian Clark DKM: 0.77
+Darius Miller DKM: 0.58
+Tony Allen DKM: 1.23
+DeMarcus Cousins DKM: 1.56
+
+
+POSS: 1.97%
+Jameer Nelson DKM: 0.83
+Ian Clark DKM: 0.52
+E'Twaun Moore DKM: 0.83
+DeMarcus Cousins DKM: 1.42
+Anthony Davis DKM: 2.08
+
+
+POSS: 2.09%
+Jrue Holiday DKM: 1.97
+Ian Clark DKM: 0.66
+E'Twaun Moore DKM: 0.88
+Dante Cunningham DKM: 0.19
+DeMarcus Cousins DKM: 2.0
+
+
+POSS: 1.51%
+Jrue Holiday DKM: 0.39
+E'Twaun Moore DKM: 0.21
+Tony Allen DKM: 0.57
+DeMarcus Cousins DKM: 1.93
+Anthony Davis DKM: 1.46
+
+
+POSS: 1.97%
+Jameer Nelson DKM: 1.04
+Ian Clark DKM: 0.0
+Tony Allen DKM: 0.46
+Cheick Diallo DKM: 0.54
+DeMarcus Cousins DKM: 2.79
+
+
+POSS: 1.86%
+Jrue Holiday DKM: 1.25
+Jameer Nelson DKM: 0.46
+Ian Clark DKM: 0.54
+Dante Cunningham DKM: 0.62
+DeMarcus Cousins DKM: 0.83
+
+
+POSS: 1.86%
+Jrue Holiday DKM: 0.47
+Ian Clark DKM: 1.56
+E'Twaun Moore DKM: 1.03
+DeMarcus Cousins DKM: 1.28
+Anthony Davis DKM: 1.41
+
+
+POSS: 1.63%
+Jameer Nelson DKM: 0.67
+Jrue Holiday DKM: 0.5
+Tony Allen DKM: 1.67
+DeMarcus Cousins DKM: 1.33
+Anthony Davis DKM: 1.5
+
+
+POSS: 1.51%
+Jrue Holiday DKM: 0.94
+Ian Clark DKM: 1.03
+E'Twaun Moore DKM: 0.56
+Dante Cunningham DKM: 0.34
+Anthony Davis DKM: 1.62
+
+
+POSS: 1.28%
+Jameer Nelson DKM: 0.62
+E'Twaun Moore DKM: 0.94
+Tony Allen DKM: 0.84
+DeMarcus Cousins DKM: 0.38
+Anthony Davis DKM: 1.47
+
+
+POSS: 1.28%
+Jrue Holiday DKM: 0.15
+E'Twaun Moore DKM: 0.6
+Tony Allen DKM: 0.2
+Dante Cunningham DKM: 0.25
+DeMarcus Cousins DKM: 2.25
+
+
+POSS: 1.28%
+Jrue Holiday DKM: 0.7
+E'Twaun Moore DKM: -0.1
+Darius Miller DKM: 0.0
+Dante Cunningham DKM: 0.0
+DeMarcus Cousins DKM: 1.75
+
+
+POSS: 1.74%
+Jameer Nelson DKM: 1.21
+E'Twaun Moore DKM: 0.75
+Ian Clark DKM: 0.61
+Tony Allen DKM: 0.21
+DeMarcus Cousins DKM: 0.89
+
+
+DeMarcus Cousins : 16 - 57.61
+Jrue Holiday : 13 - 51.81
+E'Twaun Moore : 12 - 48.09
+Jameer Nelson : 10 - 25.66
+Anthony Davis : 10 - 43.09
+Ian Clark : 9 - 18.57
+Tony Allen : 8 - 14.98
+Dante Cunningham : 8 - 40.89
+Darius Miller : 2 - 4.53
+Cheick Diallo : 2 - 4.87
+
+
+BASED ON LINEUP %
+MED: 55.57,  MED36: 54.54,  MAX: 57.69  -  NEED: 69.6  (DeMarcus Cousins)
+MED: 43.82,  MED36: 49.28,  MAX: 40.06  -  NEED: 67.2  (Anthony Davis)
+MED: 31.56,  MED36: 28.46,  MAX: 29.92  -  NEED: 40.2  (Jrue Holiday)
+MED: 16.85,  MED36: 20.11,  MAX: 17.22  -  NEED: 24.6  (E'Twaun Moore)
+MED: 15.92,  MED36: 26.98,  MAX: 14.7  -  NEED: 22.2  (Ian Clark)
+MED: 14.68,  MED36: 18.91,  MAX: 14.38  -  NEED: 21.0  (Dante Cunningham)
+MED: 13.59,  MED36: 23.02,  MAX: 13.83  -  NEED: 24.0  (Jameer Nelson)
+MED: 13.1,  MED36: 37.23,  MAX: 12.97  -  NEED: 18.0  (Tony Allen)
+MED: 5.66,  MED36: 20.88,  MAX: 5.66  -  NEED: 18.0  (Darius Miller)
+MED: 3.5,  MED36: 23.52,  MAX: 3.42  -  NEED: 20.4  (Cheick Diallo)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Josh Smith)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Charles Cooke)
+MED: 0.0,  MED36: 0.0,  MAX: 0.0  -  NEED: 18.0  (Jalen Jones)
+
+
+
+
+PF
+(100) 5.54 @ 11600 - Need: 69.6 DeMarcus Cousins
+(---) 5.17 @ 4200 - Need: 25.2 Taj Gibson
+(100) 4.99 @ 4600 - Need: 27.6 Dirk Nowitzki
+(200) 4.95 @ 6600 - Need: 39.6 Lauri Markkanen
+(300) 4.83 @ 5800 - Need: 34.8 Harrison Barnes
+(---) 4.83 @ 3300 - Need: 19.8 David West
+(-200) 4.82 @ 6400 - Need: 38.4 Tobias Harris
+(---) 4.82 @ 3100 - Need: 18.6 Anthony Tolliver
+(---) 4.77 @ 11200 - Need: 67.2 Anthony Davis
+(---) 4.7 @ 3800 - Need: 22.8 Mason Plumlee
+(-600) 4.67 @ 4900 - Need: 29.4 Willie Cauley-Stein
+(600) 4.64 @ 10300 - Need: 61.8 Kevin Durant
+(---) 4.58 @ 7200 - Need: 43.2 Draymond Green
+(---) 4.55 @ 3200 - Need: 19.2 Dwight Powell
+(100) 4.45 @ 4700 - Need: 28.2 Skal Labissiere
+(100) 4.42 @ 6800 - Need: 40.8 Paul Millsap
+(---) 4.4 @ 6900 - Need: 41.4 Andrew Wiggins
+(---) 4.34 @ 4500 - Need: 27.0 Wilson Chandler
+(---) 4.3 @ 3400 - Need: 20.4 Nemanja Bjelica
+(100) 4.23 @ 5200 - Need: 31.2 Zach Randolph
+(---) 4.17 @ 3300 - Need: 19.8 Gorgui Dieng
+(---) 4.07 @ 3600 - Need: 21.6 Paul Zipser
+(---) 3.96 @ 3500 - Need: 21.0 Dante Cunningham
+(---) 3.82 @ 3000 - Need: 18.0 Henry Ellenson
+(---) 3.79 @ 3000 - Need: 18.0 Kevon Looney
+(200) 3.77 @ 3200 - Need: 19.2 Jordan Bell
+(---) 3.43 @ 3000 - Need: 18.0 Maxi Kleber
+(---) 3.32 @ 3000 - Need: 18.0 Cristiano Felicio
+(---) 2.63 @ 3500 - Need: 21.0 Kenneth Faried
+(---) 2.4 @ 3000 - Need: 18.0 Omri Casspi
+(---) 2.29 @ 3000 - Need: 18.0 Jakarr Sampson
+
+
+C
+(100) 5.54 @ 11600 - Need: 69.6 DeMarcus Cousins
+(-200) 5.38 @ 5400 - Need: 32.4 Robin Lopez
+(---) 5.17 @ 4200 - Need: 25.2 Taj Gibson
+(---) 5.01 @ 3500 - Need: 21.0 Kosta Koufos
+(-100) 4.99 @ 8100 - Need: 48.6 Andre Drummond
+(100) 4.99 @ 4600 - Need: 27.6 Dirk Nowitzki
+(-100) 4.85 @ 8500 - Need: 51.0 Nikola Jokic
+(---) 4.83 @ 3300 - Need: 19.8 David West
+(-200) 4.8 @ 8800 - Need: 52.8 Karl-Anthony Towns
+(-100) 4.79 @ 3700 - Need: 22.2 Nerlens Noel
+(---) 4.77 @ 11200 - Need: 67.2 Anthony Davis
+(---) 4.7 @ 3800 - Need: 22.8 Mason Plumlee
+(-600) 4.67 @ 4900 - Need: 29.4 Willie Cauley-Stein
+(---) 4.58 @ 7200 - Need: 43.2 Draymond Green
+(---) 4.55 @ 3200 - Need: 19.2 Dwight Powell
+(100) 4.45 @ 4700 - Need: 28.2 Skal Labissiere
+(100) 4.42 @ 6800 - Need: 40.8 Paul Millsap
+(100) 4.23 @ 5200 - Need: 31.2 Zach Randolph
+(---) 4.17 @ 3300 - Need: 19.8 Gorgui Dieng
+(---) 3.82 @ 3000 - Need: 18.0 Henry Ellenson
+(200) 3.77 @ 3200 - Need: 19.2 Jordan Bell
+(---) 3.71 @ 3200 - Need: 19.2 Zaza Pachulia
+(---) 3.7 @ 3000 - Need: 18.0 JaVale McGee
+(---) 3.52 @ 3000 - Need: 18.0 Salah Mejri
+(---) 3.32 @ 3000 - Need: 18.0 Cristiano Felicio
+(---) 2.63 @ 3500 - Need: 21.0 Kenneth Faried
+
+
+SG
+(---) 5.54 @ 4300 - Need: 25.8 J.J. Barea
+(---) 5.4 @ 3900 - Need: 23.4 Yogi Ferrell
+(-100) 5.08 @ 5000 - Need: 30.0 Jerian Grant
+(200) 4.97 @ 4800 - Need: 28.8 Wesley Matthews
+(300) 4.96 @ 7000 - Need: 42.0 Klay Thompson
+(500) 4.95 @ 9500 - Need: 57.0 Stephen Curry
+(-100) 4.93 @ 4100 - Need: 24.6 E'Twaun Moore
+(-200) 4.85 @ 5500 - Need: 33.0 Will Barton
+(-100) 4.85 @ 6700 - Need: 40.2 Jrue Holiday
+(100) 4.82 @ 5300 - Need: 31.8 Gary Harris
+(---) 4.8 @ 5100 - Need: 30.6 Dennis Smith Jr.
+(100) 4.78 @ 3900 - Need: 23.4 Jamal Crawford
+(-100) 4.74 @ 3900 - Need: 23.4 Stanley Johnson
+(---) 4.68 @ 4400 - Need: 26.4 Buddy Hield
+(100) 4.64 @ 5900 - Need: 35.4 Justin Holiday
+(300) 4.56 @ 3500 - Need: 21.0 Devin Harris
+(-200) 4.55 @ 5300 - Need: 31.8 Avery Bradley
+(-200) 4.45 @ 4400 - Need: 26.4 Denzel Valentine
+(---) 4.4 @ 3800 - Need: 22.8 Andre Iguodala
+(400) 4.38 @ 7500 - Need: 45.0 Jimmy Butler
+(---) 4.31 @ 4500 - Need: 27.0 Bogdan Bogdanovic
+(-100) 4.23 @ 4000 - Need: 24.0 Jameer Nelson
+(300) 4.2 @ 5400 - Need: 32.4 Jamal Murray
+(100) 4.18 @ 3900 - Need: 23.4 David Nwaba
+(---) 4.15 @ 3700 - Need: 22.2 Ian Clark
+(---) 4.04 @ 3000 - Need: 18.0 Langston Galloway
+(---) 3.38 @ 3000 - Need: 18.0 Quincy Pondexter
+(---) 3.15 @ 3000 - Need: 18.0 Frank Mason III
+(---) 2.98 @ 3000 - Need: 18.0 Luke Kennard
+(---) 2.78 @ 3000 - Need: 18.0 Malachi Richardson
+(---) 2.77 @ 3000 - Need: 18.0 Justin Jackson
+(---) 2.72 @ 3000 - Need: 18.0 Tyus Jones
+(---) 2.7 @ 3000 - Need: 18.0 Tony Allen
+(---) 2.64 @ 3000 - Need: 18.0 Reggie Bullock
+(500) 2.63 @ 3500 - Need: 21.0 Patrick McCaw
+(-100) 2.41 @ 3300 - Need: 19.8 Nick Young
+(-200) 2.15 @ 3800 - Need: 22.8 Shabazz Muhammad
+
+
+PG
+(---) 5.54 @ 4300 - Need: 25.8 J.J. Barea
+(---) 5.4 @ 3900 - Need: 23.4 Yogi Ferrell
+(200) 5.33 @ 4900 - Need: 29.4 Kris Dunn
+(-100) 5.21 @ 6300 - Need: 37.8 Reggie Jackson
+(-100) 5.08 @ 5000 - Need: 30.0 Jerian Grant
+(-100) 5.02 @ 6300 - Need: 37.8 Jeff Teague
+(-500) 5.02 @ 5200 - Need: 31.2 De'Aaron Fox
+(200) 5.02 @ 3500 - Need: 21.0 Ish Smith
+(500) 4.95 @ 9500 - Need: 57.0 Stephen Curry
+(---) 4.94 @ 4400 - Need: 26.4 Emmanuel Mudiay
+(-100) 4.85 @ 6700 - Need: 40.2 Jrue Holiday
+(---) 4.8 @ 5100 - Need: 30.6 Dennis Smith Jr.
+(300) 4.56 @ 3500 - Need: 21.0 Devin Harris
+(-200) 4.55 @ 5300 - Need: 31.8 Avery Bradley
+(-100) 4.23 @ 4000 - Need: 24.0 Jameer Nelson
+(300) 4.2 @ 5400 - Need: 32.4 Jamal Murray
+(100) 4.18 @ 3900 - Need: 23.4 David Nwaba
+(---) 4.15 @ 3700 - Need: 22.2 Ian Clark
+(---) 4.04 @ 3000 - Need: 18.0 Langston Galloway
+(---) 3.67 @ 3000 - Need: 18.0 Kay Felder
+(---) 3.15 @ 3000 - Need: 18.0 Frank Mason III
+(---) 2.72 @ 3000 - Need: 18.0 Tyus Jones
+(---) 2.05 @ 3000 - Need: 18.0 Gian Clavell
+
+
+SF
+(200) 4.97 @ 4800 - Need: 28.8 Wesley Matthews
+(-100) 4.93 @ 4100 - Need: 24.6 E'Twaun Moore
+(-200) 4.85 @ 5500 - Need: 33.0 Will Barton
+(300) 4.83 @ 5800 - Need: 34.8 Harrison Barnes
+(-200) 4.82 @ 6400 - Need: 38.4 Tobias Harris
+(---) 4.82 @ 3100 - Need: 18.6 Anthony Tolliver
+(-100) 4.74 @ 3900 - Need: 23.4 Stanley Johnson
+(---) 4.68 @ 4400 - Need: 26.4 Buddy Hield
+(100) 4.64 @ 5900 - Need: 35.4 Justin Holiday
+(600) 4.64 @ 10300 - Need: 61.8 Kevin Durant
+(-200) 4.45 @ 4400 - Need: 26.4 Denzel Valentine
+(---) 4.4 @ 6900 - Need: 41.4 Andrew Wiggins
+(---) 4.4 @ 3800 - Need: 22.8 Andre Iguodala
+(---) 4.34 @ 4500 - Need: 27.0 Wilson Chandler
+(---) 4.31 @ 4500 - Need: 27.0 Bogdan Bogdanovic
+(---) 4.3 @ 3400 - Need: 20.4 Nemanja Bjelica
+(---) 4.07 @ 3600 - Need: 21.6 Paul Zipser
+(---) 3.96 @ 3500 - Need: 21.0 Dante Cunningham
+(---) 3.79 @ 3000 - Need: 18.0 Kevon Looney
+(---) 3.38 @ 3000 - Need: 18.0 Quincy Pondexter
+(---) 2.78 @ 3000 - Need: 18.0 Malachi Richardson
+(---) 2.77 @ 3000 - Need: 18.0 Justin Jackson
+(---) 2.7 @ 3000 - Need: 18.0 Tony Allen
+(---) 2.64 @ 3000 - Need: 18.0 Reggie Bullock
+(500) 2.63 @ 3500 - Need: 21.0 Patrick McCaw
+(---) 2.4 @ 3000 - Need: 18.0 Omri Casspi
+(---) 2.29 @ 3000 - Need: 18.0 Jakarr Sampson
+(-200) 2.15 @ 3800 - Need: 22.8 Shabazz Muhammad
+
+
+
+
+BASED ON LAST SEASON STATS
+Antonio Blakeney - 2.0dkm / 6m
+David West - 1.85dkm / 5m
+Anthony Davis - 1.76dkm / 52m
+Paul Millsap - 1.61dkm / 25m
+Kenneth Faried - 1.61dkm / 9m
+Reggie Bullock - 1.59dkm / 8m
+JaVale McGee - 1.41dkm / 41m
+Nikola Jokic - 1.34dkm / 97m
+Zaza Pachulia - 1.31dkm / 36m
+Boban Marjanovic - 1.3dkm / 10m
+Karl-Anthony Towns - 1.27dkm / 114m
+Kevin Durant - 1.2dkm / 90m
+DeMarcus Cousins - 1.12dkm / 52m
+Andre Drummond - 1.11dkm / 46m
+Robin Lopez - 1.09dkm / 23m
+Will Barton - 1.08dkm / 89m
+Henry Ellenson - 1.07dkm / 7m
+Mason Plumlee - 1.02dkm / 22m
+Draymond Green - 1.01dkm / 92m
+Jrue Holiday - 1.0dkm / 51m
+Cheick Diallo - 1.0dkm / 7m
+Damian Jones - 0.98dkm / 22m
+Stephen Curry - 0.98dkm / 106m
+Kosta Koufos - 0.96dkm / 13m
+Ryan Arcidiacono - 0.95dkm / 11m
+J.J. Barea - 0.92dkm / 12m
+Jamal Murray - 0.91dkm / 64m
+Jordan Bell - 0.9dkm / 10m
+Klay Thompson - 0.88dkm / 64m
+Kevon Looney - 0.87dkm / 29m
+Reggie Jackson - 0.84dkm / 41m
+Andre Iguodala - 0.82dkm / 59m
+Andrew Wiggins - 0.82dkm / 111m
+Wilson Chandler - 0.82dkm / 61m
+Willie Cauley-Stein - 0.81dkm / 13m
+Lauri Markkanen - 0.81dkm / 8m
+E'Twaun Moore - 0.77dkm / 66m
+Yogi Ferrell - 0.75dkm / 2m
+Ian Clark - 0.74dkm / 43m
+Cole Aldrich - 0.71dkm / 12m
+Devin Harris - 0.71dkm / 20m
+Tobias Harris - 0.71dkm / 58m
+Dirk Nowitzki - 0.71dkm / 23m
+Gorgui Dieng - 0.7dkm / 88m
+Trey Lyles - 0.7dkm / 22m
+Tyus Jones - 0.7dkm / 44m
+Gary Harris - 0.69dkm / 100m
+Ish Smith - 0.69dkm / 27m
+Emmanuel Mudiay - 0.68dkm / 73m
+Harrison Barnes - 0.66dkm / 8m
+Malachi Richardson - 0.65dkm / 13m
+Nemanja Bjelica - 0.65dkm / 66m
+Cristiano Felicio - 0.65dkm / 21m
+Salah Mejri - 0.64dkm / 7m
+Stanley Johnson - 0.63dkm / 25m
+Denzel Valentine - 0.61dkm / 11m
+Patrick McCaw - 0.59dkm / 64m
+Darius Miller - 0.56dkm / 30m
+David Nwaba - 0.55dkm / 10m
+Wesley Matthews - 0.53dkm / 16m
+Dante Cunningham - 0.48dkm / 44m
+Shabazz Muhammad - 0.44dkm / 48m
+Charles Cooke - 0.44dkm / 9m
+Tyler Lydon - 0.42dkm / 3m
+Nick Young - 0.37dkm / 15m
+Dwight Powell - 0.28dkm / 9m
+Tony Allen - 0.17dkm / 9m
+Malik Beasley - 0.02dkm / 11m
+Jalen Jones - 0.0dkm / 5m
+Paul Zipser - 0.0dkm / 0m
+Torrey Craig - 0.0dkm / 4m
+Kris Dunn - -0.5dkm / 1m
+
+
+PROJECTION BASIS
+Frank Mason - 35.0pb (0.0/35)
+Zach Randolph - 31.2pb (0.0/31.2)
+Jimmy Butler - 24.28pb (20.72/45.0)
+Anthony Davis - 23.38pb (43.82/67.2)
+Kris Dunn - 21.37pb (8.03/29.4)
+Karl-Anthony Towns - 19.64pb (33.16/52.8)
+Charles Cooke - 18.0pb (0.0/18.0)
+Aaron Brooks - 18.0pb (0.0/18.0)
+Reggie Bullock - 18.0pb (0.0/18.0)
+Antonio Blakeney - 18.0pb (0.0/18.0)
+Richard Jefferson - 18.0pb (0.0/18.0)
+Ryan Arcidiacono - 18.0pb (0.0/18.0)
+Cole Aldrich - 18.0pb (0.0/18.0)
+Darrell Arthur - 18.0pb (0.0/18.0)
+Josh Smith - 18.0pb (0.0/18.0)
+Jalen Jones - 18.0pb (0.0/18.0)
+Luke Kennard - 18.0pb (0.0/18.0)
+Georgios Papagiannis - 18.0pb (0.0/18.0)
+Kevon Looney - 18.0pb (0.0/18.0)
+Boban Marjanovic - 18.0pb (0.0/18.0)
+Quinn Cook - 18.0pb (0.0/18.0)
+Trey Lyles - 18.0pb (0.0/18.0)
+Kevin Durant - 17.65pb (44.15/61.8)
+Andre Drummond - 16.92pb (31.68/48.6)
+Cheick Diallo - 16.9pb (3.5/20.4)
+Gian Clavell - 16.81pb (1.19/18.0)
+Jeff Withey - 16.04pb (1.96/18.0)
+Shabazz Muhammad - 15.63pb (7.17/22.8)
+Draymond Green - 14.84pb (28.36/43.2)
+Kenneth Faried - 14.26pb (6.74/21.0)
+DeMarcus Cousins - 14.03pb (55.57/69.6)
+Eric Moreland - 13.82pb (4.18/18.0)
+Jamal Murray - 13.7pb (18.7/32.4)
+Patrick McCaw - 13.69pb (7.31/21.0)
+Malik Beasley - 13.68pb (4.32/18.0)
+Maxi Kleber - 13.43pb (4.57/18.0)
+Nick Young - 13.19pb (6.61/19.8)
+Nikola Jokic - 12.99pb (38.01/51.0)
+Dennis Smith Jr. - 12.65pb (17.95/30.6)
+Devin Harris - 12.58pb (8.42/21.0)
+Darius Miller - 12.34pb (5.66/18.0)
+Malachi Richardson - 12.06pb (5.94/18.0)
+Jeff Teague - 11.81pb (25.99/37.8)
+Quincy Pondexter - 11.77pb (6.23/18.0)
+Stephen Curry - 11.46pb (45.54/57.0)
+Anthony Tolliver - 11.42pb (7.18/18.6)
+Henry Ellenson - 11.3pb (6.7/18.0)
+Paul Millsap - 11.28pb (29.52/40.8)
+Kay Felder - 11.1pb (6.9/18.0)
+Vince Carter - 10.59pb (7.41/18.0)
+Jameer Nelson - 10.41pb (13.59/24.0)
+Bogdan Bogdanovic - 10.41pb (16.59/27.0)
+Andrew Wiggins - 10.4pb (31.0/41.4)
+Justin Holiday - 10.34pb (25.06/35.4)
+Gary Harris - 10.22pb (21.58/31.8)
+Reggie Jackson - 9.67pb (28.13/37.8)
+Denzel Valentine - 9.57pb (16.83/26.4)
+Omri Casspi - 9.39pb (8.61/18.0)
+Jamal Crawford - 9.25pb (14.15/23.4)
+Justin Jackson - 9.14pb (8.86/18.0)
+Dirk Nowitzki - 9.12pb (18.48/27.6)
+Emmanuel Mudiay - 9.01pb (17.39/26.4)
+Wilson Chandler - 8.7pb (18.3/27.0)
+Jrue Holiday - 8.64pb (31.56/40.2)
+Will Barton - 8.47pb (24.53/33.0)
+Jordan Bell - 8.43pb (10.77/19.2)
+Nerlens Noel - 8.43pb (13.77/22.2)
+Andre Iguodala - 8.28pb (14.52/22.8)
+Zaza Pachulia - 8.27pb (10.93/19.2)
+Jerian Grant - 8.17pb (21.83/30.0)
+Langston Galloway - 8.1pb (9.9/18.0)
+JaVale McGee - 7.99pb (10.01/18.0)
+Paul Zipser - 7.92pb (13.68/21.6)
+Taj Gibson - 7.87pb (17.33/25.2)
+E'Twaun Moore - 7.75pb (16.85/24.6)
+Lauri Markkanen - 7.5pb (32.1/39.6)
+De'Aaron Fox - 7.45pb (23.75/31.2)
+Buddy Hield - 7.41pb (18.99/26.4)
+Robin Lopez - 6.94pb (25.46/32.4)
+Cristiano Felicio - 6.83pb (11.17/18.0)
+Salah Mejri - 6.68pb (11.32/18.0)
+Nemanja Bjelica - 6.59pb (13.81/20.4)
+Dante Cunningham - 6.32pb (14.68/21.0)
+Ian Clark - 6.28pb (15.92/22.2)
+Stanley Johnson - 5.71pb (17.69/23.4)
+Mason Plumlee - 5.37pb (17.43/22.8)
+Klay Thompson - 5.37pb (36.63/42.0)
+Gorgui Dieng - 5.16pb (14.64/19.8)
+Ish Smith - 5.09pb (15.91/21.0)
+Kosta Koufos - 4.96pb (16.04/21.0)
+Tony Allen - 4.9pb (13.1/18.0)
+Tobias Harris - 4.77pb (33.63/38.4)
+Skal Labissiere - 4.69pb (23.51/28.2)
+David Nwaba - 4.59pb (18.81/23.4)
+Tyus Jones - 4.37pb (13.63/18.0)
+J.J. Barea - 3.91pb (21.89/25.8)
+David West - 3.59pb (16.21/19.8)
+Yogi Ferrell - 1.59pb (21.81/23.4)
+Dwight Powell - 1.35pb (17.85/19.2)
+Avery Bradley - 0.74pb (31.06/31.8)
+Harrison Barnes - -0.42pb (35.22/34.8)
+Wesley Matthews - -2.75pb (31.55/28.8)
+Willie Cauley-Stein - -4.58pb (33.98/29.4)
+
+
+[Finished in 375.4s]

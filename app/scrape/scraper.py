@@ -136,7 +136,7 @@ def get_depth_chart():
     for team in NEWS_DICT:
         current_starters = {}
         url = urllib2.urlopen(DEPTH_URL+team)
-        soup = BeautifulSoup(url, 'html5lib')
+        soup = BeautifulSoup(url, 'html.parser')
 
         # get id of the table
         table = soup.find('table', attrs={'id':'cp1_ctl04_tblDepthCharts'})
@@ -177,7 +177,7 @@ def get_active_teams():
     url = urllib2.urlopen(BASE_URL+'/teams/')
     print BASE_URL+'/teams/'
     # we have to use the html5lib parser, as some elements were not showing up fully
-    soup = BeautifulSoup(url, 'html5lib')
+    soup = BeautifulSoup(url, 'html.parser')
 
     table = soup.find('table', attrs={'id':'teams_active'})
     table_body = table.find('tbody')
@@ -230,7 +230,7 @@ def get_current_roster(teams_dict):
         logger.debug('Getting players information for: '+ team)
         logger.debug(BASE_URL+teams_dict[team]['url'])
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['url'])
-        soup = BeautifulSoup(url, 'html5lib')
+        soup = BeautifulSoup(url, 'html.parser')
 
         players_dict[str(team)] = []
 
@@ -350,7 +350,7 @@ def get_player_log(players_dict):
             for name in player:
                 logger.debug('open url for: '+name)
                 url = urllib2.urlopen(BASE_URL+player[name]['log'])
-                soup = BeautifulSoup(url, 'html5lib')
+                soup = BeautifulSoup(url, 'html.parser')
                 log_rows = []
 
                 table = soup.find('table', attrs={'id':'pgl_basic'})
@@ -403,7 +403,7 @@ def get_team_schedule(teams_dict):
 
     for team in teams_dict:
         url = urllib2.urlopen(BASE_URL+teams_dict[team]['schedule'])
-        soup = BeautifulSoup(url, 'html5lib')
+        soup = BeautifulSoup(url, 'html.parser')
         log_rows = []
 
         table = soup.find('table', attrs={'id':'games'})
@@ -443,7 +443,7 @@ def top_n_lineups(n, num_lineups):
             'c1stat=&c1comp=ge&c1val=&c2stat=&c2comp=ge&c2val=&c3stat=&c3comp=ge&c3val=&c4stat=&c4comp=ge&c4val=&order_by=mp&team_id='
 
         url = urllib2.urlopen(LINEUP_URL+team_url)
-        soup = BeautifulSoup(url, 'html5lib')
+        soup = BeautifulSoup(url, 'html.parser')
 
         table = soup.find('table', attrs={'id':'stats'})
 
@@ -482,7 +482,7 @@ def top_n_lineups(n, num_lineups):
 def get_team_stats():
 
     url = urllib2.urlopen(BASE_URL+'/leagues/NBA_'+YEAR+'.html')
-    soup = BeautifulSoup(url, 'html5lib')
+    soup = BeautifulSoup(url, 'html.parser')
 
     # find the team stats id=team
     team_stats_table = soup.find('table', attrs={'id':'team'})

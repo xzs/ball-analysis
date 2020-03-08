@@ -148,21 +148,17 @@ def sample_test():
     # plt.show()
 
 # THIS WILL BE ON HOLD
-def rebound_classifier():
+def rebound_classifier(team, oppo_fga, oppo_fgpct, oppo_pace):
     sample_query = """SELECT
                 ptb.TEAM_ABBREVIATION,
                 ptb.game_id,
                 tb4.FGA,
                 ptb.REB,
                 ptb.REB_CHANCES,
-                (48*60)/ROUND(svp2.TIME_OF_POSS/svp2.GP,
-                2) AS NUM_POSS,
                 tb2.TEAM_ABBREVIATION as TEAM_AGAINST,
                 tb2.FGA as OPPO_FGA,
                 tb2.FG_PCT as OPPO_FG_PCT,
-                ab.pace as PACE,
-                (48*60)/ROUND(svp.TIME_OF_POSS/svp.GP,
-                2) AS OPPO_NUM_POSS
+                ab.pace as PACE
             from
                 `sportvu_rebounding_team_game_logs` as ptb
             INNER JOIN
@@ -185,36 +181,85 @@ def rebound_classifier():
                 traditional_boxscores_team as tb4
                     ON tb4.TEAM_ABBREVIATION = ptb.TEAM_ABBREVIATION
                     and tb4.game_id = ptb.game_id
-            LEFT JOIN
-                sportvu_possessions_team_game_logs as svp
-                    ON svp.TEAM_ABBREVIATION = tb2.TEAM_ABBREVIATION
-                    and svp.game_id = ptb.game_id
-            LEFT JOIN
-                sportvu_possessions_team_game_logs as svp2
-                    ON svp2.TEAM_ABBREVIATION = ptb.TEAM_ABBREVIATION
-                    and svp2.game_id = ptb.game_id
             WHERE
-                ptb.DATE >= '2016-10-25'
-                AND ptb.TEAM_ABBREVIATION = 'LAC'
-    """
+                ptb.DATE >= '2015-10-25'
+                AND tb2.TEAM_ABBREVIATION = '{team}'
+    """.format(team=team)
 
     data_set = sqlfetch.execute_query(sample_query)
 
     feature_set = []
     sample_set = []
 
-
     for data in data_set:
         feature_set.append([int(data['OPPO_FGA']), int(data['OPPO_FG_PCT']), int(data['PACE'])])
-        sample_set.append([int(data['FGA']), int(data['REB']), int(data['REB_CHANCES']), int(data['NUM_POSS'])])
+        sample_set.append([int(data['REB']), int(data['REB_CHANCES'])])
 
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(feature_set, sample_set)
 
     # look at the possible FGA, REB and REB CHANCES, and NUM_POSS
-    # If the opponent has FGA, FG%, PACE, NUM_POSS, what are the possible FGA, REB and REB CHANCES, and NUM_POSS for the team
+    # If the opponent has FGA, FG%, PACE, what are the possible FGA, REB and REB CHANCES for the team
     # when other teams face this team, did their stats go up or down? compared to their avg at the time
+    test_predict = clf.predict([[float(oppo_fga), float(oppo_fgpct), float(oppo_pace)]])
 
-    test_predict = clf.predict([[85.6500, 0.4477000000000022, 98.45831999999982]])
-    print test_predict
-rebound_classifier()
+    return test_predict
+
+
+def improve_rebound_classifier(player, oppo_fga_stats):
+
+    sample_query = """
+        SELECT IFNULL(dtgl.`DRIVE_FGA`,0) as OPP_DRIVE_FGA, 
+            IFNULL(csgl.`CATCH_SHOOT_FGA`, 0) as OPP_CATCH_SHOOT_FGA, 
+            IFNULL(csgl.`CATCH_SHOOT_FG3A`, 0) as OPP_CATCH_SHOOT_FG3A, 
+            IFNULL(etgl.`ELBOW_TOUCH_FGA`, 0) as OPP_ELBOW_TOUCH_FGA, 
+            IFNULL(pttgl.`PAINT_TOUCH_FGA`, 0) as OPP_PAINT_TOUCH_FGA, 
+            IFNULL(stgl.`PULL_UP_FGA`, 0) as OPP_PULL_UP_FGA, 
+            IFNULL(ptgl.`POST_TOUCH_FGA`, 0) as OPP_POST_TOUCH_FGA, 
+            IFNULL(gl.`REB_CHANCES`, 0) as REB_CHANCES, 
+            IFNULL(gl.`REB`, 0) as REB, 
+            ab.PACE 
+
+        FROM sportvu_rebounding_game_logs as gl 
+            LEFT JOIN sportvu_post_touches_team_game_logs as ptgl ON gl.GAME_ID = ptgl.GAME_ID
+                AND gl.TEAM_ID != ptgl.TEAM_ID 
+            LEFT JOIN sportvu_pull_up_shoot_team_game_logs as stgl ON gl.GAME_ID = stgl.GAME_ID
+                AND gl.TEAM_ID != stgl.TEAM_ID 
+            LEFT JOIN sportvu_paint_touches_team_game_logs as pttgl ON gl.GAME_ID = pttgl.GAME_ID 
+                AND gl.TEAM_ID != pttgl.TEAM_ID 
+            LEFT JOIN sportvu_elbow_touches_team_game_logs as etgl ON gl.GAME_ID = etgl.GAME_ID
+                AND gl.TEAM_ID != etgl.TEAM_ID 
+            LEFT JOIN sportvu_drives_team_game_logs as dtgl on gl.GAME_ID = dtgl.GAME_ID
+                AND gl.TEAM_ID != dtgl.TEAM_ID 
+            LEFT JOIN sportvu_catch_shoot_team_game_logs as csgl on gl.GAME_ID = csgl.GAME_ID
+                AND gl.TEAM_ID != csgl.TEAM_ID 
+            LEFT JOIN
+                `advanced_boxscores_team` as ab
+                    on ab.TEAM_ID != gl.TEAM_ID
+                    and ab.game_id = gl.game_id
+            WHERE gl.PLAYER_NAME="{player}" 
+    """.format(player=player)
+
+
+    data_set = sqlfetch.execute_query(sample_query)
+
+    feature_set = []
+    sample_set = []
+    test_predict = []
+    if len(data_set) >= 1:
+        for data in data_set:
+            feature_set.append([int(data['OPP_DRIVE_FGA']), int(data['OPP_CATCH_SHOOT_FGA']), int(data['OPP_CATCH_SHOOT_FG3A']), \
+                int(data['OPP_ELBOW_TOUCH_FGA']), int(data['OPP_PAINT_TOUCH_FGA']), int(data['OPP_PULL_UP_FGA']), int(data['OPP_POST_TOUCH_FGA']) ])
+            sample_set.append([int(data['REB']), int(data['REB_CHANCES'])])
+
+        clf = tree.DecisionTreeClassifier()
+        clf = clf.fit(feature_set, sample_set)
+
+        # look at the possible FGA, REB and REB CHANCES, and NUM_POSS
+        # If the opponent has FGA, FG%, PACE, what are the possible FGA, REB and REB CHANCES for the team
+        # when other teams face this team, did their stats go up or down? compared to their avg at the time
+        test_predict = clf.predict([[float(oppo_fga_stats['OPP_AVG_DRIVE_FGA']), float(oppo_fga_stats['OPP_AVG_CATCH_SHOOT_FGA']), \
+            float(oppo_fga_stats['OPP_AVG_CATCH_SHOOT_FG3A']), float(oppo_fga_stats['OPP_AVG_ELBOW_TOUCH_FGA']), float(oppo_fga_stats['OPP_AVG_PAINT_TOUCH_FGA']), \
+            float(oppo_fga_stats['OPP_AVG_PULL_UP_FGA']), float(oppo_fga_stats['OPP_AVG_POST_TOUCH_FGA'])]])
+
+    return test_predict

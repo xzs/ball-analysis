@@ -13,7 +13,7 @@ from datetime import datetime as dt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-YEAR = '2017'
+YEAR = '2018'
 
 ALL_STAR_DATE = '2016-02-13'
 
